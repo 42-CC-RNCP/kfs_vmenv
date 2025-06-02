@@ -16,8 +16,17 @@ sudo grub-install \
   --boot-directory="$BOOTDIR" \
   "$LOOPDEV"
 
-echo "📝 Copy grub.cfg..."
+echo "📝 Createing grub.cfg..."
 sudo mkdir -p "$BOOTDIR/grub"
-sudo cp ${BASEDIR}/config/grub.cfg "$BOOTDIR/grub/grub.cfg"
+cat <<EOF | sudo tee "$BOOTDIR/grub/grub.cfg" > /dev/null
+set timeout=5
+set default=0
+
+menuentry 'ft_linux' {
+    linux /boot/vmlinuz-${KERNEL_VERSION}-${HOST} root=LABEL=root rw quiet
+}
+EOF
+
+ls -al "$BOOTDIR/grub/grub.cfg"
 
 echo "✅ GRUB bootloader installed successfully!"

@@ -1,0 +1,4 @@
+# /etc/fstab
+LABEL=boot  /boot  ext2  defaults  0  1
+LABEL=root  /      ext4  defaults  0  1
+LABEL=swap  none   swap  sw        0  0

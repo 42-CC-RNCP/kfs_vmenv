@@ -62,3 +62,6 @@ run_step "Build and install kernel"     "./scripts/build_kernel.sh"
 run_step "Set up bootloader"            "./scripts/setup_bootloader.sh"
 
 echo -e "${GREEN}🎉 All steps completed successfully! You can now boot into your ft_linux system.${NC}"
+
+echo -e "${BLUE}Simulating BIOS booting process by command: ${NC}"
+echo "sudo qemu-system-x86_64 -drive file=${IMAGE},if=virtio,format=raw"

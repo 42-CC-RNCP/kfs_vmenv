@@ -28,6 +28,7 @@ run_step() {
 
 echo -e "${BLUE}🚀 Starting full ft_linux setup...${NC}"
 
+run_step "Clean existing loop and mounts" "./scripts/cleanup.sh"
 run_step "Create disk and partition"    "./scripts/create_disk.sh"
 run_step "Install root filesystem"      "./scripts/install_rootfs.sh"
 run_step "Build and install kernel"     "./scripts/build_kernel.sh"

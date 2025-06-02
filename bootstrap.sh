@@ -26,6 +26,12 @@ run_step() {
   fi
 }
 
+# Check if running with sudo
+if [[ $EUID -ne 0 ]]; then
+  echo -e "${RED}❗ This script must be run as root or with sudo.${NC}"
+  exit 1
+fi
+
 echo -e "${BLUE}🚀 Starting full ft_linux setup...${NC}"
 
 run_step "Clean existing loop and mounts" "./scripts/cleanup.sh"

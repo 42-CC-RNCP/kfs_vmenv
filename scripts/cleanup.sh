@@ -4,28 +4,28 @@ set -e
 IMAGE="kernel_disk.img"
 ROOT="/mnt/kernel_disk"
 
-echo "📦 Unmounting all related mountpoints..."
-for p in boot root; do
-  MOUNTPOINT="$ROOT/$p"
-  if mountpoint -q "$MOUNTPOINT"; then
-    sudo umount "$MOUNTPOINT"
-    echo "✅ Unmounted $MOUNTPOINT"
-  fi
-done
-
-echo "💤 Disabling swap if active..."
-for dev in $(lsblk -ln -o NAME,MOUNTPOINT | grep -E "$ROOT" | awk '{print "/dev/" $1}'); do
-  sudo swapoff "$dev" 2>/dev/null || true
-done
-
-echo "🔁 Detaching all loop devices linked to $IMAGE..."
+echo "📦 Unmounting all partitions mounted from $IMAGE..."
 LOOPS=$(losetup -j "$IMAGE" | cut -d: -f1)
+
 for loopdev in $LOOPS; do
-  echo "  → Detach $loopdev"
-  sudo losetup -d "$loopdev" || echo "⚠️  Cannot detach $loopdev"
+  for part in $(lsblk -ln -o NAME /dev/$(basename $loopdev) | tail -n +2); do
+    dev="/dev/$part"
+
+    if grep -q "$dev" /proc/swaps; then
+      echo "💤 swapoff $dev"
+      sudo swapoff "$dev" || true
+    fi
+
+    if mount | grep -q "$dev"; then
+      echo "📦 umount $dev"
+      sudo umount "$dev" || true
+    fi
+  done
+
+  echo "🔁 Detaching $loopdev"
+  sudo losetup -d "$loopdev" || echo "⚠️ Cannot detach $loopdev"
 done
 
-echo "✅ Cleanup complete."
 echo "🗑️ Removing $IMAGE..."
 if [[ -f "$IMAGE" ]]; then
   rm -f "$IMAGE"
@@ -33,4 +33,5 @@ if [[ -f "$IMAGE" ]]; then
 else
   echo "⚠️ $IMAGE not found, skipping removal."
 fi
+
 echo "🎉 Cleanup finished successfully!"

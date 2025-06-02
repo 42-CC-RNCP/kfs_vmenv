@@ -1,29 +1,29 @@
 #!/bin/bash
 set -e
 
-DISK="kernel_disk.img"
-SIZE="10G"
-MNT_ROOT="/mnt/kernel_disk"
-BOOT_MNT="$MNT_ROOT/boot"
-ROOT_MNT="$MNT_ROOT/root"
+# IMAGE="kernel_IMAGE.img"
+# IMAGE_SIZE="10G"
+# MNT_ROOT="/mnt/kernel_IMAGE"
+# BOOT_MNT="$MNT_ROOT/boot"
+# ROOT_MNT="$MNT_ROOT/root"
 
-echo "💾 Creating sparse $SIZE disk image..."
-dd if=/dev/zero of="$DISK" bs=1M count=0 seek=10240
+echo "💾 Creating sparse $IMAGE_SIZE IMAGE image..."
+dd if=/dev/zero of="$IMAGE" bs=1M count=0 seek=10240
 
 echo "🔁 Checking for existing loop device..."
-EXISTING_LOOP=$(sudo losetup -j "$DISK" | cut -d: -f1)
+EXISTING_LOOP=$(sudo losetup -j "$IMAGE" | cut -d: -f1)
 
 if [ -n "$EXISTING_LOOP" ]; then
     echo "⚠️ Loop device already attached: $EXISTING_LOOP"
     LOOPDEV="$EXISTING_LOOP"
 else
     echo "🔁 Attaching new loop device..."
-    LOOPDEV=$(sudo losetup --find --show "$DISK")
+    LOOPDEV=$(sudo losetup --find --show "$IMAGE")
 fi
 
 echo "→ Using loop device: $LOOPDEV"
 
-echo "📐 Partitioning the disk..."
+echo "📐 Partitioning the IMAGE..."
 sudo parted -s "$LOOPDEV" mklabel msdos
 sudo parted -s "$LOOPDEV" mkpart primary ext2 1MiB 513MiB      # /boot
 sudo parted -s "$LOOPDEV" mkpart primary ext4 513MiB 8705MiB   # /

@@ -32,6 +32,27 @@ if [[ $EUID -ne 0 ]]; then
   exit 1
 fi
 
+echo -e "${BLUE} Export environment variables...${NC}"
+HOST="lyeh"
+BASEDIR=$(pwd)
+KERNEL_VERSION="4.19.295"
+KERNEL_URL="https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-${KERNEL_VERSION}.tar.xz"
+KERNEL_NAME="linux-${KERNEL_VERSION}"
+BUILD_DIR="/tmp/$KERNEL_NAME"
+
+IMAGE="kernel_disk.img"
+IMAGE_SIZE="10G"
+MNT_ROOT="/mnt/kernel_disk"
+BOOT_MNT="$MNT_ROOT/boot"
+ROOT_MNT="$MNT_ROOT/root"
+BUSYBOX_URL="https://busybox.net/downloads/binaries/1.31.0-defconfig-multiarch-musl/busybox-x86_64"
+
+export HOST BASEDIR KERNEL_VERSION KERNEL_URL KERNEL_NAME BUILD_DIR INSTALL_DIR \
+       IMAGE IMAGE_SIZE MNT_ROOT BOOT_MNT ROOT_MNT BUSYBOX_URL
+
+echo -e "${GREEN}🌟 Environment variables set:${NC}"
+env | grep -E '^(HOST|BASEDIR|KERNEL_VERSION|KERNEL_URL|KERNEL_NAME|BUILD_DIR|INSTALL_DIR|IMAGE|SIZE|MNT_ROOT|BOOT_MNT|ROOT_MNT|BUSYBOX_URL)='
+
 echo -e "${BLUE}🚀 Starting full ft_linux setup...${NC}"
 
 run_step "Clean existing loop and mounts" "./scripts/cleanup.sh"

@@ -2,22 +2,17 @@
 
 set -e
 
-HOST="lyeh"
-BASEDIR=$(cd "$(dirname "$0")/.." && pwd)
-ROOTFS="/mnt/kernel_disk/root"
-BUSYBOX_URL="https://busybox.net/downloads/binaries/1.31.0-defconfig-multiarch-musl/busybox-x86_64"
-
-echo "📁 Creating rootfs directories in $ROOTFS..."
-sudo mkdir -p $ROOTFS/{bin,sbin,etc,proc,sys,dev,boot,root,tmp}
-sudo chmod 1777 $ROOTFS/tmp
+echo "📁 Creating rootfs directories in $ROOT_MNT..."
+sudo mkdir -p $ROOT_MNT/{bin,sbin,etc,proc,sys,dev,boot,root,tmp}
+sudo chmod 1777 $ROOT_MNT/tmp
 
 
 echo "⬇️ Downloading BusyBox..."
-sudo wget -O $ROOTFS/bin/busybox "$BUSYBOX_URL"
-sudo chmod +x $ROOTFS/bin/busybox
+sudo wget -O $ROOT_MNT/bin/busybox "$BUSYBOX_URL"
+sudo chmod +x $ROOT_MNT/bin/busybox
 
 echo "🔗 Creating symlinks for BusyBox commands..."
-cd $ROOTFS
+cd $ROOT_MNT
 for cmd in $(./bin/busybox --list); do
     if [[ "$cmd" == "init" || "$cmd" == "reboot" || "$cmd" == "poweroff" || "$cmd" == "halt" || "$cmd" == "shutdown" || "$cmd" == "getty" ]]; then
         sudo ln -sf ../bin/busybox "sbin/$cmd"
@@ -27,8 +22,8 @@ for cmd in $(./bin/busybox --list); do
 done
 
 echo "📁 Copy inittab and fstab..."
-sudo cp "$BASEDIR/config/inittab" $ROOTFS/etc/inittab
-sudo cp "$BASEDIR/config/fstab" $ROOTFS/etc/fstab
-sudo cp "$BASEDIR/config/hostname" $ROOTFS/etc/hostname
+sudo cp "$BASEDIR/config/inittab" $ROOT_MNT/etc/inittab
+sudo cp "$BASEDIR/config/fstab" $ROOT_MNT/etc/fstab
+sudo cp "$BASEDIR/config/hostname" $ROOT_MNT/etc/hostname
 
 lsblk -o NAME,LABEL,FSTYPE,MOUNTPOINT

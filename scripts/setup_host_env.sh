@@ -11,6 +11,7 @@ sudo apt install -y \
   build-essential \
   libncurses-dev \
   grub-pc-bin grub-common \
+  qemu-system-x86 qemu-utils \
   parted \
   xz-utils zlib1g-dev \
   wget curl m4 git

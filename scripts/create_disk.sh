@@ -26,11 +26,26 @@ ROOT_PART=${LOOPDEV}p2
 SWAP_PART=${LOOPDEV}p3
 
 echo "🧼 Formatting partitions..."
-sudo mkfs.ext2 "$BOOT_PART"
-sudo mkfs.ext4 "$ROOT_PART"
-sudo mkswap "$SWAP_PART"
+sudo mkfs.ext2 -L boot "$BOOT_PART"
+sudo mkfs.ext4 -L root "$ROOT_PART"
+sudo mkswap -L swap "$SWAP_PART"
 
 echo "✅ Partitioning complete!"
 
-# echo "🔗 Mounting partitions..."
+echo "🔗 Mounting partitions..."
+sudo mkdir -p /mnt/kernel_disk/boot
+sudo mkdir -p /mnt/kernel_disk/root
+sudo mount "$BOOT_PART" /mnt/kernel_disk/boot
+sudo mount "$ROOT_PART" /mnt/kernel_disk/root
+sudo swapon "$SWAP_PART"
+
+echo "✅ Partitions mounted!"
+
+echo "📜 Partition details:"
+echo "lsblk -f:"
+lsblk -f
+echo "df -h:"
+df -h
+echo "swapon -s:"
+swapon -s
 

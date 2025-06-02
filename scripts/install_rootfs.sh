@@ -3,8 +3,9 @@
 set -e
 
 HOST="lyeh"
+BASEDIR=$(cd "$(dirname "$0")/.." && pwd)
 ROOTFS="/mnt/kernel_disk/root"
-BUSYBOX_URL="https://busybox.net/downloads/binaries/1.36.0-defconfig-multiarch/busybox-x86_64"
+BUSYBOX_URL="https://busybox.net/downloads/binaries/1.31.0-defconfig-multiarch-musl/busybox-x86_64"
 
 echo "📁 Creating rootfs directories in $ROOTFS..."
 sudo mkdir -p $ROOTFS/{bin,sbin,etc,proc,sys,dev,boot,root,tmp}
@@ -26,8 +27,8 @@ for cmd in $(./bin/busybox --list); do
 done
 
 echo "📁 Copy inittab and fstab..."
-sudo cp ../config/inittab $ROOTFS/etc/inittab
-sudo cp ../config/fstab $ROOTFS/etc/fstab
-sudo cp ../config/hostname $ROOTFS/etc/hostname
+sudo cp "$BASEDIR/config/inittab" $ROOTFS/etc/inittab
+sudo cp "$BASEDIR/config/fstab" $ROOTFS/etc/fstab
+sudo cp "$BASEDIR/config/hostname" $ROOTFS/etc/hostname
 
 lsblk -o NAME,LABEL,FSTYPE,MOUNTPOINT

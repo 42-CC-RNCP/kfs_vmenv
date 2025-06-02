@@ -17,5 +17,5 @@ sudo apt install -y \
 
 echo "🔧 Setting up the Unitial environment..."
 wget  -O- https://github.com/PeterDaveHello/Unitial/raw/master/setup.sh | bash
-
+export PATH=$PATH:/sbin:/usr/sbin
 echo "✅ Host environment setup completed!"

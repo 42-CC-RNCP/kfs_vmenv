@@ -20,7 +20,7 @@ cd "$BUILD_DIR"
 
 echo "🛠️  Configuring kernel..."
 cp "$BASEDIR/config/kernel.config" .config
-make mrproper
+make olddefconfig
 
 echo "⚙️  Building kernel..."
 make -j$(nproc)

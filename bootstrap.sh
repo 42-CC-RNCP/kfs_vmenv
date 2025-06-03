@@ -33,6 +33,8 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 echo -e "${BLUE} Export environment variables...${NC}"
+
+ARCH=$(uname -m)
 HOST="lyeh"
 BASEDIR=$(pwd)
 KERNEL_VERSION="4.19.295"
@@ -63,5 +65,25 @@ run_step "Set up bootloader"            "./scripts/setup_bootloader.sh"
 
 echo -e "${GREEN}🎉 All steps completed successfully! You can now boot into your ft_linux system.${NC}"
 
-echo -e "${BLUE}Simulating BIOS booting process by command: ${NC}"
-echo "sudo qemu-system-x86_64 -drive file=${IMAGE},if=virtio,format=raw"
+echo -e "${BLUE}Simulating boot process for detected architecture: ${ARCH}${NC}"
+
+if [[ "$ARCH" == "x86_64" ]]; then
+  echo -e "${BLUE}BIOS boot with qemu-system-x86_64:${NC}"
+  echo "sudo qemu-system-x86_64 \\"
+  echo "  -machine type=pc \\"
+  echo "  -m 1024 \\"
+  echo "  -drive file=${IMAGE},format=raw,if=virtio \\"
+  echo "  -enable-kvm \\"
+  echo "  -nographic"
+elif [[ "$ARCH" == "aarch64" || "$ARCH" == "arm64" ]]; then
+  echo -e "${BLUE}UEFI boot with qemu-system-aarch64:${NC}"
+  echo "sudo qemu-system-aarch64 \\"
+  echo "  -machine virt \\"
+  echo "  -cpu cortex-a72 \\"
+  echo "  -m 1024 \\"
+  echo "  -nographic \\"
+  echo "  -bios /usr/share/qemu-efi-aarch64/QEMU_EFI.fd \\"
+  echo "  -drive file=${IMAGE},format=raw,if=virtio"
+else
+  echo "❌ Unsupported architecture: $ARCH"
+fi

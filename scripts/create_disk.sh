@@ -1,61 +1,83 @@
 #!/bin/bash
 set -e
 
-# IMAGE="kernel_IMAGE.img"
-# IMAGE_SIZE="10G"
-# MNT_ROOT="/mnt/kernel_IMAGE"
-# BOOT_MNT="$MNT_ROOT/boot"
-# ROOT_MNT="$MNT_ROOT/root"
+ARCH=$(uname -m)
 
-echo "💾 Creating sparse $IMAGE_SIZE IMAGE image..."
-dd if=/dev/zero of="$IMAGE" bs=1M count=0 seek=10240
+EFI_MNT="$BOOT_MNT/efi"  # Only for ARM64
 
-echo "🔁 Checking for existing loop device..."
-EXISTING_LOOP=$(sudo losetup -j "$IMAGE" | cut -d: -f1)
+echo "🧭 Detected architecture: $ARCH"
 
-if [ -n "$EXISTING_LOOP" ]; then
-    echo "⚠️ Loop device already attached: $EXISTING_LOOP"
-    LOOPDEV="$EXISTING_LOOP"
-else
-    echo "🔁 Attaching new loop device..."
-    LOOPDEV=$(sudo losetup --find --show "$IMAGE")
-fi
+# === Create Sparse Disk ===
+echo "💾 Creating sparse $IMAGE_SIZE image..."
+dd if=/dev/zero of="$IMAGE" bs=1M count=0 seek=$(( $(echo "$IMAGE_SIZE" | tr -d 'G') * 1024 ))
 
+# === Attach Loop Device ===
+echo "🔁 Attaching loop device..."
+LOOPDEV=$(sudo losetup --find --show "$IMAGE")
 echo "→ Using loop device: $LOOPDEV"
 
-echo "📐 Partitioning the IMAGE..."
-sudo parted -s "$LOOPDEV" mklabel msdos
-sudo parted -s "$LOOPDEV" mkpart primary ext2 1MiB 513MiB      # /boot
-sudo parted -s "$LOOPDEV" mkpart primary ext4 513MiB 8705MiB   # /
-sudo parted -s "$LOOPDEV" mkpart primary linux-swap 8705MiB 100%
+# === Partitioning ===
+echo "📐 Partitioning the image..."
+if [[ "$ARCH" == "x86_64" ]]; then
+  sudo parted -s "$LOOPDEV" mklabel msdos
+  sudo parted -s "$LOOPDEV" mkpart primary ext2 1MiB 513MiB
+  sudo parted -s "$LOOPDEV" mkpart primary ext4 513MiB 8705MiB
+  sudo parted -s "$LOOPDEV" mkpart primary linux-swap 8705MiB 100%
+  BOOT_FS="ext2"
+  BOOT_LABEL="boot"
+elif [[ "$ARCH" == "aarch64" || "$ARCH" == "arm64" ]]; then
+  sudo parted -s "$LOOPDEV" mklabel gpt
+  sudo parted -s "$LOOPDEV" mkpart ESP fat32 1MiB 513MiB
+  sudo parted -s "$LOOPDEV" set 1 boot on
+  sudo parted -s "$LOOPDEV" mkpart primary ext4 513MiB 8705MiB
+  sudo parted -s "$LOOPDEV" mkpart primary linux-swap 8705MiB 100%
+  BOOT_FS="vfat"
+  BOOT_LABEL="EFI"
+else
+  echo "❌ Unsupported architecture: $ARCH"
+  sudo losetup -d "$LOOPDEV"
+  exit 1
+fi
 
+# === Refresh partitions ===
 echo "📡 Refreshing partition table..."
 sudo partprobe "$LOOPDEV"
 
+# === Setup partition variables ===
 BOOT_PART="${LOOPDEV}p1"
 ROOT_PART="${LOOPDEV}p2"
 SWAP_PART="${LOOPDEV}p3"
 
+# === Format partitions ===
 echo "🧼 Formatting partitions..."
-sudo mkfs.ext2 -L boot "$BOOT_PART"
+if [[ "$BOOT_FS" == "ext2" ]]; then
+  sudo mkfs.ext2 -L "$BOOT_LABEL" "$BOOT_PART"
+else
+  sudo mkfs.vfat -F32 -n "$BOOT_LABEL" "$BOOT_PART"
+fi
 sudo mkfs.ext4 -L root "$ROOT_PART"
 sudo mkswap -L swap "$SWAP_PART"
 
-echo "✅ Partitioning complete!"
-
+# === Mount partitions ===
 echo "🔗 Mounting partitions..."
-sudo mkdir -p "$BOOT_MNT"
-sudo mkdir -p "$ROOT_MNT"
-sudo mount "$BOOT_PART" "$BOOT_MNT"
-sudo mount "$ROOT_PART" "$ROOT_MNT"
+sudo mkdir -p "$MNT_ROOT"
+sudo mount "$ROOT_PART" "$MNT_ROOT"
+
+if [[ "$ARCH" == "x86_64" ]]; then
+  sudo mkdir -p "$BOOT_MNT"
+  sudo mount "$BOOT_PART" "$BOOT_MNT"
+else
+  sudo mkdir -p "$EFI_MNT"
+  sudo mount "$BOOT_PART" "$EFI_MNT"
+fi
+
 sudo swapon "$SWAP_PART"
 
-echo "✅ Partitions mounted!"
-
-echo "📜 Partition details:"
+# === Show Results ===
+echo "✅ Partitioning and mounting complete!"
 echo
-echo "🔍 lsblk -f:"
-lsblk -f | grep -E "$(basename "$LOOPDEV")"
+echo "🔍 lsblk:"
+lsblk -f | grep "$(basename "$LOOPDEV")"
 echo
 echo "💽 df -h:"
 df -h | grep "$MNT_ROOT"

@@ -3,6 +3,7 @@ set -e
 
 # Config
 INSTALL_DIR=${MNT_ROOT}
+ARCH=$(uname -m)
 
 echo "📦 Downloading kernel $KERNEL_VERSION..."
 mkdir -p /tmp
@@ -20,7 +21,20 @@ echo "⚙️  Building kernel..."
 make -j$(nproc)
 
 echo "📁 Installing kernel image..."
-cp arch/x86/boot/bzImage "$INSTALL_DIR/boot/vmlinuz-${KERNEL_VERSION}-${HOST}"
+case "$ARCH" in
+  x86_64)
+    KERNEL_IMAGE_PATH="arch/x86/boot/bzImage"
+    ;;
+  aarch64 | arm64)
+    KERNEL_IMAGE_PATH="arch/arm64/boot/Image"
+    ;;
+  *)
+    echo "❌ Unsupported architecture: $ARCH"
+    exit 1
+    ;;
+esac
+
+cp "$KERNEL_IMAGE_PATH" "$INSTALL_DIR/boot/vmlinuz-${KERNEL_VERSION}-${HOST}"
 
 echo "📦 Installing modules..."
 make modules_install INSTALL_MOD_PATH="$INSTALL_DIR"

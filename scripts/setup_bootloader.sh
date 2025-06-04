@@ -26,7 +26,7 @@ case "$ARCH" in
     ;;
 esac
 
-echo "🪛 Installing GRUB to $LOOPDEV using target $GRUB_TARGET..."
+echo "🪛 Installing GRUB to $LOOPDEV using target $GRUB_TARGET with boot directory: $BOOTDIR"
 sudo grub-install \
   --target="$GRUB_TARGET" \
   --boot-directory="$BOOTDIR" \

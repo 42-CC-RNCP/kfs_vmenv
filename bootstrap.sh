@@ -69,21 +69,10 @@ echo -e "${BLUE}Simulating boot process for detected architecture: ${ARCH}${NC}"
 
 if [[ "$ARCH" == "x86_64" ]]; then
   echo -e "${BLUE}BIOS boot with qemu-system-x86_64:${NC}"
-  echo "sudo qemu-system-x86_64 \\"
-  echo "  -machine type=pc \\"
-  echo "  -m 1024 \\"
-  echo "  -drive file=${IMAGE},format=raw,if=virtio \\"
-  echo "  -enable-kvm \\"
-  echo "  -nographic"
+  echo "sudo qemu-system-x86_64 -drive file=$IMAGE,format=raw,if=virtio"
 elif [[ "$ARCH" == "aarch64" || "$ARCH" == "arm64" ]]; then
   echo -e "${BLUE}UEFI boot with qemu-system-aarch64:${NC}"
-  echo "sudo qemu-system-aarch64 \\"
-  echo "  -machine virt \\"
-  echo "  -cpu cortex-a72 \\"
-  echo "  -m 1024 \\"
-  echo "  -nographic \\"
-  echo "  -bios /usr/share/qemu-efi-aarch64/QEMU_EFI.fd \\"
-  echo "  -drive file=${IMAGE},format=raw,if=virtio"
+  echo "TBD"
 else
   echo "❌ Unsupported architecture: $ARCH"
 fi

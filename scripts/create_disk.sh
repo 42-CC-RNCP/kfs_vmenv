@@ -13,7 +13,7 @@ dd if=/dev/zero of="$IMAGE" bs=1M count=0 seek=$(( $(echo "$IMAGE_SIZE" | tr -d 
 
 # === Attach Loop Device ===
 echo "🔁 Attaching loop device..."
-LOOPDEV=$(sudo losetup --find --show "$IMAGE")
+LOOPDEV=$(sudo losetup --find --partscan --show "$IMAGE")
 echo "→ Using loop device: $LOOPDEV"
 
 # === Partitioning ===
@@ -61,7 +61,7 @@ sudo mkswap -L swap "$SWAP_PART"
 # === Mount partitions ===
 echo "🔗 Mounting partitions..."
 sudo mkdir -p "$MNT_ROOT"
-sudo mount "$ROOT_PART" "$MNT_ROOT"
+sudo mount "$ROOT_PART" "$ROOT_MNT"
 
 if [[ "$ARCH" == "x86_64" ]]; then
   sudo mkdir -p "$BOOT_MNT"

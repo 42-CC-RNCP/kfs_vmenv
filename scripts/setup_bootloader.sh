@@ -31,6 +31,8 @@ sudo grub-install \
   --target="$GRUB_TARGET" \
   --boot-directory="$BOOTDIR" \
   --modules="part_gpt part_msdos ext2" \
+  --force \
+  --no-floppy \
   "$LOOPDEV"
 
 echo "📝 Creating grub.cfg..."

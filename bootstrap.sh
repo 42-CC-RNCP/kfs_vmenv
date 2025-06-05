@@ -69,7 +69,7 @@ echo -e "${BLUE}Simulating boot process for detected architecture: ${ARCH}${NC}"
 
 if [[ "$ARCH" == "x86_64" ]]; then
   echo -e "${BLUE}BIOS boot with qemu-system-x86_64:${NC}"
-  echo "sudo qemu-system-x86_64 -drive file=$IMAGE,format=raw,if=virtio"
+  echo "sudo qemu-system-x86_64 -drive file=$IMAGE,format=raw,if=ide"
 elif [[ "$ARCH" == "aarch64" || "$ARCH" == "arm64" ]]; then
   echo -e "${BLUE}UEFI boot with qemu-system-aarch64:${NC}"
   echo "TBD"

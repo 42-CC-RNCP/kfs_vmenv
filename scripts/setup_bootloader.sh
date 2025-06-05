@@ -42,7 +42,7 @@ set timeout=5
 set default=0
 
 menuentry 'ft_linux' {
-    linux /vmlinuz-${KERNEL_VERSION}-${HOST} root=LABEL=root rw quiet
+    linux /vmlinuz-${KERNEL_VERSION}-${HOST} root=/dev/sda2 rw quiet
 }
 EOF
 

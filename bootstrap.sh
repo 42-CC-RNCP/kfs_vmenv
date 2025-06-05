@@ -62,6 +62,7 @@ run_step "Create disk and partition"    "./scripts/create_disk.sh"
 run_step "Install root filesystem"      "./scripts/install_rootfs.sh"
 run_step "Build and install kernel"     "./scripts/build_kernel.sh"
 run_step "Set up bootloader"            "./scripts/setup_bootloader.sh"
+run_step "Install tools"                "./scripts/install_tool.sh"
 
 echo -e "${GREEN}🎉 All steps completed successfully! You can now boot into your ft_linux system.${NC}"
 

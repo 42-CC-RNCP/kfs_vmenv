@@ -3,4 +3,4 @@
 ::sysinit:/bin/mount -t proc proc /proc
 ::sysinit:/bin/mount -t sysfs sys /sys
 ::sysinit:/bin/mdev -s
-::respawn:/sbin/getty 115200 tty1
+::respawn:-/bin/sh

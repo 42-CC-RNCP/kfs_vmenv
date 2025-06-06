@@ -63,6 +63,8 @@ run_step "Install root filesystem"      "./scripts/install_rootfs.sh"
 run_step "Build and install kernel"     "./scripts/build_kernel.sh"
 run_step "Set up bootloader"            "./scripts/setup_bootloader.sh"
 run_step "Install tools"                "./scripts/install_tool.sh"
+run_step "Initialize LFS environment" "./scripts/init_lfs.sh"
+run_step "Build LFS core"               "./scripts/build_lfs_core.sh"
 
 echo -e "${GREEN}🎉 All steps completed successfully! You can now boot into your ft_linux system.${NC}"
 

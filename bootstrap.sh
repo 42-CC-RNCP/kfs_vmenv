@@ -62,11 +62,13 @@ run_step "Create disk and partition"    "./scripts/create_disk.sh"
 run_step "Install root filesystem"      "./scripts/install_rootfs.sh"
 run_step "Build and install kernel"     "./scripts/build_kernel.sh"
 run_step "Set up bootloader"            "./scripts/setup_bootloader.sh"
-run_step "Install tools"                "./scripts/install_tool.sh"
 run_step "Initialize LFS environment" "./scripts/init_lfs.sh"
-run_step "Build LFS core"               "./scripts/build_lfs_core.sh"
 
-echo -e "${GREEN}🎉 All steps completed successfully! You can now boot into your ft_linux system.${NC}"
+echo -e "${BLUE}🧱 Toolchain ready. Next steps:${NC}"
+echo -e "${GREEN}1. su - lfs${NC}"
+echo -e "${GREEN}2. bash \$LFS/sources/build_lfs_core.sh${NC}"
+echo -e "${GREEN}3. Exit to root and run enter_lfs.sh to chroot into LFS environment${NC}"
+echo -e "${GREEN}4. Then run build_lfs_system.sh inside chroot${NC}"
 
 echo -e "${BLUE}Simulating boot process for detected architecture: ${ARCH}${NC}"
 

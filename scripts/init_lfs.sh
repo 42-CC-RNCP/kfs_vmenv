@@ -27,6 +27,7 @@ echo "👤 Create LFS user and group only for cross-platform toolchain"
 sudo groupadd lfs
 id -u lfs &>/dev/null || sudo useradd -s /bin/bash -g lfs -m -k /dev/null lfs
 sudo chown -v lfs $LFS/{,sources,tools}
+sudo chmod -v a+wt $LFS/{,sources,tools}
 
 echo "🔧 Setting up LFS environment variables..."
 sudo -u lfs bash -c 'cat > ~/.bash_profile << "EOF"

@@ -4,7 +4,7 @@ set -e
 export LFS=${ROOT_MNT}
 
 echo -e "Setting up LFS structure in ${LFS}..."
-sudo mkdir -pv $LFS/{sources,tools}
+sudo mkdir -pv $LFS/{sources,tools,md5sums}
 sudo chmod -v a+wt $LFS/sources
 sudo chown -vR root:root $LFS
 

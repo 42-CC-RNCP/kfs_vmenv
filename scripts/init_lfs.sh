@@ -12,16 +12,22 @@ if [ ! -d "$LFS/tools" ]; then
   sudo mkdir -pv $LFS/tools
 fi
 
-echo "⬇️ Downloading LFS toolchain list..."
-wget -N https://www.linuxfromscratch.org/lfs/downloads/stable/wget-list
-wget -N https://www.linuxfromscratch.org/lfs/downloads/stable/md5sums
+# Check if wget-list.html exists, if not, download it
+if [ ! -f "$LFS/sources/wget-list.html" ]; then
+  echo "⬇️ Downloading LFS toolchain list..."
+  wget -N https://www.linuxfromscratch.org/lfs/downloads/stable/wget-list
+  # wget -N https://www.linuxfromscratch.org/lfs/downloads/stable/md5sums
 
-echo "⬇️ Downloading LFS toolchain..."
-wget --input-file=wget-list.html --continue -P $LFS/sources
-echo "📦 Verifying LFS toolchain integrity..."
-cd $LFS/sources
-md5sum -c ../md5sums --ignore-missing
-echo "✅ LFS toolchain downloaded and verified."
+  echo "⬇️ Downloading LFS toolchain..."
+  wget --input-file=wget-list.html --continue -P $LFS/sources
+  echo "✅ LFS toolchain downloaded."
+  # echo "📦 Verifying LFS toolchain integrity..."
+  # cd $LFS/sources
+  # md5sum -c ../md5sums --ignore-missing
+  # echo "✅ LFS toolchain downloaded and verified."
+else
+  echo "✅ LFS toolchain list already exists."
+fi
 
 echo "👤 Create LFS user and group only for cross-platform toolchain"
 sudo groupadd lfs

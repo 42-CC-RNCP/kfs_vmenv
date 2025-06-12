@@ -35,3 +35,20 @@ Once the host VM is ready, we can setup the `ft_linux` project with automated sc
 ```sh
 ./bootstrap.sh
 ```
+
+```
+[root]       ─────────────────────────────┐
+  ft_linux.sh                             │
+   ├ cleanup.sh                           │
+   ├ create_disk.sh                       │
+   ├ install_rootfs.sh                    │
+   ├ build_kernel.sh                      │
+   ├ setup_bootloader.sh                  │
+   └ init_lfs.sh ───────────┐             │
+                            │             │
+[lfs]                       ▼             │
+  build_lfs_core.sh (toolchain)           │
+                            │             │
+...(TBD)
+
+```

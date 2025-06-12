@@ -13,11 +13,11 @@ if [ ! -d "$LFS/tools" ]; then
 fi
 
 echo "⬇️ Downloading LFS toolchain list..."
-wget -nc https://www.linuxfromscratch.org/lfs/downloads/stable/wget-list
-wget -nc https://www.linuxfromscratch.org/lfs/downloads/stable/md5sums
+wget -N https://www.linuxfromscratch.org/lfs/downloads/stable/wget-list
+wget -N https://www.linuxfromscratch.org/lfs/downloads/stable/md5sums
 
 echo "⬇️ Downloading LFS toolchain..."
-wget --input-file=wget-list --continue -P $LFS/sources
+wget --input-file=wget-list.html --continue -P $LFS/sources
 echo "📦 Verifying LFS toolchain integrity..."
 cd $LFS/sources
 md5sum -c ../md5sums --ignore-missing

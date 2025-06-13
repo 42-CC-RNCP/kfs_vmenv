@@ -12,10 +12,13 @@ cd $LFS/sources
 
 build_binutils_pass1() {
   echo "🔧 Building binutils (pass 1)..."
+  echo "📦 Cleaning previous binutils directory if it exists..."
+  rm -rf binutils-*/
+
   tar -xf binutils-*.tar.*z
   cd binutils-*/
 
-  mkdir -v build && cd build
+  (mkdir -v build ) && cd build
   ../configure --prefix=$LFS/tools \
                --with-sysroot=$LFS \
                --target=$LFS_TGT \
@@ -32,6 +35,10 @@ build_binutils_pass1() {
 
 build_gcc_pass1() {
   echo "🔧 Building gcc (pass 1)..."
+  echo "📦 Cleaning previous gcc directory if it exists..."
+  rm -rf gcc-*/
+  rm -rf mpfr-* gmp-* mpc-*
+
   tar -xf gcc-*.tar.*z
   cd gcc-*/
 
@@ -88,6 +95,9 @@ build_linux_headers() {
 
 build_glibc() {
   echo "🔧 Building glibc..."
+  echo "📦 Cleaning previous glibc directory if it exists..."
+  rm -rf glibc-*/
+
   tar -xf glibc-*.tar.*z
   cd glibc-*/
 

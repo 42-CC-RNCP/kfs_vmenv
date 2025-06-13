@@ -10,6 +10,31 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 # ----------------------------
+# Export environment variables
+# ----------------------------
+ARCH=$(uname -m)
+HOST="lyeh"
+BASEDIR=$(pwd)
+KERNEL_VERSION="4.19.295"
+KERNEL_URL="https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-${KERNEL_VERSION}.tar.xz"
+KERNEL_NAME="linux-${KERNEL_VERSION}"
+BUILD_DIR="/tmp/$KERNEL_NAME"
+IMAGE="kernel_disk.img"
+IMAGE_SIZE="10G"
+MNT_ROOT="/mnt/kernel_disk"
+BOOT_MNT="$MNT_ROOT/boot"
+ROOT_MNT="$MNT_ROOT/root"
+BUSYBOX_URL="https://busybox.net/downloads/binaries/1.31.0-defconfig-multiarch-musl/busybox-x86_64"
+LFS="$ROOT_MNT"
+LFS_TGT="$(uname -m)-lfs-linux-gnu"
+
+export HOST BASEDIR KERNEL_VERSION KERNEL_URL KERNEL_NAME BUILD_DIR INSTALL_DIR \
+       IMAGE IMAGE_SIZE MNT_ROOT BOOT_MNT ROOT_MNT BUSYBOX_URL LFS LFS_TGT
+
+echo -e "${GREEN}🌟 Environment variables set:${NC}"
+env | grep -E '^(ARCH|HOST|BASEDIR|KERNEL_VERSION|KERNEL_URL|KERNEL_NAME|BUILD_DIR|INSTALL_DIR|IMAGE|IMAGE_SIZE|MNT_ROOT|BOOT_MNT|ROOT_MNT|BUSYBOX_URL|LFS|LFS_TGT)='
+
+# ----------------------------
 # Define steps and their scripts
 # ----------------------------
 declare -A STEPS=(
@@ -19,7 +44,7 @@ declare -A STEPS=(
   [build_kernel]="./scripts/build_kernel.sh"
   [setup_bootloader]="./scripts/setup_bootloader.sh"
   [init_lfs]="./scripts/init_lfs.sh"
-  [build_toolchain]="sudo -u lfs bash ./scripts/build_lfs_core.sh"
+  [build_toolchain]="sudo -u lfs env LFS=$LFS LFS_TGT=$LFS_TGT bash ./scripts/build_lfs_core.sh"
   [mount_lfs]="./scripts/mount_lfs.sh"
   [build_lfs_system]="chroot_exec ./scripts/build_lfs_system.sh"
   [config_system]="chroot_exec ./scripts/config_system.sh"
@@ -98,30 +123,6 @@ if [[ $EUID -ne 0 ]]; then
   echo -e "${RED}❗ This script must be run as root.${NC}"
   exit 1
 fi
-
-# ----------------------------
-# Export environment variables
-# ----------------------------
-ARCH=$(uname -m)
-HOST="lyeh"
-BASEDIR=$(pwd)
-KERNEL_VERSION="4.19.295"
-KERNEL_URL="https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-${KERNEL_VERSION}.tar.xz"
-KERNEL_NAME="linux-${KERNEL_VERSION}"
-BUILD_DIR="/tmp/$KERNEL_NAME"
-IMAGE="kernel_disk.img"
-IMAGE_SIZE="10G"
-MNT_ROOT="/mnt/kernel_disk"
-BOOT_MNT="$MNT_ROOT/boot"
-ROOT_MNT="$MNT_ROOT/root"
-BUSYBOX_URL="https://busybox.net/downloads/binaries/1.31.0-defconfig-multiarch-musl/busybox-x86_64"
-LFS="$ROOT_MNT"
-
-export HOST BASEDIR KERNEL_VERSION KERNEL_URL KERNEL_NAME BUILD_DIR INSTALL_DIR \
-       IMAGE IMAGE_SIZE MNT_ROOT BOOT_MNT ROOT_MNT BUSYBOX_URL LFS
-
-echo -e "${GREEN}🌟 Environment variables set:${NC}"
-env | grep -E '^(LFS|IMAGE|KERNEL_VERSION|HOST|MNT_ROOT|ROOT_MNT|BOOT_MNT)='
 
 # ----------------------------
 # Run steps based on mode

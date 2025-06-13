@@ -2,7 +2,7 @@
 set -e
 
 # TODO: Should not hardcode LFS path, but use a variable or config file.
-LFS="/mnt/kernel_disk/root"
+LFS=
 
 if [[ -z "$LFS" ]]; then
   echo "❌ Error: LFS is not set."
@@ -15,10 +15,4 @@ mount -v -t proc proc $LFS/proc
 mount -v -t sysfs sysfs $LFS/sys
 # mount -v -t tmpfs tmpfs $LFS/run
 
-chroot "$LFS" /tools/bin/env -i \
-  HOME=/root TERM="$TERM" PS1='(lfs) \u:\w\$ ' \
-  PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin \
-  /tools/bin/bash --login +h
-
-echo "🔑 Entered LFS environment. You can now run LFS commands.
-To exit, type 'exit' or press Ctrl+D."
+echo "✅ LFS mounted successfully."

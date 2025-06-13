@@ -1,1 +1,4 @@
-https://ftp.gnu.org/gnu/bash/bash-5.2.21.tar.gz
+https://ftp.gnu.org/gnu/binutils/binutils-2.44.tar.xz
+http://ftp.gnu.org/gnu/gcc/gcc-13.2.0/gcc-13.2.0.tar.xz
+http://ftp.kernel.org/pub/linux/kernel/linux-6.5.tar.xz
+http://ftp.gnu.org/gnu/glibc/glibc-2.39.tar.xz

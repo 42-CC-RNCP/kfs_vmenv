@@ -36,15 +36,21 @@ build_binutils_pass1() {
 build_gcc_pass1() {
   echo "🔧 Building gcc (pass 1)..."
   echo "📦 Cleaning previous gcc directory if it exists..."
-  rm -rf gcc-*/
-  rm -rf mpfr-* gmp-* mpc-*
+  rm -rf gcc-*/ > /dev/null
+  rm -rf mpfr-*/ gmp-*/ mpc-*/ > /dev/null
 
   tar -xf gcc-*.tar.*z
   cd gcc-*/
 
   for dep in mpfr gmp mpc; do
-    tar -xf ../$dep-*.tar.*z
-    mv -v $dep-* $dep
+    dep_path=$(find ../ -maxdepth 1 -name "$dep-*.tar.*z" | head -n 1)
+    if [[ -z "$dep_path" ]]; then
+      echo "❌ Error: Required dependency $dep not found in sources directory."
+      exit 1
+    fi
+    echo "📦 Extracting $dep from $dep_path..."
+    tar -xf "$dep_path"
+    mv -v "$dep-"* "$dep"
   done
 
   mkdir -v build && cd build

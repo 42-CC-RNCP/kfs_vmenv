@@ -2,7 +2,7 @@
 set -e
 
 # CONFIGURATION
-WGET_LIST_SRC="$BASEDIR/config/lfs-wget-list-test.txt"
+WGET_LIST_SRC="$BASEDIR/config/lfs-wget-list-minimal.txt"
 WGET_LIST_DEST="$LFS/sources/wget-list.txt"
 
 export LFS

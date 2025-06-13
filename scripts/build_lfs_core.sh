@@ -118,5 +118,5 @@ build_glibc() {
 #   - Libstdc++ from GCC-14.2.0
 build_binutils_pass1
 build_gcc_pass1
-build_linux_headers
+# build_linux_headers
 build_glibc

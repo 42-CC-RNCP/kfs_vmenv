@@ -1,59 +1,69 @@
 #!/bin/bash
 set -e
 
-export LFS=${ROOT_MNT}
+# CONFIGURATION
+WGET_LIST_SRC="$BASEDIR/config/lfs-wget-list-test.txt"
+WGET_LIST_DEST="$LFS/sources/wget-list.txt"
 
-echo -e "Setting up LFS structure in ${LFS}..."
+export LFS
+
+echo "🔧 Setting up LFS root structure at: $LFS..."
 sudo mkdir -pv $LFS/{sources,tools,md5sums}
 sudo chmod -v a+wt $LFS/sources
 sudo chown -vR root:root $LFS
 
+# Ensure tools dir exists (redundant safety check)
 if [ ! -d "$LFS/tools" ]; then
   sudo mkdir -pv $LFS/tools
 fi
 
-from="$BASEDIR/config/lfs-wget-list-test.txt"
-to="$LFS/sources/wget-list.txt"
-if [ ! -f "$from" ]; then
-  echo "❌ Source file $from does not exist."
+# Copy wget-list
+if [ ! -f "$WGET_LIST_SRC" ]; then
+  echo "❌ Source file $WGET_LIST_SRC does not exist."
   exit 1
 fi
-if [ ! -d "$(dirname "$to")" ]; then
-  echo "❌ Destination directory $(dirname "$to") does not exist."
+if [ ! -d "$(dirname "$WGET_LIST_DEST")" ]; then
+  echo "❌ Destination directory $(dirname "$WGET_LIST_DEST") does not exist."
   exit 1
 fi
-echo "📄 Copying wget-list from $from to $to..."
-cp -v "$from" "$to"
+
+echo "📄 Copying wget-list from $WGET_LIST_SRC to $WGET_LIST_DEST..."
+cp -v "$WGET_LIST_SRC" "$WGET_LIST_DEST"
 
 echo "⬇️ Downloading LFS toolchain..."
-wget --input-file=$to --continue -P $LFS/sources
+wget --input-file="$WGET_LIST_DEST" --continue -P "$LFS/sources"
 echo "✅ LFS toolchain downloaded."
 
-echo "👤 Create LFS user and group only for cross-platform toolchain"
+# Create lfs user and group
+echo "👤 Creating LFS user and setting permissions..."
 if id -u lfs &>/dev/null; then
   echo "✅ LFS user already exists."
 else
   sudo groupadd lfs
-  id -u lfs &>/dev/null || sudo useradd -s /bin/bash -g lfs -m -k /dev/null lfs
-  sudo chown -v lfs $LFS/{,sources,tools}
-  sudo chmod -v a+wt $LFS/{,sources,tools}
+  sudo useradd -s /bin/bash -g lfs -m -k /dev/null lfs
 fi
 
-echo "🔧 Setting up LFS environment variables..."
-sudo -u lfs bash -c 'cat > ~/.bash_profile << "EOF"
-exec env -i HOME=$HOME TERM=$TERM PS1="\\u:\\w\\$ " /bin/bash
-EOF'
+# Set correct ownership
+sudo chown -Rv lfs:lfs $LFS
+sudo chmod -v a+wt $LFS/{sources,tools}
 
-sudo -u lfs bash -c 'cat > ~/.bashrc << "EOF"
+# Configure .bash_profile and .bashrc for lfs user
+echo "📝 Configuring LFS user's shell environment..."
+sudo -u lfs bash -c "cat > ~/.bash_profile << 'EOF'
+exec env -i HOME=\$HOME TERM=\$TERM PS1='\\u:\\w\\$ ' /bin/bash
+EOF"
+
+sudo -u lfs bash -c "cat > ~/.bashrc << 'EOF'
 set +h
 umask 022
-LFS=/mnt/kernel_disk/root
+LFS=$ROOT_MNT
 LC_ALL=POSIX
-LFS_TGT=$(uname -m)-lfs-linux-gnu
+LFS_TGT=\$(uname -m)-lfs-linux-gnu
 PATH=/tools/bin:/bin:/usr/bin
 export LFS LC_ALL LFS_TGT PATH
-EOF'
+EOF"
 
-echo "✅ LFS environment variables set up."
+echo "✅ Environment configured."
 echo
-echo "You can now switch to the LFS user with 'su - lfs' to continue the LFS build process."
+echo "🎉 You can now switch to the LFS user using: 'su - lfs'"
+echo "Then continue with the LFS build steps as user 'lfs'."

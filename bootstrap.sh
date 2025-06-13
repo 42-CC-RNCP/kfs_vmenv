@@ -106,6 +106,7 @@ ARCH=$(uname -m)
 HOST="lyeh"
 BASEDIR=$(pwd)
 KERNEL_VERSION="4.19.295"
+KERNEL_URL="https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-${KERNEL_VERSION}.tar.xz"
 KERNEL_NAME="linux-${KERNEL_VERSION}"
 BUILD_DIR="/tmp/$KERNEL_NAME"
 IMAGE="kernel_disk.img"
@@ -116,8 +117,8 @@ ROOT_MNT="$MNT_ROOT/root"
 BUSYBOX_URL="https://busybox.net/downloads/binaries/1.31.0-defconfig-multiarch-musl/busybox-x86_64"
 LFS="$ROOT_MNT"
 
-export HOST BASEDIR KERNEL_VERSION KERNEL_NAME BUILD_DIR IMAGE IMAGE_SIZE \
-       MNT_ROOT BOOT_MNT ROOT_MNT BUSYBOX_URL LFS
+export HOST BASEDIR KERNEL_VERSION KERNEL_URL KERNEL_NAME BUILD_DIR INSTALL_DIR \
+       IMAGE IMAGE_SIZE MNT_ROOT BOOT_MNT ROOT_MNT BUSYBOX_URL LFS
 
 echo -e "${GREEN}🌟 Environment variables set:${NC}"
 env | grep -E '^(LFS|IMAGE|KERNEL_VERSION|HOST|MNT_ROOT|ROOT_MNT|BOOT_MNT)='

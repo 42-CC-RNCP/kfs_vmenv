@@ -83,19 +83,21 @@ build_gcc_pass1() {
 }
 
 build_linux_headers() {
-  echo "🔧 Building Linux kernel API headers..."
-  cd $LFS/sources
-  tar -xf linux-*.tar.*z
-  cd linux-*/
+  echo "🔧 Extracting Linux kernel API headers from build kernel source..."
+  if [[ ! -d "$BUILD_DIR" ]]; then
+    echo "❌ Error: Kernel source directory $BUILD_DIR not found!"
+    exit 1
+  fi
+  cd "$BUILD_DIR"
 
+  echo "🧼 Cleaning previous config if needed..."
   make mrproper
 
+  echo "📦 Installing headers..."
   make headers
   find usr/include -type f ! -name '*.h' -delete
   cp -rv usr/include $LFS/usr
 
-  cd ..
-  rm -rf linux-*/
   echo "✅ Linux API headers installed to $LFS/usr/include"
 }
 
@@ -134,5 +136,5 @@ build_glibc() {
 #   - Libstdc++ from GCC-14.2.0
 build_binutils_pass1
 build_gcc_pass1
-# build_linux_headers
+build_linux_headers
 build_glibc

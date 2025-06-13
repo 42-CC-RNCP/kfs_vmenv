@@ -12,7 +12,7 @@ if [ ! -d "$LFS/tools" ]; then
   sudo mkdir -pv $LFS/tools
 fi
 
-from="$BASEDIR/config/lfs-wget-list.txt"
+from="$BASEDIR/config/lfs-wget-list-minimal.txt"
 to="$LFS/sources/wget-list.txt"
 if [ ! -f "$from" ]; then
   echo "❌ Source file $from does not exist."

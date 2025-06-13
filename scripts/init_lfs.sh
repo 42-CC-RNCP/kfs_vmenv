@@ -12,10 +12,21 @@ if [ ! -d "$LFS/tools" ]; then
   sudo mkdir -pv $LFS/tools
 fi
 
-cp $(BASEDIR/config/lfs-wget-list.txt) $LFS/sources/wget-list.txt
+from="$BASEDIR/config/lfs-wget-list.txt"
+to="$LFS/sources/wget-list.txt"
+if [ ! -f "$from" ]; then
+  echo "❌ Source file $from does not exist."
+  exit 1
+fi
+if [ ! -d "$(dirname "$to")" ]; then
+  echo "❌ Destination directory $(dirname "$to") does not exist."
+  exit 1
+fi
+echo "📄 Copying wget-list from $from to $to..."
+cp -v "$from" "$to"
 
 echo "⬇️ Downloading LFS toolchain..."
-wget --input-file=wget-list.txt --continue -P $LFS/sources
+wget --input-file=$to --continue -P $LFS/sources
 echo "✅ LFS toolchain downloaded."
 
 echo "👤 Create LFS user and group only for cross-platform toolchain"

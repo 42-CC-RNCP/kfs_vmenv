@@ -58,11 +58,11 @@ env | grep -E '^(HOST|BASEDIR|KERNEL_VERSION|KERNEL_URL|KERNEL_NAME|BUILD_DIR|IN
 echo -e "${BLUE}🚀 Starting full ft_linux setup...${NC}"
 
 run_step "Clean existing loop and mounts" "./scripts/cleanup.sh"
-run_step "Create disk and partition"    "./scripts/create_disk.sh"
-run_step "Install root filesystem"      "./scripts/install_rootfs.sh"
-run_step "Build and install kernel"     "./scripts/build_kernel.sh"
-run_step "Set up bootloader"            "./scripts/setup_bootloader.sh"
-run_step "Initialize LFS environment" "./scripts/init_lfs.sh"
+run_step "Create disk and partition"      "./scripts/create_disk.sh"
+run_step "Install root filesystem"        "./scripts/install_rootfs.sh"
+run_step "Build and install kernel"       "./scripts/build_kernel.sh"
+run_step "Set up bootloader"              "./scripts/setup_bootloader.sh"
+run_step "Initialize LFS environment"     "./scripts/init_lfs.sh"
 
 echo -e "${BLUE}🧱 Toolchain ready. Next steps:${NC}"
 echo -e "${GREEN}1. su - lfs${NC}"

@@ -82,27 +82,13 @@ build_gcc_pass1() {
   echo "✅ gcc (pass 1) done."
 }
 
-build_linux_headers() {
-  echo "🔧 Extracting Linux kernel API headers from build kernel source..."
-  if [[ ! -d "$BUILD_DIR" ]]; then
-    echo "❌ Error: Kernel source directory $BUILD_DIR not found!"
+check_linux_headers() {
+  if [[ -d "$LFS/usr/include/linux" ]]; then
+    echo "✅ Linux headers already installed at $LFS/usr/include"
+  else
+    echo "❌ Linux headers not found. Please run build_kernel (as root) before building LFS core."
     exit 1
   fi
-  cd "$BUILD_DIR"
-
-  echo "🧼 Cleaning previous config if needed..."
-  sudo make mrproper
-
-  echo "📦 Installing headers..."
-  sudo make headers
-
-  echo "🧹 Cleaning non-header files..."
-  sudo find usr/include -type f ! -name '*.h' -delete
-
-  echo "📁 Copying headers to LFS..."
-  sudo cp -rv usr/include "$LFS/usr"
-
-  echo "✅ Linux API headers installed to $LFS/usr/include"
 }
 
 build_glibc() {
@@ -140,5 +126,5 @@ build_glibc() {
 #   - Libstdc++ from GCC-14.2.0
 build_binutils_pass1
 build_gcc_pass1
-build_linux_headers
+check_linux_headers
 build_glibc

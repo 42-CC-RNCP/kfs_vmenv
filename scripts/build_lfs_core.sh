@@ -91,12 +91,16 @@ build_linux_headers() {
   cd "$BUILD_DIR"
 
   echo "🧼 Cleaning previous config if needed..."
-  make mrproper
+  sudo make mrproper
 
   echo "📦 Installing headers..."
-  make headers
-  find usr/include -type f ! -name '*.h' -delete
-  cp -rv usr/include $LFS/usr
+  sudo make headers
+
+  echo "🧹 Cleaning non-header files..."
+  sudo find usr/include -type f ! -name '*.h' -delete
+
+  echo "📁 Copying headers to LFS..."
+  sudo cp -rv usr/include "$LFS/usr"
 
   echo "✅ Linux API headers installed to $LFS/usr/include"
 }

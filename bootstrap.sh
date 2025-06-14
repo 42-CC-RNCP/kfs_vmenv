@@ -97,6 +97,7 @@ run_step() {
 # ----------------------------
 MODE=""
 TARGET_STEP=""
+FROM_STEP=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -107,6 +108,11 @@ while [[ $# -gt 0 ]]; do
     --step)
       MODE="step"
       TARGET_STEP=$2
+      shift 2
+      ;;
+    --from)
+      MODE="from"
+      FROM_STEP=$2
       shift 2
       ;;
     *)
@@ -140,10 +146,30 @@ case "$MODE" in
     fi
     run_step "$TARGET_STEP"
     ;;
+  from)
+    if [[ -z "$FROM_STEP" ]]; then
+      echo -e "${RED}❌ Please provide a step name after --from${NC}"
+      exit 1
+    fi
+    found=false
+    for step in "${STEP_ORDER[@]}"; do
+      if [[ "$step" == "$FROM_STEP" ]]; then
+        found=true
+      fi
+      if $found; then
+        run_step "$step"
+      fi
+    done
+    if ! $found; then
+      echo -e "${RED}❌ Step '$FROM_STEP' not found in STEP_ORDER${NC}"
+      exit 1
+    fi
+    ;;
   *)
     echo -e "${BLUE}Usage:${NC}"
     echo "  $0 --auto                Run all steps"
     echo "  $0 --step <step_name>    Run only a specific step"
+    echo "  $0 --from <step_name>    Run all steps starting from the specified one"
     echo
     echo -e "${BLUE}Available steps:${NC} ${STEP_ORDER[*]}"
     exit 0

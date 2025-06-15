@@ -40,7 +40,7 @@ echo "📦 Installing modules..."
 make modules_install INSTALL_MOD_PATH="$INSTALL_DIR"
 
 echo "📚 Installing kernel headers..."
-make headers_install INSTALL_HDR_PATH=dest
-cp -rv dest/include/* "$INSTALL_DIR/usr/include/"
+make headers_install INSTALL_HDR_PATH="$BUILD_DIR/dest"
+cp -rv "$BUILD_DIR/dest/include/*" "$INSTALL_DIR/usr/include/"
 
 echo "✅ Kernel build and install completed."

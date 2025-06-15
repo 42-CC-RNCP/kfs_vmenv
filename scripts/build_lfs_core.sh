@@ -83,10 +83,12 @@ build_gcc_pass1() {
 }
 
 check_linux_headers() {
-  if [[ -d "$LFS/usr/include/linux" ]]; then
-    echo "✅ Linux headers already installed at $LFS/usr/include"
+  header_folder="$MNT_ROOT/usr/include/linux"
+  if [[ -d "$header_folder" ]]; then
+    echo "✅ Linux headers already installed at $header_folder"
   else
-    echo "❌ Linux headers not found. Please run build_kernel (as root) before building LFS core."
+    echo "❌ Linux headers not found at $header_folder"
+    echo "Please ensure you have run the init_lfs.sh script first."
     exit 1
   fi
 }
@@ -103,11 +105,20 @@ build_glibc() {
 
   echo "rootsbindir=/tools/bin" > configparms
 
+  echo "configure glibc with the following options:"
+  echo "  --prefix=/tools"
+  echo "  --host=$LFS_TGT"
+  echo "  --build=$(../scripts/config.guess)"
+  echo "  --enable-kernel=3.2"
+  echo "  --with-headers=$MNT_ROOT/usr/include"
+  echo "  libc_cv_slibdir=/tools/lib"
+  echo "📦 Configuring glibc..."
+
   ../configure --prefix=/tools \
                --host=$LFS_TGT \
                --build=$(../scripts/config.guess) \
                --enable-kernel=3.2 \
-               --with-headers=$LFS/usr/include \
+               --with-headers=$MNT_ROOT/usr/include \
                libc_cv_slibdir=/tools/lib
 
   make -j$(nproc)

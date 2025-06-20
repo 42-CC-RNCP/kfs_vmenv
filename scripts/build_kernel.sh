@@ -43,7 +43,5 @@ echo "📚 Installing kernel headers..."
 make headers_install INSTALL_HDR_PATH="$BUILD_DIR/dest"
 mkdir -p "$INSTALL_DIR/usr/include"
 cp -rv "$BUILD_DIR/dest/include/." "$INSTALL_DIR/usr/include/"
-rm -rf "$INSTALL_DIR/usr/include/asm" > /dev/null
-ln -sv "$INSTALL_DIR/usr/include/asm-generic" "$INSTALL_DIR/usr/include/asm"
 
 echo "✅ Kernel build and install completed."

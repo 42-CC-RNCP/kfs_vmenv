@@ -106,19 +106,18 @@ build_glibc() {
   echo "rootsbindir=/tools/bin" > configparms
 
   echo "configure glibc with the following options:"
-  echo "  --prefix=/tools"
-  echo "  --host=$LFS_TGT"
-  echo "  --build=$(../scripts/config.guess)"
-  echo "  --enable-kernel=3.2"
-  echo "  --with-headers=$MNT_ROOT/usr/include"
-  echo "  libc_cv_slibdir=/tools/lib"
-  echo "📦 Configuring glibc..."
 
-  ../configure --prefix=/tools \
-               --host=$LFS_TGT \
+  if [[ ! -f $LFS/usr/include/linux/version.h ]]; then
+    echo "❌ ERROR: Kernel headers not found at $LFS/usr/include/linux/version.h"
+    exit 1
+  fi
+
+  ../configure --prefix=$LFS/tools \
+               --with-sysroot=$LFS \
                --build=$(../scripts/config.guess) \
+               --host=$LFS_TGT \
                --enable-kernel=3.2 \
-               --with-headers=$MNT_ROOT/usr/include \
+               --with-headers=$LFS/usr/include \
                libc_cv_slibdir=/tools/lib
 
   make -j$(nproc)

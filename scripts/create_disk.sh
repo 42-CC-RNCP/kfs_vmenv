@@ -21,16 +21,16 @@ echo "📐 Partitioning the image..."
 if [[ "$ARCH" == "x86_64" ]]; then
   sudo parted -s "$LOOPDEV" mklabel msdos
   sudo parted -s "$LOOPDEV" mkpart primary ext2 1MiB 513MiB
-  sudo parted -s "$LOOPDEV" mkpart primary ext4 513MiB 8705MiB
-  sudo parted -s "$LOOPDEV" mkpart primary linux-swap 8705MiB 100%
+  sudo parted -s "$LOOPDEV" mkpart primary ext4 513MiB 18705MiB
+  sudo parted -s "$LOOPDEV" mkpart primary linux-swap 18705MiB 100%
   BOOT_FS="ext2"
   BOOT_LABEL="boot"
 elif [[ "$ARCH" == "aarch64" || "$ARCH" == "arm64" ]]; then
   sudo parted -s "$LOOPDEV" mklabel gpt
   sudo parted -s "$LOOPDEV" mkpart ESP fat32 1MiB 513MiB
   sudo parted -s "$LOOPDEV" set 1 boot on
-  sudo parted -s "$LOOPDEV" mkpart primary ext4 513MiB 8705MiB
-  sudo parted -s "$LOOPDEV" mkpart primary linux-swap 8705MiB 100%
+  sudo parted -s "$LOOPDEV" mkpart primary ext4 513MiB 18705MiB
+  sudo parted -s "$LOOPDEV" mkpart primary linux-swap 18705MiB 100%
   BOOT_FS="vfat"
   BOOT_LABEL="EFI"
 else

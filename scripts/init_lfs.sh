@@ -1,69 +1,86 @@
 #!/bin/bash
 set -e
 
-# CONFIGURATION
+#---------------------------------------
+# Variables
+#---------------------------------------
 WGET_LIST_SRC="$BASEDIR/config/lfs-wget-list-minimal.txt"
 WGET_LIST_DEST="$LFS/sources/wget-list.txt"
 
-export LFS
-
-echo "🔧 Setting up LFS root structure at: $LFS..."
+#---------------------------------------
+# Build LFS root structure
+#---------------------------------------
+echo "🔧 Setting up LFS root structure at: $LFS ..."
 sudo mkdir -pv $LFS/{sources,tools,md5sums}
 sudo chmod -v a+wt $LFS/sources
-sudo chown -vR root:root $LFS
+sudo chown -vR root:root "$LFS"
 
-# Ensure tools dir exists (redundant safety check)
-if [ ! -d "$LFS/tools" ]; then
-  sudo mkdir -pv $LFS/tools
+#---------------------------------------
+# Create symlink /tools
+#---------------------------------------
+if [[ ! -L /tools ]]; then
+  echo "🔗 Creating symlink /tools -> $LFS/tools"
+  sudo ln -sv "$LFS/tools" /
+else
+  echo "✅ Symlink /tools already exists → $(readlink -f /tools)"
 fi
 
-# Copy wget-list
-if [ ! -f "$WGET_LIST_SRC" ]; then
+#---------------------------------------
+# Check if LFS exists
+#---------------------------------------
+sudo mkdir -pv "$LFS/tools"
+
+#---------------------------------------
+# Copy wget-list to LFS sources
+#---------------------------------------
+if [[ ! -f "$WGET_LIST_SRC" ]]; then
   echo "❌ Source file $WGET_LIST_SRC does not exist."
   exit 1
 fi
-if [ ! -d "$(dirname "$WGET_LIST_DEST")" ]; then
-  echo "❌ Destination directory $(dirname "$WGET_LIST_DEST") does not exist."
-  exit 1
-fi
 
-echo "📄 Copying wget-list from $WGET_LIST_SRC to $WGET_LIST_DEST..."
-cp -v "$WGET_LIST_SRC" "$WGET_LIST_DEST"
+echo "📄 Copying wget-list to $WGET_LIST_DEST ..."
+sudo install -m 644 -o root -g root "$WGET_LIST_SRC" "$WGET_LIST_DEST"
 
-echo "⬇️ Downloading LFS toolchain..."
+echo "⬇️  Downloading LFS toolchain sources ..."
 wget --input-file="$WGET_LIST_DEST" --continue -P "$LFS/sources"
-echo "✅ LFS toolchain downloaded."
+echo "✅ Sources downloaded."
 
-# Create lfs user and group
-echo "👤 Creating LFS user and setting permissions..."
+#---------------------------------------
+# Create LFS user and group
+#---------------------------------------
 if id -u lfs &>/dev/null; then
-  echo "✅ LFS user already exists."
+  echo "👤 LFS user already exists."
 else
+  echo "👤 Creating LFS user and group ..."
   sudo groupadd lfs
   sudo useradd -s /bin/bash -g lfs -m -k /dev/null lfs
 fi
 
-# Set correct ownership
-sudo chown -Rv lfs:lfs $LFS
-sudo chmod -v a+wt $LFS/{sources,tools}
+# Change ownership and permissions
+sudo chown -Rv lfs:lfs "$LFS"
+sudo chmod -v a+wt "$LFS"/{sources,tools}
 
-# Configure .bash_profile and .bashrc for lfs user
-echo "📝 Configuring LFS user's shell environment..."
-sudo -u lfs bash -c "cat > ~/.bash_profile << 'EOF'
-exec env -i HOME=\$HOME TERM=\$TERM PS1='\\u:\\w\\$ ' /bin/bash
+#---------------------------------------
+# Configure LFS user's environment
+#---------------------------------------
+echo "📝 Configuring LFS user's shell environment ..."
+
+sudo -u lfs bash -c "cat > ~/.bash_profile <<'EOF'
+# LFS environment setup
+exec env -i HOME=\$HOME TERM=\$TERM PS1='(lfs) \\u:\\w\\$ ' /bin/bash
 EOF"
 
-sudo -u lfs bash -c "cat > ~/.bashrc << 'EOF'
+sudo -u lfs bash -c "cat > ~/.bashrc <<'EOF'
 set +h
 umask 022
-LFS=$ROOT_MNT
+LFS=$(readlink -f "$LFS")
 LC_ALL=POSIX
 LFS_TGT=\$(uname -m)-lfs-linux-gnu
-PATH=/tools/bin:/bin:/usr/bin
+PATH=/tools/bin:/usr/bin:/bin
 export LFS LC_ALL LFS_TGT PATH
 EOF"
 
-echo "✅ Environment configured."
+echo "✅ LFS environment is ready."
 echo
-echo "🎉 You can now switch to the LFS user using: 'su - lfs'"
-echo "Then continue with the LFS build steps as user 'lfs'."
+echo "👉  Switch to the LFS user with:  sudo su - lfs"
+echo "🔰  Then continue building the toolchain as the 'lfs' user."

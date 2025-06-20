@@ -41,7 +41,8 @@ make modules_install INSTALL_MOD_PATH="$INSTALL_DIR"
 
 echo "📚 Installing kernel headers..."
 make headers_install INSTALL_HDR_PATH="$BUILD_DIR/dest"
-mkdir -p "$INSTALL_DIR/usr/include"
-cp -rv "$BUILD_DIR/dest/include/." "$INSTALL_DIR/usr/include/"
+rm -rf "$LFS/usr/include"
+mkdir -p "$LFS/usr/include"
+cp -rv "$BUILD_DIR/dest/include/." "$LFS/usr/include/"
 
 echo "✅ Kernel build and install completed."

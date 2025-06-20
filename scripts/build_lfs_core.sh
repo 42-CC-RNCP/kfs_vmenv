@@ -95,7 +95,6 @@ check_linux_headers() {
 
 build_glibc() {
   echo "🔧 Building glibc..."
-  echo "📦 Cleaning previous glibc directory if it exists..."
   rm -rf glibc-*/
 
   tar -xf glibc-*.tar.*z
@@ -105,20 +104,27 @@ build_glibc() {
 
   echo "rootsbindir=/tools/bin" > configparms
 
-  echo "configure glibc with the following options:"
+  echo "🔧 Setting up cross-toolchain environment..."
+  export CC=$LFS_TGT-gcc
+  export CXX=$LFS_TGT-g++
+  export AR=$LFS_TGT-ar
+  export RANLIB=$LFS_TGT-ranlib
+  export PATH="$LFS/tools/bin:$PATH"
 
+  echo "🧪 Validating header exists..."
   if [[ ! -f $LFS/usr/include/linux/version.h ]]; then
-    echo "❌ ERROR: Kernel headers not found at $LFS/usr/include/linux/version.h"
+    echo "❌ ERROR: Missing headers at $LFS/usr/include/linux/version.h"
     exit 1
   fi
 
-  ../configure --prefix=$LFS/tools \
-               --with-sysroot=$LFS \
-               --build=$(../scripts/config.guess) \
-               --host=$LFS_TGT \
-               --enable-kernel=3.2 \
-               --with-headers=$LFS/usr/include \
-               libc_cv_slibdir=/tools/lib
+  ../configure --prefix=/tools \
+             --with-sysroot=$LFS \
+             --build=$(../scripts/config.guess) \
+             --host=$LFS_TGT \
+             --enable-kernel=3.2 \
+             --with-headers=$LFS/usr/include \
+             libc_cv_slibdir=/tools/lib
+
 
   make -j$(nproc)
   make install
@@ -126,6 +132,28 @@ build_glibc() {
   cd ../..
   rm -rf glibc-*/
   echo "✅ glibc done."
+}
+
+# 6. Building coreutils (pass 1)
+build_coreutils_pass1() {
+  echo "🔧 Building coreutils (pass 1)..."
+  rm -rf coreutils-*/
+
+  tar -xf coreutils-*.tar.*z
+  cd coreutils-*/
+
+  ./configure --prefix=/tools \
+              --host=$LFS_TGT \
+              --build=$(./build-aux/config.guess) \
+              --enable-install-program=hostname \
+              --enable-no-install-program=kill,uptime
+
+  make -j$(nproc)
+  make install
+
+  cd ..
+  rm -rf coreutils-*/
+  echo "✅ coreutils (pass 1) done."
 }
 
 # 5. Compiling a Cross-Toolchain
@@ -138,3 +166,4 @@ build_binutils_pass1
 build_gcc_pass1
 check_linux_headers
 build_glibc
+build_coreutils_pass1

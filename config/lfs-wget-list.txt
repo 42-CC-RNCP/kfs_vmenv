@@ -8,7 +8,7 @@ http://ftp.gnu.org/gnu/binutils/binutils-2.40.tar.xz
 http://ftp.gnu.org/gnu/bison/bison-3.8.2.tar.gz
 http://www.bzip.org/1.0.8/bzip2-1.0.8.tar.gz
 http://ftp.gnu.org/gnu/check/check-0.15.2.tar.gz
-http://ftp.gnu.org/gnu/coreutils/coreutils-9.4.tar.xz
+http://ftp.gnu.org/gnu/coreutils/coreutils-9.3.tar.xz
 http://ftp.gnu.org/gnu/dejagnu/dejagnu-1.6.3.tar.gz
 http://ftp.gnu.org/gnu/diffutils/diffutils-3.9.tar.xz
 http://eudev.org/releases/eudev-3.3.20.tar.gz

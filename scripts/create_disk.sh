@@ -60,7 +60,7 @@ sudo mkswap -L swap "$SWAP_PART"
 
 # === Mount partitions ===
 echo "🔗 Mounting partitions..."
-sudo mkdir -p "$MNT_ROOT"
+sudo mkdir -p "$ROOT_MNT"
 sudo mount "$ROOT_PART" "$ROOT_MNT"
 
 if [[ "$ARCH" == "x86_64" ]]; then

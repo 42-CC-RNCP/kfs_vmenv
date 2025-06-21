@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
 
-export PATH=/tools/bin:$PATH
-
 if [[ -z "$LFS" || -z "$LFS_TGT" ]]; then
   echo "❌ Error: LFS or LFS_TGT environment variables are not set."
   echo "Please ensure you have run the init_lfs.sh script first."
@@ -84,7 +82,7 @@ build_gcc_pass1() {
 }
 
 check_linux_headers() {
-  header_folder="$MNT_ROOT/usr/include/linux"
+  header_folder="$LFS/usr/include/linux"
   if [[ -d "$header_folder" ]]; then
     echo "✅ Linux headers already installed at $header_folder"
   else
@@ -133,6 +131,15 @@ build_glibc() {
   cd ../..
   rm -rf glibc-*/
   echo "✅ glibc done."
+}
+
+sync_glibc_headers() {
+  echo "🗂  Syncing glibc headers ..."
+  if [[ ! -e $LFS/usr/include/stdio.h ]]; then
+    mkdir -pv $LFS/usr/include
+    cp -R $LFS/tools/include/*  $LFS/usr/include/
+  fi
+  echo "✅  glibc headers copied to \$LFS/usr/include"
 }
 
 adjust_toolchain() {
@@ -190,15 +197,20 @@ build_coreutils_pass1() {
 
   export FORCE_UNSAFE_CONFIGURE=1
   export gl_cv_func_getmntent_works=yes
+  export ac_cv_func_getmntent=yes
+  export ac_cv_header_mntent_h=yes
   export gl_cv_func_statvfs=yes
-  export gl_cv_func_getmntent_works=yes
+  export ac_cv_type_socklen_t=yes
 
   ./configure --prefix=/tools \
               --host=$LFS_TGT \
               --build=$(./build-aux/config.guess) \
               --enable-install-program=hostname \
               --enable-no-install-program=kill,uptime \
-              --disable-year2038
+              --disable-year2038 \
+              --disable-largefile \
+              --disable-nls \
+              --with-sysroot=$LFS
 
   make -j$(nproc)
   make install
@@ -214,9 +226,10 @@ build_coreutils_pass1() {
 #   - Linux-6.13.4 API Headers
 #   - Glibc-2.41
 #   - Libstdc++ from GCC-14.2.0
-# build_binutils_pass1
-# build_gcc_pass1
-# check_linux_headers
-# build_glibc
+build_binutils_pass1
+build_gcc_pass1
+check_linux_headers
+build_glibc
+sync_glibc_headers
 adjust_toolchain
 build_coreutils_pass1

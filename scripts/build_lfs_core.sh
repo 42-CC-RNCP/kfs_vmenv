@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 
+export PATH=/tools/bin:$PATH
 
 if [[ -z "$LFS" || -z "$LFS_TGT" ]]; then
   echo "❌ Error: LFS or LFS_TGT environment variables are not set."
@@ -134,7 +135,52 @@ build_glibc() {
   echo "✅ glibc done."
 }
 
-# 6. Building coreutils (pass 1)
+adjust_toolchain() {
+  echo "🔧 Adjusting temporary toolchain (§5.10) ..."
+
+  # a. start-files
+  echo "🔧 Adjusting start files..."
+  mkdir -pv $LFS/usr/lib
+  for f in crt1.o crti.o crtn.o ; do
+    [ -e $LFS/usr/lib/$f ] || ln -sv $LFS/tools/lib/$f $LFS/usr/lib
+  done
+
+  # b. ld-linux
+  echo "🔧 Adjusting dynamic linker..."
+  case "$(uname -m)" in
+    x86_64)
+      [ -e $LFS/usr/lib/ld-linux-x86-64.so.2 ] \
+        || ln -sv $LFS/tools/lib/ld-linux-x86-64.so.2 $LFS/usr/lib ;;
+    i?86)
+      [ -e $LFS/usr/lib/ld-linux.so.2 ] \
+        || ln -sv $LFS/tools/lib/ld-linux.so.2 $LFS/usr/lib ;;
+    aarch64|arm64)
+      [ -e $LFS/usr/lib/ld-linux-aarch64.so.1 ] \
+        || ln -sv $LFS/tools/lib/ld-linux-aarch64.so.1 $LFS/usr/lib ;;
+  esac
+  [ -e $LFS/usr/lib/libc.so ]         || ln -sv $LFS/tools/lib/libc.so $LFS/usr/lib
+  [ -e $LFS/usr/lib/libc_nonshared.a ]|| ln -sv $LFS/tools/lib/libc_nonshared.a $LFS/usr/lib
+
+
+  # c. rewrite GCC specs
+  echo "🔧 Rewriting GCC specs..."
+  GCC_BIN=$LFS/tools/bin/${LFS_TGT}-gcc
+  SPECS_DIR=$(dirname $("${GCC_BIN}" -print-libgcc-file-name))
+  "${GCC_BIN}" -dumpspecs | sed 's@/tools@@g' > "${SPECS_DIR}/specs"
+
+  # d. sanity test
+  echo "🔧 Performing sanity test..."
+  echo 'int main(){}' > dummy.c
+  "${GCC_BIN}" dummy.c -o dummy
+  if readelf -l dummy | grep -q '/tools'; then
+      echo "❌  Toolchain still refers to /tools – aborting."
+      rm -f dummy.c dummy
+      exit 1
+  fi
+  rm -f dummy.c dummy
+  echo "✅ Toolchain adjusted – no /tools reference remains."
+}
+
 build_coreutils_pass1() {
   echo "🔧 Building coreutils (pass 1)..."
   rm -rf coreutils-*/
@@ -162,8 +208,9 @@ build_coreutils_pass1() {
 #   - Linux-6.13.4 API Headers
 #   - Glibc-2.41
 #   - Libstdc++ from GCC-14.2.0
-build_binutils_pass1
-build_gcc_pass1
-check_linux_headers
-build_glibc
+# build_binutils_pass1
+# build_gcc_pass1
+# check_linux_headers
+# build_glibc
+adjust_toolchain
 build_coreutils_pass1

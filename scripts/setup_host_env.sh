@@ -18,7 +18,9 @@ sudo apt install -y \
   xz-utils zlib1g-dev \
   wget curl m4 git \
   gcc make \
-  libssl-dev bc flex bison
+  libssl-dev bc flex bison \
+  libelf-dev \
+  gawk
 
 if [[ "$ARCH" == "x86_64" ]]; then
   echo "🛠️ Installing x86_64-specific packages..."

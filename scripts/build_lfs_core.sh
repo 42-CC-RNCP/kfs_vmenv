@@ -188,11 +188,17 @@ build_coreutils_pass1() {
   tar -xf coreutils-*.tar.*z
   cd coreutils-*/
 
+  export FORCE_UNSAFE_CONFIGURE=1
+  export gl_cv_func_getmntent_works=yes
+  export gl_cv_func_statvfs=yes
+  export gl_cv_func_getmntent_works=yes
+
   ./configure --prefix=/tools \
               --host=$LFS_TGT \
               --build=$(./build-aux/config.guess) \
               --enable-install-program=hostname \
-              --enable-no-install-program=kill,uptime
+              --enable-no-install-program=kill,uptime \
+              --disable-year2038
 
   make -j$(nproc)
   make install

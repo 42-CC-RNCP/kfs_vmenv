@@ -172,8 +172,8 @@ adjust_toolchain() {
   # c. rewrite GCC specs
   echo "🔧 Rewriting GCC specs..."
   GCC_BIN=$LFS/tools/bin/${LFS_TGT}-gcc
-  SPECS_DIR=$(dirname $("${GCC_BIN}" -print-libgcc-file-name))
-  "${GCC_BIN}" -dumpspecs | sed 's@/tools@@g' > "${SPECS_DIR}/specs"
+  SPECS=$(dirname $("$GCC_BIN" -print-libgcc-file-name))/specs
+  "$GCC_BIN" -dumpspecs | sed 's@/tools/include@@g' > "$SPECS"
 
   # d. sanity test
   echo "🔧 Performing sanity test..."

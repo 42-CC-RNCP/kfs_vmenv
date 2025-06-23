@@ -152,6 +152,11 @@ adjust_toolchain() {
     [ -e $LFS/usr/lib/$f ] || ln -sv $LFS/tools/lib/$f $LFS/usr/lib
   done
 
+  if [ "$(uname -m)" = x86_64 ]; then
+    mkdir -pv $LFS/lib64
+    ln -sfv $LFS/tools/lib64/ld-linux-x86-64.so.2 $LFS/lib64
+  fi
+
   # b. ld-linux
   echo "🔧 Adjusting dynamic linker..."
   case "$(uname -m)" in
@@ -189,36 +194,43 @@ adjust_toolchain() {
 }
 
 build_coreutils_pass1() {
-  echo "🔧 Building coreutils (pass 1)..."
-  rm -rf coreutils-*/
+  echo "🔧  coreutils-8.32 (pass 1)…"
+  rm -rf coreutils-8.32
+  tar -xf coreutils-8.32.tar.xz
+  cd coreutils-8.32
 
-  tar -xf coreutils-*.tar.*z
-  cd coreutils-*/
-
+  #──── configure ────────────────────────────────────────────
   export FORCE_UNSAFE_CONFIGURE=1
-  export gl_cv_func_getmntent_works=yes
-  export ac_cv_func_getmntent=yes
-  export ac_cv_header_mntent_h=yes
-  export gl_cv_func_statvfs=yes
-  export ac_cv_type_socklen_t=yes
+  export PATH=/usr/bin:/bin:$LFS/tools/bin
 
-  ./configure --prefix=/tools \
-              --host=$LFS_TGT \
+  CC=$LFS/tools/bin/${LFS_TGT}-gcc \
+  CFLAGS="-DMB_LEN_MAX=16" \
+  ./configure --prefix=/tools --host=$LFS_TGT \
               --build=$(./build-aux/config.guess) \
               --enable-install-program=hostname \
               --enable-no-install-program=kill,uptime \
-              --disable-year2038 \
-              --disable-largefile \
-              --disable-nls \
-              --with-sysroot=$LFS
+              --disable-nls
 
-  make -j$(nproc)
-  make install
+  #──── build ────────────────────────────────────────────────
+  make -j"$(nproc)"
+
+  #──── Use host tools for some commands ───────────────────
+  for f in rm mv ln basename install dircolors; do
+    mkdir -p src
+    if [ -f src/$f ]; then
+        cp -f /bin/$(basename $f) src/$f
+    fi
+  done
+
+  #──── install with path which use host tools ───────────────
+  PATH=/usr/bin:/bin make install
 
   cd ..
-  rm -rf coreutils-*/
-  echo "✅ coreutils (pass 1) done."
+  rm -rf coreutils-8.32
+  echo "✅  coreutils-8.32 (pass 1) done."
+  ls $LFS/tools/bin | head
 }
+
 
 # 5. Compiling a Cross-Toolchain
 #   - Binutils-2.44 - Pass 1

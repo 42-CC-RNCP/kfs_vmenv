@@ -154,7 +154,7 @@ adjust_toolchain() {
 
   if [ "$(uname -m)" = x86_64 ]; then
     mkdir -pv $LFS/lib64
-    ln -sfv $LFS/tools/lib64/ld-linux-x86-64.so.2 $LFS/lib64
+    ln -sfv /tools/lib/ld-linux-x86-64.so.2  $LFS/lib64/ld-linux-x86-64.so.2
   fi
 
   # b. ld-linux

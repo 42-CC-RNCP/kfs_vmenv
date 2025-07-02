@@ -42,8 +42,10 @@ echo "📄 Copying wget-list to $WGET_LIST_DEST ..."
 sudo install -m 644 -o root -g root "$WGET_LIST_SRC" "$WGET_LIST_DEST"
 
 echo "⬇️  Downloading LFS toolchain sources ..."
-wget --input-file="$WGET_LIST_DEST" --continue -P "$LFS/sources"
-echo "✅ Sources downloaded."
+wget --input-file="$WGET_LIST_DEST" \
+     --continue --timestamping \
+     --directory-prefix="$LFS/sources"
+echo "✅ Sources downloaded (only new or unfinished files were fetched)."
 
 #---------------------------------------
 # Create LFS user and group

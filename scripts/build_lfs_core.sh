@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+export PATH=/usr/bin:/bin:/usr/sbin:/sbin:$PATH
+hash -r
+
 if [[ -z "$LFS" || -z "$LFS_TGT" ]]; then
   echo "❌ Error: LFS or LFS_TGT environment variables are not set."
   echo "Please ensure you have run the init_lfs.sh script first."
@@ -108,7 +111,7 @@ build_glibc() {
   export CXX=$LFS_TGT-g++
   export AR=$LFS_TGT-ar
   export RANLIB=$LFS_TGT-ranlib
-  export PATH="$LFS/tools/bin:$PATH"
+  export PATH=/usr/bin:/bin:$LFS/tools/bin
 
   echo "🧪 Validating header exists..."
   if [[ ! -f $LFS/usr/include/linux/version.h ]]; then
@@ -231,6 +234,47 @@ build_coreutils_pass1() {
   ls $LFS/tools/bin | head
 }
 
+_patch_termcap() {
+  local file=lib/termcap/tparam.c
+
+  grep -q '<unistd.h>' "$file" && return
+  echo "🩹  Patching $file (add <unistd.h>)"
+
+  if grep -nq '<stdlib.h>' "$file"; then
+    sed -i '0,/<stdlib.h>/a #include <unistd.h>' "$file"
+  else
+    sed -i '1a #include <unistd.h>' "$file"
+  fi
+}
+
+build_bash_pass1() {
+  export PATH=/usr/bin:/bin:$LFS/tools/bin
+  hash -r
+  echo "🔧  Bash-5.2 (pass 1)…"
+  rm -rf bash-*/
+  tar -xf bash-5.2*.tar.*z
+  cd bash-5.2*/
+
+  _patch_termcap
+
+  # ---- configure ----
+  ./configure  --prefix=/tools \
+               --build=$(./support/config.guess) \
+               --host=$LFS_TGT \
+               --without-bash-malloc \
+               --without-installed-readline \
+               --without-curses \
+               --disable-nls
+
+  make -j"$(nproc)"
+  make install
+  ln -sv bash /tools/bin/sh
+
+  cd ..
+  rm -rf bash-5.2*/
+  echo "✅  Bash-5.2 (pass 1) done."
+}
+
 
 # 5. Compiling a Cross-Toolchain
 #   - Binutils-2.44 - Pass 1
@@ -238,10 +282,11 @@ build_coreutils_pass1() {
 #   - Linux-6.13.4 API Headers
 #   - Glibc-2.41
 #   - Libstdc++ from GCC-14.2.0
-build_binutils_pass1
+# build_binutils_pass1
 build_gcc_pass1
-check_linux_headers
-build_glibc
+# check_linux_headers
+# build_glibc
+# build_bash_pass1
 sync_glibc_headers
 adjust_toolchain
 build_coreutils_pass1

@@ -154,6 +154,7 @@ adjust_toolchain() {
   for f in crt1.o crti.o crtn.o ; do
     [ -e $LFS/usr/lib/$f ] || ln -sv $LFS/tools/lib/$f $LFS/usr/lib
   done
+  ls -l $LFS/usr/lib/crt*.o
 
   if [ "$(uname -m)" = x86_64 ]; then
     mkdir -pv $LFS/lib64
@@ -258,6 +259,7 @@ build_bash_pass1() {
   _patch_termcap
 
   # ---- configure ----
+  chmod -R a+rwx support
   ./configure  --prefix=/tools \
                --build=$(./support/config.guess) \
                --host=$LFS_TGT \
@@ -287,6 +289,6 @@ build_gcc_pass1
 check_linux_headers
 build_glibc
 sync_glibc_headers
-build_bash_pass1
 adjust_toolchain
+build_bash_pass1
 build_coreutils_pass1

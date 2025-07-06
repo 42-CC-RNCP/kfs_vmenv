@@ -19,7 +19,7 @@ for f in crt1.o crti.o crtn.o; do
   dst="/usr/lib/$f"
   if [[ -e "$src" ]]; then
     if [[ ! -e "$dst" ]]; then
-      ln -sv "$src" "$dst"
+      ln -sv "$src" "$dst" || true
     elif [[ "$(readlink -f "$dst")" != "$(readlink -f "$src")" ]]; then
       echo "⚠️  $dst exists but points to wrong target!"
     else

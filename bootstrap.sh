@@ -46,6 +46,7 @@ declare -A STEPS=(
   [init_lfs]="./scripts/init_lfs.sh"
   [build_toolchain]="sudo -u lfs env PATH=/tools/bin:$PATH LFS=$LFS LFS_TGT=$LFS_TGT BUILD_DIR=$BUILD_DIR bash ./scripts/build_lfs_core.sh"
   [mount_lfs]="./scripts/mount_lfs.sh"
+  [fix_toolchain]="chroot_exec fix_toolchain.sh"
   [build_lfs_system]="chroot_exec build_lfs_system.sh"
   [config_system]="chroot_exec config_system.sh"
   [unmount_lfs]="./scripts/unmount_lfs.sh"
@@ -61,6 +62,7 @@ STEP_ORDER=(
   init_lfs
   build_toolchain
   mount_lfs
+  fix_toolchain
   build_lfs_system
   config_system
   unmount_lfs
@@ -83,6 +85,7 @@ run_step() {
     chroot "$LFS" /tools/bin/env -i \
       HOME=/root TERM="$TERM" PS1='(lfs) \u:\w\$ ' \
       PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin \
+      LFS=$LFS LFS_TGT=$LFS_TGT \
       /tools/bin/bash --login -c "$inside_path"
   else
     if ! eval "$cmd"; then

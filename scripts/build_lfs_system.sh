@@ -1,6 +1,11 @@
 #!/bin/bash
 set -e
 
+export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin
+
+ls $LFS/usr/lib/crt1.o
+ls $LFS/usr/include/stdio.h
+
 echo "🧱 Building LFS system..."
 
 # Building the LFS core system follow the LFS Chapter 6 instructions.

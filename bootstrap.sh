@@ -46,8 +46,8 @@ declare -A STEPS=(
   [init_lfs]="./scripts/init_lfs.sh"
   [build_toolchain]="sudo -u lfs env PATH=/tools/bin:$PATH LFS=$LFS LFS_TGT=$LFS_TGT BUILD_DIR=$BUILD_DIR bash ./scripts/build_lfs_core.sh"
   [mount_lfs]="./scripts/mount_lfs.sh"
-  [build_lfs_system]="chroot_exec ./scripts/build_lfs_system.sh"
-  [config_system]="chroot_exec ./scripts/config_system.sh"
+  [build_lfs_system]="chroot_exec build_lfs_system.sh"
+  [config_system]="chroot_exec config_system.sh"
   [unmount_lfs]="./scripts/unmount_lfs.sh"
   [boot_test]="./scripts/boot_test.sh"
 )
@@ -78,10 +78,12 @@ run_step() {
 
   if [[ "$cmd" == chroot_exec* ]]; then
     local inside_script="${cmd#chroot_exec }"
+    local inside_path="/scripts/$(basename "$inside_script")"
+
     chroot "$LFS" /tools/bin/env -i \
       HOME=/root TERM="$TERM" PS1='(lfs) \u:\w\$ ' \
       PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin \
-      /tools/bin/bash --login -c "$inside_script"
+      /tools/bin/bash --login -c "$inside_path"
   else
     if ! eval "$cmd"; then
       echo -e "${RED}❌ Step '$name' failed. Aborting.${NC}"

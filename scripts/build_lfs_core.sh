@@ -277,13 +277,22 @@ build_bash_pass1() {
   echo "✅  Bash-5.2 (pass 1) done."
 }
 
+build_make_pass1() {
+  echo "🔧  make (pass 1)…"
+  rm -rf make-*/
+  tar -xf make-*.tar.*z
+  cd make-*/
 
-# 5. Compiling a Cross-Toolchain
-#   - Binutils-2.44 - Pass 1
-#   - GCC-14.2.0 - Pass 1
-#   - Linux-6.13.4 API Headers
-#   - Glibc-2.41
-#   - Libstdc++ from GCC-14.2.0
+  ./configure --prefix=/tools --without-guile
+
+  make -j$(nproc)
+  make install
+
+  cd ..
+  rm -rf make-*/
+  echo "✅  make (pass 1) done."
+}
+
 build_binutils_pass1
 build_gcc_pass1
 check_linux_headers
@@ -292,3 +301,4 @@ sync_glibc_headers
 adjust_toolchain
 build_bash_pass1
 build_coreutils_pass1
+build_make_pass1

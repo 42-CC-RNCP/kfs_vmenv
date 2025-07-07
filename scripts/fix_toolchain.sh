@@ -40,6 +40,22 @@ GCC_BIN="/tools/bin/${LFS_TGT}-gcc"
 SPECS=$(dirname $("$GCC_BIN" -print-libgcc-file-name))/specs
 "$GCC_BIN" -dumpspecs | sed 's@/tools@@g' > "$SPECS"
 
+FALLBACK_LIB=$("$GCC_BIN" -print-search-dirs | grep '^libraries:' | cut -d '=' -f2 | cut -d ':' -f1)
+
+echo "📁 Copying crt and libc files into: $FALLBACK_LIB"
+mkdir -pv "$FALLBACK_LIB"
+cp -v /tools/lib/crt*.o /tools/lib/libc.so /tools/lib/libc_nonshared.a "$FALLBACK_LIB"
+
+# 📁 Copying essential .o and .so files into GCC's real search path
+LIBDIR=$("$GCC_BIN" -print-file-name=libc.so)
+TARGET_LIBDIR=$(dirname "$LIBDIR")
+
+echo "📁 Copying crt and libc files into: $TARGET_LIBDIR"
+cp -v /tools/lib/crt*.o "$TARGET_LIBDIR/" || true
+cp -v /tools/lib/libc.so "$TARGET_LIBDIR/" || true
+cp -v /tools/lib/libc_nonshared.a "$TARGET_LIBDIR/" || true
+
+
 echo "🧪 Running sanity check..."
 cd /tmp
 echo 'int main(){}' > dummy.c

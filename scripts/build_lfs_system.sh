@@ -3,8 +3,13 @@ set -e
 
 export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin
 
-ls /usr/lib/crt1.o
-ls /usr/include/stdio.h
+echo "🧱 Verifying compiler produces working binaries..."
+echo "int main(){}" > dummy.c
+/tools/bin/${LFS_TGT}-gcc dummy.c -o dummy || {
+  echo "❌ GCC cannot compile basic binary – something is broken."
+  exit 1
+}
+rm dummy dummy.c
 
 echo "🧱 Building LFS system..."
 

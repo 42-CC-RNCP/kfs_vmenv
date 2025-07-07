@@ -3,22 +3,26 @@ set -e
 
 echo "🔧 [LFS] Building binutils (pass 2)..."
 
+export LFS_TGT=$(uname -m)-lfs-linux-gnu
+export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/tools/bin
+
 cd /sources
+rm -rf binutils-*/
 tar -xf binutils-*.tar.*z
 cd binutils-*/
 
 mkdir -v build
 cd build
 
-../configure --prefix=/usr        \
+../configure --prefix=/usr              \
              --build=$(../config.guess) \
-             --host=$(uname -m)-lfs-linux-gnu \
-             --disable-nls        \
-             --enable-shared      \
-             --disable-werror     \
+             --host=$LFS_TGT            \
+             --disable-nls              \
+             --enable-shared            \
+             --disable-werror           \
              --enable-64-bit-bfd
 
-make -j$(nproc)
+make -j"$(nproc)"
 make tooldir=/usr install
 
 cd /sources

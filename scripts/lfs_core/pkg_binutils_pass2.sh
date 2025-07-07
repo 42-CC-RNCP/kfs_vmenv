@@ -25,7 +25,11 @@ cd build
              --disable-werror           \
              --enable-64-bit-bfd
 
-make -j"$(nproc)"
+make -j$(nproc) > make.log 2>&1 || {
+    echo "❌ make failed. Dumping last 50 lines of make.log:"
+    tail -n 50 make.log
+    exit 1
+  }
 make tooldir=/usr install
 
 cd /sources

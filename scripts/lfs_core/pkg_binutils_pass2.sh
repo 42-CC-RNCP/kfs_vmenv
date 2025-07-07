@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+export PATH=/tools/bin:/bin:/usr/bin
+hash -r
+
 echo "🔧 [LFS] Building binutils (pass 2)..."
 
 export LFS_TGT=$(uname -m)-lfs-linux-gnu

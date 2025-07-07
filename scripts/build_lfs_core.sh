@@ -283,15 +283,20 @@ build_make_pass1() {
   tar -xf make-*.tar.*z
   cd make-*/
 
-  ./configure --prefix=/tools --without-guile
+  ./configure --prefix=/tools --without-guile --host=$LFS_TGT
 
-  make -j$(nproc)
+  make -j$(nproc) > make.log 2>&1 || {
+    echo "❌ make failed. Dumping last 50 lines of make.log:"
+    tail -n 50 make.log
+    exit 1
+  }
   make install
 
   cd ..
   rm -rf make-*/
   echo "✅  make (pass 1) done."
 }
+
 
 build_binutils_pass1
 build_gcc_pass1

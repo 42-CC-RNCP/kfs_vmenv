@@ -23,14 +23,13 @@ echo "🔗  Ensuring /bin/bash and /usr/bin/env are available in chroot..."
 
 install -dv "$LFS/bin" "$LFS/usr/bin"
 
-# 1. /bin/bash  →  /tools/bin/bash
-if [ ! -e "$LFS/bin/bash" ]; then
-  ln -sv /tools/bin/bash "$LFS/bin/bash"
-fi
+echo "🔧 Fixing tool symlinks in /bin and /usr/bin..."
 
-# 2. /usr/bin/env  →  /tools/bin/env
-if [ ! -e "$LFS/usr/bin/env" ]; then
-  ln -sv /tools/bin/env "$LFS/usr/bin/env"
-fi
+for tool in bash cat chmod chown cp cut echo env false grep install ln ls mkdir \
+             mv pwd rm sed sh stty test touch true uname which head tail basename; do
+  for dir in /bin /usr/bin; do
+    [ -x /tools/bin/$tool ] && ln -sf /tools/bin/$tool $LFS$dir/$tool
+  done
+done
 
 echo "✅  Interpreter symlinks created."

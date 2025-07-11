@@ -27,3 +27,4 @@ https://download.savannah.gnu.org/releases/man-db/man-db-2.13.0.tar.xz
 https://www.kernel.org/pub/linux/docs/man-pages/man-pages-6.12.tar.xz
 https://tukaani.org/xz/xz-5.4.4.tar.xz
 https://astron.com/pub/file/file-5.46.tar.gz
+https://github.com/westes/flex/files/981163/flex-2.6.4.tar.gz

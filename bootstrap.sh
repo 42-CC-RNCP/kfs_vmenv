@@ -47,7 +47,7 @@ declare -A STEPS=(
   [build_toolchain]="sudo -u lfs env PATH=/tools/bin:$PATH LFS=$LFS LFS_TGT=$LFS_TGT BUILD_DIR=$BUILD_DIR bash ./scripts/build_lfs_core.sh"
   [mount_lfs]="./scripts/mount_lfs.sh"
   [fix_toolchain]="chroot_exec fix_toolchain.sh"
-  [build_lfs_system]="chroot_exec build_lfs_system.sh"
+  [build_pass2]="chroot_exec build_pass2.sh"
   [config_system]="chroot_exec config_system.sh"
   [unmount_lfs]="./scripts/unmount_lfs.sh"
   [boot_test]="./scripts/boot_test.sh"
@@ -63,7 +63,7 @@ STEP_ORDER=(
   build_toolchain
   mount_lfs
   fix_toolchain
-  build_lfs_system
+  build_pass2
   config_system
   unmount_lfs
   boot_test

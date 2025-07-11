@@ -20,7 +20,7 @@ _run_make () { make; make install; }
 _header () { printf "\e[34m🔷 %s...\e[0m\n" "$*"; }
 
 
-### 0  预检 ###################################################################
+### 0  Verify environment ########################################################
 _header "Sanity check toolchain (has /tools)"
 echo 'int main(){}' > dummy.c
 ${LFS_TGT}-gcc dummy.c -o dummy

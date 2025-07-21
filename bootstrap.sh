@@ -84,7 +84,7 @@ run_step() {
 
     chroot "$LFS" /tools/bin/env -i \
       HOME=/root TERM="$TERM" PS1='(lfs) \u:\w\$ ' \
-      PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin \
+      PATH=/tools/bin:/bin:/usr/bin:/sbin:/usr/sbin \
       LFS=$LFS LFS_TGT=$LFS_TGT \
       /tools/bin/bash --login -c "$inside_path"
   else

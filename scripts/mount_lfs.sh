@@ -14,10 +14,6 @@ ensure_mount /dev/pts           "$LFS/dev/pts"  ""      "rbind"
 ensure_mount proc               "$LFS/proc"     proc    ""
 ensure_mount sysfs              "$LFS/sys"      sysfs   ""
 ensure_mount "$BASEDIR/scripts" "$LFS/scripts"  ""      "bind"
-
-mkdir -pv "$LFS/sources"
-ensure_mount "$BASEDIR/sources" "$LFS/sources"  ""      "bind"
-chmod -v a+wt "$LFS/sources"
 # ensure_mount tmpfs       "$LFS/run"      tmpfs   "mode=0755,nosuid,nodev"
 
 echo "✅  LFS pseudo-fs mounted."

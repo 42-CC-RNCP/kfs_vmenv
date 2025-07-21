@@ -69,17 +69,25 @@ cd "$SRC"
 _header "Glibc-2.39"
 _unpack glibc-2.39
 echo "current dir: $(pwd)"
+
 mkdir build && cd build
-../configure --prefix=/usr --disable-werror --enable-kernel=4.19
-_run_make
-cat >/etc/nsswitch.conf <<EOF
-passwd: files
-group:  files
-shadow: files
-hosts:  files dns
-networks: files
-EOF
-_clean glibc-2.39
+
+export CC=${LFS_TGT}-gcc
+export CXX=${LFS_TGT}-g++
+export AR=${LFS_TGT}-ar
+export RANLIB=${LFS_TGT}-ranlib
+
+../configure --prefix=/usr                       \
+             --build=$(../scripts/config.guess)  \
+             --host=$LFS_TGT                     \
+             --disable-werror                    \
+             --enable-kernel=4.19                \
+             --enable-stack-protector=strong
+
+make -j$(nproc)
+make install
+
+cd "$SRC"
 
 ### 4  Sanity check toolchain (no /tools) ######################################
 _header "Sanity check toolchain (no /tools)"

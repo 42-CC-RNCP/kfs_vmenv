@@ -6,19 +6,32 @@ export PATH=/tools/bin:/bin:/usr/bin:/sbin:/usr/sbin
 export MAKEFLAGS="-j$(nproc)"
 SRC=/sources
 
-_unpack () {
-  echo "cd $SRC && rm -rf ${1%%-*}-*/"
-  echo "tar -xf $1.tar.*z && cd ${2:-$1}"
-  cd "$SRC"
-  echo "Listing source archive:"
-  ls -al
-  ls -l "$1".tar.*z || { echo "❌ No source archive found for $1"; exit 1; }
-  rm -rf "${1%%-*}-*/"
-  tar -xf "$1".tar.*z
-  cd "${2:-$1}"
+_unpack() {
+  set +f
+  shopt -s nullglob
+
+  local pat="$1"
+  local tars=( "$SRC"/$pat.tar.*z )
+  echo "current dir: $(pwd) for unpacking "$SRC"/$pat.tar.*z"
+  [[ ${#tars[@]} == 1 ]] ||
+      { echo "❌ $pat: expected 1 archive, found ${#tars[@]}"; exit 1; }
+
+  rm -rf "$SRC"/$pat*/
+
+  echo -e "\e[34mListing source archive:\e[0m"
+  ls -l "$tars"
+
+  tar -xf "${tars[0]}" -C "$SRC"
+
+  local dirs=( "$SRC"/$pat*/ )
+  [[ ${#dirs[@]} == 1 ]] ||
+      { echo "❌ $pat: expected 1 directory after extraction, found ${#dirs[@]}"; exit 1; }
+
+  cd "${dirs[0]}"
+  shopt -u nullglob
 }
 
-_clean () { cd "$SRC" && rm -rf "$1" "${1%%-*}"-*/; }
+_clean () { cd "$SRC" && rm -rf "${1%%-*}"-*/; cd /;}
 
 _run_make () { make; make install; }
 
@@ -34,19 +47,28 @@ rm dummy dummy.c
 ### 1  Man-pages ##############################################################
 _header "Man-pages"
 _unpack man-pages-6.*
+echo "current dir: $(pwd)"
 make prefix=/usr install
 _clean man-pages-6.*
 
 ### 2  Iana-etc ###############################################################
 _header "Iana-etc"
 _unpack iana-etc-*
-make
-make prefix=/usr install
-_clean iana-etc-*
+echo "current dir: $(pwd)"
+if [[ -f services && -f protocols ]]; then
+    echo "📄 Installing services & protocols..."
+    install -v -m644 services   /etc/services
+    install -v -m644 protocols  /etc/protocols
+else
+    echo "❌ services/protocols not found in iana-etc archive!"
+    exit 1
+fi
+cd "$SRC"
 
 ### 3  Glibc ##################################################################
 _header "Glibc-2.39"
 _unpack glibc-2.39
+echo "current dir: $(pwd)"
 mkdir build && cd build
 ../configure --prefix=/usr --disable-werror --enable-kernel=4.19
 _run_make

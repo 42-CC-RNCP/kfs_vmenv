@@ -7,10 +7,13 @@ export MAKEFLAGS="-j$(nproc)"
 SRC=/sources
 
 _unpack () {
-  echo "cd $SRC && rm -rf $1 ${1%%-*}-*/"
+  echo "cd $SRC && rm -rf ${1%%-*}-*/"
   echo "tar -xf $1.tar.*z && cd ${2:-$1}"
   cd "$SRC"
-  rm -rf "$1"      "${1%%-*}"-*/
+  echo "Listing source archive:"
+  ls -al
+  ls -l "$1".tar.*z || { echo "❌ No source archive found for $1"; exit 1; }
+  rm -rf "${1%%-*}-*/"
   tar -xf "$1".tar.*z
   cd "${2:-$1}"
 }

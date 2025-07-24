@@ -65,6 +65,20 @@ else
 fi
 cd "$SRC"
 
+### 9  Coreutils-pass2 ########################################################
+_header "Coreutils-pass2"
+_unpack coreutils-9.3
+./configure --prefix=/usr \
+            --enable-no-install-program=kill,uptime \
+            --host=$LFS_TGT --build=$(./build-aux/config.guess)
+make -j$(nproc)
+make install
+mv -v /usr/bin/{cat,chgrp,chmod,chown,cp,date,dd,echo,ln,mkdir,mknod,mv,pwd,rm,rmdir,stty,true,false,sleep} /bin
+which mv
+ldd /bin/mv | grep selinux || echo "✅ mv is not linked against selinux"
+_clean coreutils-9.3
+hash -r
+
 ### 3  Glibc ##################################################################
 _header "Glibc-2.39"
 _unpack glibc-2.39
@@ -151,15 +165,6 @@ mkdir build && cd build
 _run_make
 ln -sv gcc /usr/bin/cc
 _clean gcc-14.2.0
-
-### 9  Coreutils-pass2 ########################################################
-_header "Coreutils-pass2"
-_unpack coreutils-9.3
-./configure --prefix=/usr --enable-no-install-program=kill,uptime
-_run_make
-mv -v /usr/bin/{cat,chgrp,chmod,chown,cp,date,dd,echo,ln,mkdir,mknod,mv,pwd,rm,rmdir,stty,true,false,sleep} /bin
-_clean coreutils-9.3
-hash -r
 
 ### 10  Diffutils Gawk Findutils Grep Sed ##################################
 for PKG in diffutils-3.* gawk-5.* findutils-4.* grep-3.* sed-4.*

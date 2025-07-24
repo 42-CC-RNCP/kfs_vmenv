@@ -45,7 +45,6 @@ declare -A STEPS=(
   [setup_bootloader]="./scripts/setup_bootloader.sh"
   [init_lfs]="./scripts/init_lfs.sh"
   [build_toolchain]="sudo -u lfs env PATH=/tools/bin:$PATH LFS=$LFS LFS_TGT=$LFS_TGT BUILD_DIR=$BUILD_DIR bash ./scripts/build_lfs_core.sh"
-  [build_pass1_extra]="sudo -u lfs env PATH=/tools/bin:$PATH LFS=$LFS LFS_TGT=$LFS_TGT BUILD_DIR=$BUILD_DIR bash ./scripts/build_pass1_extra.sh"
   [mount_lfs]="./scripts/mount_lfs.sh"
   [fix_toolchain]="chroot_exec fix_toolchain.sh"
   [build_pass2]="chroot_exec build_pass2.sh"
@@ -62,7 +61,6 @@ STEP_ORDER=(
   setup_bootloader
   init_lfs
   build_toolchain
-  build_pass1_extra
   mount_lfs
   fix_toolchain
   build_pass2

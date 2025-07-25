@@ -28,7 +28,7 @@ fi
 #---------------------------------------
 # Check if LFS exists
 #---------------------------------------
-sudo mkdir -pv "$LFS/tools"
+sudo mkdir -pv "$LFS/tools/bin"
 
 #---------------------------------------
 # Copy wget-list to LFS sources
@@ -48,6 +48,19 @@ wget --input-file="$WGET_LIST_DEST" \
       --tries=5 --no-check-certificate \
      --directory-prefix="$LFS/sources"
 echo "✅ Sources downloaded (only new or unfinished files were fetched)."
+
+#---------------------------------------
+# Download busybox static musl binary
+#---------------------------------------
+BB=$LFS/tools/bin/busybox
+if [[ ! -x $BB ]]; then
+  echo "📦 busybox not found in /tools; downloading static binary..."
+  wget --no-check-certificate -O $BB \
+    https://busybox.net/downloads/binaries/1.31.0-defconfig-multiarch-musl/busybox-x86_64 \
+    || { echo "❌ Failed to download busybox"; exit 1; }
+  chmod 755 $BB
+fi
+echo "✅ busybox binary is ready at $BB"
 
 #---------------------------------------
 # Create LFS user and group

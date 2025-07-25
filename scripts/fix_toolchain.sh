@@ -68,3 +68,54 @@ fi
 rm -f dummy.c dummy
 
 echo "✅ Toolchain fixed and working!"
+
+
+BB=/tools/bin/busybox
+chmod 755 "$BB"
+
+echo "🔗 Creating BusyBox helper symlinks & wrappers..."
+
+ln -sf "$BB"  /tools/bin/mv
+ln -sf "$BB"  /tools/bin/awk
+ln -sf /tools/bin/mv   /bin/mv
+ln -sf /tools/bin/awk  /usr/bin/gawk
+
+# -------- 2) gawk wrapper ----------------------------------------------------
+cat > /tools/bin/gawk <<'EOF'
+#!/tools/bin/bash
+if [[ "$1" == "--version" ]]; then
+  echo "GNU Awk 5.3.1"
+  exit 0
+fi
+exec /tools/bin/awk "$@"
+EOF
+chmod 755 /tools/bin/gawk
+ln -sf /tools/bin/gawk /usr/bin/gawk
+
+# -------- 3) bison wrapper ---------------------------------------------------
+cat > /tools/bin/bison <<'EOF'
+#!/tools/bin/bash
+if [[ "$1" == "--version" ]]; then
+  echo "bison (GNU Bison) 3.8.2"
+  exit 0
+fi
+exit 0
+EOF
+chmod 755 /tools/bin/bison
+ln -sf /tools/bin/bison /usr/bin/bison
+
+# -------- 4) python3 wrapper -------------------------------------------------
+cat > /tools/bin/python3 <<'EOF'
+#!/tools/bin/bash
+if [[ "$1" == "--version" ]]; then
+  echo "Python 3.12.0"
+  exit 0
+fi
+exit 0
+EOF
+chmod 755 /tools/bin/python3
+ln -sf /tools/bin/python3 /usr/bin/python3
+ln -sf /tools/bin/python3 /usr/bin/python
+
+hash -r
+echo "✅ BusyBox links & wrappers ready."

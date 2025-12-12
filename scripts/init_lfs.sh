@@ -41,13 +41,20 @@ fi
 echo "📄 Copying wget-list to $WGET_LIST_DEST ..."
 sudo install -m 644 -o root -g root "$WGET_LIST_SRC" "$WGET_LIST_DEST"
 
-echo "⬇️  Downloading LFS toolchain sources ..."
-wget --input-file="$WGET_LIST_DEST" \
-     --timestamping \
-     --retry-connrefused --timeout=30 \
-      --tries=5 --no-check-certificate \
-     --directory-prefix="$LFS/sources"
-echo "✅ Sources downloaded (only new or unfinished files were fetched)."
+echo "⬇️  Downloading LFS toolchain sources (abort on first failure) ..."
+while IFS= read -r url; do
+  [[ -z "$url" || "$url" =~ ^[[:space:]]*# ]] && continue
+
+  echo "   -> $url"
+  wget --timestamping \
+       --retry-connrefused --timeout=30 \
+       --tries=5 --no-check-certificate \
+       --directory-prefix="$LFS/sources" \
+       "$url" || { echo "❌ Download failed: $url"; exit 1; }
+
+done < "$WGET_LIST_DEST"
+
+echo "✅ Sources downloaded (only new files were fetched)."
 
 #---------------------------------------
 # Download busybox static musl binary

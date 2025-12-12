@@ -21,8 +21,8 @@ https://ftpmirror.gnu.org/gnu/sed/sed-4.9.tar.xz
 https://github.com/shadow-maint/shadow/releases/download/4.17.3/shadow-4.17.3.tar.xz
 https://github.com/slicer69/sysvinit/releases/download/3.14/sysvinit-3.14.tar.xz
 https://www.kernel.org/pub/linux/utils/kernel/kmod/kmod-31.tar.xz
-https://sourceforge.net/projects/psmisc/files/psmisc/psmisc-23.7.tar.xz
-https://sourceforge.net/projects/procps-ng/files/Production/procps-ng-4.0.5.tar.xz
+https://sourceforge.net/projects/psmisc/files/psmisc/psmisc-23.7.tar.xz/download
+https://sourceforge.net/projects/procps-ng/files/Production/procps-ng-4.0.5.tar.xz/download
 https://download.savannah.gnu.org/releases/man-db/man-db-2.13.0.tar.xz
 https://tukaani.org/xz/xz-5.4.4.tar.xz
 https://astron.com/pub/file/file-5.46.tar.gz

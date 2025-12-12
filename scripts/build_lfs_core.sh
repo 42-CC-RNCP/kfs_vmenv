@@ -92,6 +92,8 @@ build_linux_headers() {
   cd linux-*/
 
   make mrproper
+  cp -v "$BASEDIR/config/kernel.config" .config
+  make olddefconfig
   make headers
 
   find usr/include -name '.*' -delete

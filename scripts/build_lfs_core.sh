@@ -84,6 +84,28 @@ build_gcc_pass1() {
   echo "✅ gcc (pass 1) done."
 }
 
+build_linux_headers() {
+  echo "🔧 Installing Linux headers (per LFS §5.4)..."
+
+  rm -rf linux-*/
+  tar -xf linux-*.tar.*z
+  cd linux-*/
+
+  make mrproper
+  make headers
+
+  find usr/include -name '.*' -delete
+  find usr/include -name '*.orig' -delete
+
+  rm -rf $LFS/usr/include
+  mkdir -p $LFS/usr
+  cp -rv usr/include $LFS/usr/
+
+  cd ..
+  rm -rf linux-*/
+  echo "✅ Linux headers installed to $LFS/usr/include"
+}
+
 check_linux_headers() {
   header_folder="$LFS/usr/include/linux"
   if [[ -d "$header_folder" ]]; then
@@ -300,6 +322,7 @@ build_make_pass1() {
 
 build_binutils_pass1
 build_gcc_pass1
+build_linux_headers
 check_linux_headers
 build_glibc
 sync_glibc_headers

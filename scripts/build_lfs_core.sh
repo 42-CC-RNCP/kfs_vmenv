@@ -142,6 +142,11 @@ build_glibc() {
     exit 1
   fi
 
+  echo "DEBUG: CC=$(command -v $LFS_TGT-gcc)"
+  $LFS_TGT-gcc -print-sysroot || true
+  echo "" | $LFS_TGT-gcc -E -v -xc - 2>&1 | sed -n "/search starts here:/,/End of search list/p" || true
+
+
   ../configure --prefix=/tools \
              --with-sysroot=$LFS \
              --build=$(../scripts/config.guess) \

@@ -94,14 +94,13 @@ build_linux_headers() {
   make mrproper
   cp -v "$BASEDIR/config/kernel.config" .config
   make olddefconfig
-  make headers
 
-  find usr/include -name '.*' -delete
-  find usr/include -name '*.orig' -delete
+  rm -fv dest
+  make INSTALL_HDR_PATH=dest headers_install
 
-  rm -rf $LFS/usr/include
-  mkdir -p $LFS/usr
-  cp -rv usr/include $LFS/usr/
+  rm -rf "$LFS/usr/include"
+  mkdir -p "$LFS/usr"
+  cp -rv dest/include "$LFS/usr/"
 
   cd ..
   rm -rf linux-*/

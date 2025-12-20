@@ -260,7 +260,6 @@ build_coreutils_pass1() {
   cd ..
   rm -rf coreutils-8.32
   echo "✅  coreutils-8.32 (pass 1) done."
-  ls $LFS/tools/bin | head
 }
 
 _patch_termcap() {

@@ -14,8 +14,7 @@ ensure_mount /dev/pts           "$LFS/dev/pts"  ""      "rbind"
 ensure_mount proc               "$LFS/proc"     proc    ""
 ensure_mount sysfs              "$LFS/sys"      sysfs   ""
 ensure_mount "$BASEDIR/scripts" "$LFS/scripts"  ""      "bind"
-ensure_mount "$LFS/sources"     "$LFS/sources"  ""      "bind"
-# ensure_mount tmpfs       "$LFS/run"      tmpfs   "mode=0755,nosuid,nodev"
+ensure_mount tmpfs              "$LFS/run"      tmpfs   "mode=0755,nosuid,nodev"
 
 echo "✅  LFS pseudo-fs mounted."
 
@@ -29,7 +28,7 @@ echo "🔧 Fixing tool symlinks in /bin and /usr/bin..."
 for tool in bash cat chmod chown cp cut echo env false grep install ln ls mkdir \
              mv pwd rm sed sh stty test touch true uname which head tail basename; do
   for dir in /bin /usr/bin; do
-    [ -x /tools/bin/$tool ] && ln -sf /tools/bin/$tool $LFS$dir/$tool
+    [ -x "$LFS/tools/bin/$tool" ] && ln -sf /tools/bin/$tool "$LFS$dir/$tool"
   done
 done
 

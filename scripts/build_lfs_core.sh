@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-export PATH=/usr/bin:/bin:/usr/sbin:/sbin:$PATH
+export PATH=/tools/bin:/usr/bin:/bin
 hash -r
 
 if [[ -z "$LFS" || -z "$LFS_TGT" ]]; then
@@ -21,7 +21,7 @@ build_binutils_pass1() {
   cd binutils-*/
 
   (mkdir -v build ) && cd build
-  ../configure --prefix=$LFS/tools \
+  ../configure --prefix=/tools \
                --with-sysroot=$LFS \
                --target=$LFS_TGT \
                --disable-nls \
@@ -57,7 +57,7 @@ build_gcc_pass1() {
 
   mkdir -v build && cd build
   ../configure --target=$LFS_TGT \
-               --prefix=$LFS/tools \
+               --prefix=/tools \
                --with-glibc-version=2.13 \
                --with-sysroot=$LFS \
                --with-newlib \
@@ -98,9 +98,9 @@ build_linux_headers() {
   rm -fv dest
   make INSTALL_HDR_PATH=dest headers_install
 
-  rm -rf "$LFS/usr/include"
-  mkdir -p "$LFS/usr"
-  cp -rv dest/include "$LFS/usr/"
+  rm -rf "$LFS/usr/include/linux" "$LFS/usr/include/asm" "$LFS/usr/include/asm-generic"
+  mkdir -p "$LFS/usr/include"
+  cp -rv dest/include/* "$LFS/usr/include/"
 
   cd ..
   rm -rf linux-*/
@@ -134,7 +134,7 @@ build_glibc() {
   export CXX=$LFS_TGT-g++
   export AR=$LFS_TGT-ar
   export RANLIB=$LFS_TGT-ranlib
-  export PATH=/usr/bin:/bin:$LFS/tools/bin
+  export PATH=/tools/bin:/usr/bin:/bin
 
   echo "🧪 Validating header exists..."
   if [[ ! -f $LFS/usr/include/linux/version.h ]]; then
@@ -180,7 +180,7 @@ adjust_toolchain() {
   echo "🔧 Adjusting start files..."
   mkdir -pv $LFS/usr/lib
   for f in crt1.o crti.o crtn.o ; do
-    [ -e $LFS/usr/lib/$f ] || ln -sv $LFS/tools/lib/$f $LFS/usr/lib
+    [ -e "$LFS/usr/lib/$f" ] || ln -sv "/tools/lib/$f" "$LFS/usr/lib/$f"
   done
   ls -l $LFS/usr/lib/crt*.o
 
@@ -194,21 +194,21 @@ adjust_toolchain() {
   case "$(uname -m)" in
     x86_64)
       [ -e $LFS/usr/lib/ld-linux-x86-64.so.2 ] \
-        || ln -sv $LFS/tools/lib/ld-linux-x86-64.so.2 $LFS/usr/lib ;;
+        || ln -sv /tools/lib/ld-linux-x86-64.so.2 $LFS/usr/lib ;;
     i?86)
       [ -e $LFS/usr/lib/ld-linux.so.2 ] \
-        || ln -sv $LFS/tools/lib/ld-linux.so.2 $LFS/usr/lib ;;
+        || ln -sv /tools/lib/ld-linux.so.2 $LFS/usr/lib ;;
     aarch64|arm64)
       [ -e $LFS/usr/lib/ld-linux-aarch64.so.1 ] \
-        || ln -sv $LFS/tools/lib/ld-linux-aarch64.so.1 $LFS/usr/lib ;;
+        || ln -sv /tools/lib/ld-linux-aarch64.so.1 $LFS/usr/lib ;;
   esac
-  [ -e $LFS/usr/lib/libc.so ]         || ln -sv $LFS/tools/lib/libc.so $LFS/usr/lib
-  [ -e $LFS/usr/lib/libc_nonshared.a ]|| ln -sv $LFS/tools/lib/libc_nonshared.a $LFS/usr/lib
+  [ -e $LFS/usr/lib/libc.so ]         || ln -sv /tools/lib/libc.so $LFS/usr/lib
+  [ -e $LFS/usr/lib/libc_nonshared.a ]|| ln -sv /tools/lib/libc_nonshared.a $LFS/usr/lib
 
 
   # c. rewrite GCC specs
   echo "🔧 Rewriting GCC specs..."
-  GCC_BIN=$LFS/tools/bin/${LFS_TGT}-gcc
+  GCC_BIN=/tools/bin/${LFS_TGT}-gcc
   SPECS=$(dirname $("$GCC_BIN" -print-libgcc-file-name))/specs
   "$GCC_BIN" -dumpspecs | sed 's@/tools/include@@g' > "$SPECS"
 
@@ -233,9 +233,9 @@ build_coreutils_pass1() {
 
   #──── configure ────────────────────────────────────────────
   export FORCE_UNSAFE_CONFIGURE=1
-  export PATH=/usr/bin:/bin:$LFS/tools/bin
+  export PATH=/tools/bin:/usr/bin:/bin
 
-  CC=$LFS/tools/bin/${LFS_TGT}-gcc \
+  CC=/tools/bin/${LFS_TGT}-gcc \
   CFLAGS="-DMB_LEN_MAX=16" \
   ./configure --prefix=/tools --host=$LFS_TGT \
               --build=$(./build-aux/config.guess) \

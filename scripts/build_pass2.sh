@@ -6,6 +6,11 @@ export PATH=/tools/bin:/bin:/usr/bin:/sbin:/usr/sbin
 export MAKEFLAGS="-j$(nproc)"
 SRC=/sources
 
+echo 'int main(){}' > /tmp/t.c
+${LFS_TGT}-gcc /tmp/t.c -o /tmp/t
+readelf -l /tmp/t | grep -E 'Requesting program interpreter|/tools' || true
+rm -f /tmp/t /tmp/t.c
+
 _unpack() {
   set +f
   shopt -s nullglob

@@ -28,11 +28,11 @@ BUSYBOX_URL="https://busybox.net/downloads/binaries/1.31.0-defconfig-multiarch-m
 LFS="$ROOT_MNT"
 LFS_TGT="$(uname -m)-lfs-linux-gnu"
 
-export HOST BASEDIR KERNEL_VERSION KERNEL_URL KERNEL_NAME BUILD_DIR INSTALL_DIR \
+export HOST BASEDIR KERNEL_VERSION KERNEL_URL KERNEL_NAME BUILD_DIR \
        IMAGE IMAGE_SIZE MNT_ROOT BOOT_MNT ROOT_MNT BUSYBOX_URL LFS LFS_TGT
 
 echo -e "${GREEN}🌟 Environment variables set:${NC}"
-env | grep -E '^(ARCH|HOST|BASEDIR|KERNEL_VERSION|KERNEL_URL|KERNEL_NAME|BUILD_DIR|INSTALL_DIR|IMAGE|IMAGE_SIZE|MNT_ROOT|BOOT_MNT|ROOT_MNT|BUSYBOX_URL|LFS|LFS_TGT)='
+env | grep -E '^(ARCH|HOST|BASEDIR|KERNEL_VERSION|KERNEL_URL|KERNEL_NAME|BUILD_DIR|IMAGE|IMAGE_SIZE|MNT_ROOT|BOOT_MNT|ROOT_MNT|BUSYBOX_URL|LFS|LFS_TGT)='
 
 # ----------------------------
 # Define steps and their scripts
@@ -44,9 +44,10 @@ declare -A STEPS=(
   [build_kernel]="./scripts/build_kernel.sh"
   [setup_bootloader]="./scripts/setup_bootloader.sh"
   [init_lfs]="./scripts/init_lfs.sh"
+  [link_tools]="./scripts/link_tools.sh"
   [build_toolchain]="sudo -u lfs env -i HOME=/home/lfs TERM=\"$TERM\" \
     LFS=\"$LFS\" LFS_TGT=\"$LFS_TGT\" BASEDIR=\"$BASEDIR\" BUILD_DIR=\"$BUILD_DIR\" \
-    PATH=\"/usr/bin:/bin:$LFS/tools/bin\" \
+    PATH=\"/usr/bin:/bin:/tools/bin\" \
     /bin/bash ./scripts/build_lfs_core.sh"
   [mount_lfs]="./scripts/mount_lfs.sh"
   [fix_toolchain]="chroot_exec fix_toolchain.sh"
@@ -63,6 +64,7 @@ STEP_ORDER=(
   build_kernel
   setup_bootloader
   init_lfs
+  link_tools
   build_toolchain
   mount_lfs
   fix_toolchain
@@ -88,7 +90,7 @@ run_step() {
     chroot "$LFS" /tools/bin/env -i \
       HOME=/root TERM="$TERM" PS1='(lfs) \u:\w\$ ' \
       PATH=/tools/bin:/bin:/usr/bin:/sbin:/usr/sbin \
-      LFS=$LFS LFS_TGT=$LFS_TGT \
+      LFS_TGT="$LFS_TGT" \
       /tools/bin/bash --login -c "$inside_path"
   else
     if ! eval "$cmd"; then

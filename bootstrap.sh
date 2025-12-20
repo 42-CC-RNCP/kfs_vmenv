@@ -47,7 +47,7 @@ declare -A STEPS=(
   [link_tools]="./scripts/link_tools.sh"
   [build_toolchain]="sudo -u lfs env -i HOME=/home/lfs TERM=\"$TERM\" \
     LFS=\"$LFS\" LFS_TGT=\"$LFS_TGT\" BASEDIR=\"$BASEDIR\" BUILD_DIR=\"$BUILD_DIR\" \
-    PATH=\"/usr/bin:/bin:/tools/bin\" \
+    PATH=\"/usr/bin:/bin\" \
     /bin/bash ./scripts/build_lfs_core.sh"
   [mount_lfs]="./scripts/mount_lfs.sh"
   [fix_toolchain]="chroot_exec fix_toolchain.sh"

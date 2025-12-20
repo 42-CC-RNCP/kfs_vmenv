@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-export PATH=/tools/bin:/usr/bin:/bin
+export PATH=/usr/bin:/bin
 hash -r
 
 if [[ -z "$LFS" || -z "$LFS_TGT" ]]; then
@@ -130,10 +130,10 @@ build_glibc() {
   echo "rootsbindir=/tools/bin" > configparms
 
   echo "🔧 Setting up cross-toolchain environment..."
-  export CC=$LFS_TGT-gcc
-  export CXX=$LFS_TGT-g++
-  export AR=$LFS_TGT-ar
-  export RANLIB=$LFS_TGT-ranlib
+  export CC=/tools/bin/$LFS_TGT-gcc
+  export CXX=/tools/bin/$LFS_TGT-g++
+  export AR=/tools/bin/$LFS_TGT-ar
+  export RANLIB=/tools/bin/$LFS_TGT-ranlib
   export PATH=/tools/bin:/usr/bin:/bin
 
   echo "🧪 Validating header exists..."
@@ -214,6 +214,7 @@ adjust_toolchain() {
 
   # d. sanity test
   echo "🔧 Performing sanity test..."
+  
   echo 'int main(){}' > dummy.c
   "${GCC_BIN}" dummy.c -o dummy
   if readelf -l dummy | grep -q '/tools'; then
@@ -276,7 +277,7 @@ _patch_termcap() {
 }
 
 build_bash_pass1() {
-  export PATH=/usr/bin:/bin:$LFS/tools/bin
+  export PATH=/usr/bin:/bin
   hash -r
   echo "🔧  Bash-5.2 (pass 1)…"
   rm -rf bash-*/
@@ -310,6 +311,9 @@ build_make_pass1() {
   tar -xf make-*.tar.*z
   cd make-*/
 
+  export PATH=/usr/bin:/bin
+  hash -r
+  export CONFIG_SHELL=/bin/bash
   ./configure --prefix=/tools --without-guile --host=$LFS_TGT
 
   make -j$(nproc) > make.log 2>&1 || {
@@ -331,7 +335,7 @@ build_linux_headers
 check_linux_headers
 build_glibc
 sync_glibc_headers
-adjust_toolchain
+# adjust_toolchain
 build_bash_pass1
 build_coreutils_pass1
 build_make_pass1

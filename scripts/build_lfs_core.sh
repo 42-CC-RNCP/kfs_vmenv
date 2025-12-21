@@ -21,7 +21,7 @@ build_binutils_pass1() {
   cd binutils-*/
 
   (mkdir -v build ) && cd build
-  ../configure --prefix=$LFS/tools \
+  ../configure --prefix=/tools \
                --with-sysroot=$LFS \
                --target=$LFS_TGT \
                --disable-nls \

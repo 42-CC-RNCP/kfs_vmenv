@@ -18,24 +18,28 @@ ensure_mount tmpfs              "$LFS/run"      tmpfs   "mode=0755,nosuid,nodev"
 
 echo "✅  LFS pseudo-fs mounted."
 
-# ── make sure basic interpreter symlinks exist inside $LFS ────────────────
-echo "🔗  Ensuring /bin/bash and /usr/bin/env are available in chroot..."
-
-install -dv "$LFS/bin" "$LFS/usr/bin"
-
-echo "🔧 Fixing tool symlinks in /bin and /usr/bin..."
-
-for tool in bash cat chmod chown cp cut echo env false grep install ln ls mkdir \
-             mv pwd rm sed sh stty test touch true uname which head tail basename; do
-  for dir in /bin /usr/bin; do
-    [ -x "$LFS/tools/bin/$tool" ] && ln -sf /tools/bin/$tool "$LFS$dir/$tool"
-  done
-done
-
-# --- Fix baked sysroot path for pass1 toolchain ---
-echo "🔗 Ensuring baked sysroot path exists inside chroot..."
+# --- Fix baked sysroot path for pass1 toolchain (only if your toolchain sysroot is /mnt/kernel_disk/root) ---
 mkdir -p "$LFS/mnt/kernel_disk"
 ln -snf / "$LFS/mnt/kernel_disk/root"
-echo "✅ /mnt/kernel_disk/root -> / created inside $LFS"
 
-echo "✅  Interpreter symlinks created."
+# # ── make sure basic interpreter symlinks exist inside $LFS ────────────────
+# echo "🔗  Ensuring /bin/bash and /usr/bin/env are available in chroot..."
+
+# install -dv "$LFS/bin" "$LFS/usr/bin"
+
+# echo "🔧 Fixing tool symlinks in /bin and /usr/bin..."
+
+# for tool in bash cat chmod chown cp cut echo env false grep install ln ls mkdir \
+#              mv pwd rm sed sh stty test touch true uname which head tail basename; do
+#   for dir in /bin /usr/bin; do
+#     [ -x "$LFS/tools/bin/$tool" ] && ln -sf /tools/bin/$tool "$LFS$dir/$tool"
+#   done
+# done
+
+# # --- Fix baked sysroot path for pass1 toolchain ---
+# echo "🔗 Ensuring baked sysroot path exists inside chroot..."
+# mkdir -p "$LFS/mnt/kernel_disk"
+# ln -snf / "$LFS/mnt/kernel_disk/root"
+# echo "✅ /mnt/kernel_disk/root -> / created inside $LFS"
+
+# echo "✅  Interpreter symlinks created."

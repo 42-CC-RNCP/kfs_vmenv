@@ -21,11 +21,12 @@ build_binutils_pass1() {
   cd binutils-*/
 
   (mkdir -v build ) && cd build
-  ../configure --prefix=/tools \
+  ../configure --prefix=$LFS/tools \
                --with-sysroot=$LFS \
                --target=$LFS_TGT \
                --disable-nls \
-               --disable-werror
+               --disable-werror \
+               --enable-gprofng=no
 
   make -j$(nproc)
   make install

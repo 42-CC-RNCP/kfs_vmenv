@@ -32,4 +32,10 @@ for tool in bash cat chmod chown cp cut echo env false grep install ln ls mkdir 
   done
 done
 
+# --- Fix baked sysroot path for pass1 toolchain ---
+echo "🔗 Ensuring baked sysroot path exists inside chroot..."
+mkdir -p "$LFS/mnt/kernel_disk"
+ln -snf / "$LFS/mnt/kernel_disk/root"
+echo "✅ /mnt/kernel_disk/root -> / created inside $LFS"
+
 echo "✅  Interpreter symlinks created."

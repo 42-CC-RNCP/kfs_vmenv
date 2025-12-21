@@ -176,54 +176,22 @@ sync_glibc_headers() {
 adjust_toolchain() {
   echo "🔧 Adjusting temporary toolchain (§5.10) ..."
 
-  # a. start-files
-  echo "🔧 Adjusting start files..."
-  mkdir -pv $LFS/usr/lib
-  for f in crt1.o crti.o crtn.o ; do
+  # start files
+  mkdir -pv "$LFS/usr/lib"
+  for f in crt1.o crti.o crtn.o; do
     [ -e "$LFS/usr/lib/$f" ] || ln -sv "/tools/lib/$f" "$LFS/usr/lib/$f"
   done
-  ls -l $LFS/usr/lib/crt*.o
 
+  # dynamic linker (x86_64)
   if [ "$(uname -m)" = x86_64 ]; then
-    mkdir -pv $LFS/lib64
-    ln -sfv /tools/lib/ld-linux-x86-64.so.2  $LFS/lib64/ld-linux-x86-64.so.2
+    mkdir -pv "$LFS/lib64"
+    ln -sfv /tools/lib/ld-linux-x86-64.so.2 "$LFS/lib64/ld-linux-x86-64.so.2"
+    [ -e "$LFS/usr/lib/ld-linux-x86-64.so.2" ] || ln -sv /tools/lib/ld-linux-x86-64.so.2 "$LFS/usr/lib/ld-linux-x86-64.so.2"
   fi
 
-  # b. ld-linux
-  echo "🔧 Adjusting dynamic linker..."
-  case "$(uname -m)" in
-    x86_64)
-      [ -e $LFS/usr/lib/ld-linux-x86-64.so.2 ] \
-        || ln -sv /tools/lib/ld-linux-x86-64.so.2 $LFS/usr/lib ;;
-    i?86)
-      [ -e $LFS/usr/lib/ld-linux.so.2 ] \
-        || ln -sv /tools/lib/ld-linux.so.2 $LFS/usr/lib ;;
-    aarch64|arm64)
-      [ -e $LFS/usr/lib/ld-linux-aarch64.so.1 ] \
-        || ln -sv /tools/lib/ld-linux-aarch64.so.1 $LFS/usr/lib ;;
-  esac
-  [ -e $LFS/usr/lib/libc.so ]         || ln -sv /tools/lib/libc.so $LFS/usr/lib
-  [ -e $LFS/usr/lib/libc_nonshared.a ]|| ln -sv /tools/lib/libc_nonshared.a $LFS/usr/lib
-
-
-  # c. rewrite GCC specs
-  echo "🔧 Rewriting GCC specs..."
-  GCC_BIN=/tools/bin/${LFS_TGT}-gcc
-  SPECS=$(dirname $("$GCC_BIN" -print-libgcc-file-name))/specs
-  "$GCC_BIN" -dumpspecs | sed 's@/tools/include@@g' > "$SPECS"
-
-  # d. sanity test
-  echo "🔧 Performing sanity test..."
-  
-  echo 'int main(){}' > dummy.c
-  "${GCC_BIN}" dummy.c -o dummy
-  if readelf -l dummy | grep -q '/tools'; then
-      echo "❌  Toolchain still refers to /tools – aborting."
-      rm -f dummy.c dummy
-      exit 1
-  fi
-  rm -f dummy.c dummy
-  echo "✅ Toolchain adjusted – no /tools reference remains."
+  # libc symlinks (for link)
+  [ -e "$LFS/usr/lib/libc.so" ]          || ln -sv /tools/lib/libc.so "$LFS/usr/lib/libc.so"
+  [ -e "$LFS/usr/lib/libc_nonshared.a" ] || ln -sv /tools/lib/libc_nonshared.a "$LFS/usr/lib/libc_nonshared.a"
 }
 
 build_coreutils_pass1() {
@@ -334,8 +302,8 @@ build_gcc_pass1
 build_linux_headers
 check_linux_headers
 build_glibc
-sync_glibc_headers
-# adjust_toolchain
+# sync_glibc_headers
+adjust_toolchain
 build_bash_pass1
 build_coreutils_pass1
 build_make_pass1

@@ -128,6 +128,13 @@ build_glibc() {
   mkdir -v build && cd build
   echo "rootsbindir=/usr/sbin" > configparms
 
+  echo "🔧 Setting up cross-toolchain environment..."
+  export CC=/tools/bin/$LFS_TGT-gcc
+  export CXX=/tools/bin/$LFS_TGT-g++
+  export AR=/tools/bin/$LFS_TGT-ar
+  export RANLIB=/tools/bin/$LFS_TGT-ranlib
+  export PATH=/tools/bin:/usr/bin:/bin
+
   ../configure \
     --prefix=/usr \
     --host=$LFS_TGT \

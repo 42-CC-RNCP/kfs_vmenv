@@ -120,49 +120,31 @@ check_linux_headers() {
 }
 
 build_glibc() {
-  echo "🔧 Building glibc..."
+  echo "🔧 Building glibc (LFS ch5)..."
   rm -rf glibc-*/
-
   tar -xf glibc-*.tar.*z
   cd glibc-*/
 
   mkdir -v build && cd build
+  echo "rootsbindir=/usr/sbin" > configparms
 
-  echo "rootsbindir=/tools/bin" > configparms
+  ../configure \
+    --prefix=/usr \
+    --host=$LFS_TGT \
+    --build=$(../scripts/config.guess) \
+    --enable-kernel=4.19 \
+    --with-headers=$LFS/usr/include \
+    --disable-nscd \
+    libc_cv_slibdir=/usr/lib
 
-  echo "🔧 Setting up cross-toolchain environment..."
-  export CC=/tools/bin/$LFS_TGT-gcc
-  export CXX=/tools/bin/$LFS_TGT-g++
-  export AR=/tools/bin/$LFS_TGT-ar
-  export RANLIB=/tools/bin/$LFS_TGT-ranlib
-  export PATH=/tools/bin:/usr/bin:/bin
+  make
+  make DESTDIR=$LFS install
 
-  echo "🧪 Validating header exists..."
-  if [[ ! -f $LFS/usr/include/linux/version.h ]]; then
-    echo "❌ ERROR: Missing headers at $LFS/usr/include/linux/version.h"
-    exit 1
-  fi
-
-  echo "DEBUG: CC=$(command -v $LFS_TGT-gcc)"
-  $LFS_TGT-gcc -print-sysroot || true
-  echo "" | $LFS_TGT-gcc -E -v -xc - 2>&1 | sed -n "/search starts here:/,/End of search list/p" || true
-
-
-  ../configure --prefix=/tools \
-             --with-sysroot=$LFS \
-             --build=$(../scripts/config.guess) \
-             --host=$LFS_TGT \
-             --enable-kernel=3.2 \
-             --with-headers=$LFS/usr/include \
-             libc_cv_slibdir=/tools/lib
-
-
-  make -j$(nproc)
-  make install
+  sed '/RTLDLIST=/s@/usr@@g' -i $LFS/usr/bin/ldd
 
   cd ../..
   rm -rf glibc-*/
-  echo "✅ glibc done."
+  echo "✅ glibc installed into \$LFS/usr (per LFS)."
 }
 
 sync_glibc_headers() {
@@ -246,7 +228,7 @@ _patch_termcap() {
 }
 
 build_bash_pass1() {
-  export PATH=/usr/bin:/bin
+  export PATH=/tools/bin:/usr/bin:/bin
   hash -r
   echo "🔧  Bash-5.2 (pass 1)…"
   rm -rf bash-*/
@@ -280,7 +262,7 @@ build_make_pass1() {
   tar -xf make-*.tar.*z
   cd make-*/
 
-  export PATH=/usr/bin:/bin
+  export PATH=/tools/bin:/usr/bin:/bin
   hash -r
   export CONFIG_SHELL=/bin/bash
   ./configure --prefix=/tools --without-guile --host=$LFS_TGT

@@ -31,6 +31,10 @@ build_binutils_pass1() {
   make -j$(nproc)
   make install
 
+  case $(uname -m) in
+    x86_64) mkdir -v /tools/lib && ln -sv lib /tools/lib64 ;;
+  esac
+
   cd ../..
   rm -rf binutils-*/
   echo "✅ binutils (pass 1) done."
@@ -144,7 +148,7 @@ build_glibc() {
       --enable-kernel=3.2                \
       --with-headers=/tools/include
 
-  make
+  make -j$(nproc)
   make install
 
   #──── Verify glibc installation ───────────────────────────
@@ -306,10 +310,10 @@ build_tcl() {
   echo "✅ tcl installed into /tools"
 }
 
-# build_binutils_pass1
-# build_gcc_pass1
-# build_linux_headers
-# build_glibc
+build_binutils_pass1
+build_gcc_pass1
+build_linux_headers
+build_glibc
 build_libstdc
 build_binutils_pass2
 build_gcc_pass2

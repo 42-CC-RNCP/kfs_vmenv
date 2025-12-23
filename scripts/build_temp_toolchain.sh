@@ -582,7 +582,7 @@ build_gzip() {
 build_make() {
   echo "🔧 Building make..."
   rm -rf make-*/
-  tar -xf make-*.tar.*z
+  tar -xf make-*.tar.*
   cd make-*/
 
   sed -i '211,217 d; 219,229 d; 232 d' glob/glob.c
@@ -737,7 +737,7 @@ build_xz() {
 # build_findutils
 # build_gawk
 # build_gettext
-build_grep
+# build_grep
 build_make
 build_patch
 build_perl

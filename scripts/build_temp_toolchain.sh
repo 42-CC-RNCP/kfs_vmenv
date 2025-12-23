@@ -531,6 +531,7 @@ build_gettext() {
   tar -xf gettext-*.tar.*z
   cd gettext-*/
 
+  cd gettext-tools
   EMACS="no" ./configure --prefix=/tools --disable-shared
 
   make -C gnulib-lib
@@ -732,9 +733,9 @@ build_xz() {
 # build_bzip2
 # build_coreutils
 # build_diffutils
-build_file
-build_findutils
-build_gawk
+# build_file
+# build_findutils
+# build_gawk
 build_gettext
 build_grep
 build_make

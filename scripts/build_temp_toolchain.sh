@@ -727,7 +727,7 @@ build_xz() {
 # build_expect
 # build_dejagnu
 # build_m4
-# build_ncurses
+build_ncurses
 # build_bash
 # build_bison
 # build_bzip2
@@ -738,8 +738,8 @@ build_xz() {
 # build_gawk
 # build_gettext
 # build_grep
-build_make
-build_patch
+# build_make
+# build_patch
 build_perl
 build_python
 build_sed

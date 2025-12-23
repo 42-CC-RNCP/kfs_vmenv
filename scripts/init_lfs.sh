@@ -18,12 +18,9 @@ sudo chown -vR root:root "$LFS"
 #---------------------------------------
 # Create symlink /tools
 #---------------------------------------
-if [[ ! -L /tools ]]; then
-  echo "🔗 Creating symlink /tools -> $LFS/tools"
-  sudo ln -sv "$LFS/tools" /
-else
-  echo "✅ Symlink /tools already exists → $(readlink -f /tools)"
-fi
+echo "🔗 Creating symlink /tools -> $LFS/tools"
+sudo ln -sv "$LFS/tools" /
+sudo chown -R lfs:lfs "$LFS/tools"
 
 #---------------------------------------
 # Check if LFS exists

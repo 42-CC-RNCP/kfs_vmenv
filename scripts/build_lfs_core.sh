@@ -29,11 +29,10 @@ build_binutils_pass1() {
                --disable-werror
 
   make -j$(nproc)
-  make install
-
   case $(uname -m) in
     x86_64) mkdir -v /tools/lib && ln -sv lib /tools/lib64 ;;
   esac
+  make install
 
   cd ../..
   rm -rf binutils-*/
@@ -219,8 +218,6 @@ build_binutils_pass2() {
 
 build_gcc_pass2() {
   echo "🔧 Building gcc (pass 2)..."
-  cat gcc/limitx.h gcc/glimits.h gcc/limity.h > \
-    `dirname $($LFS_TGT-gcc -print-libgcc-file-name)`/include-fixed/limits.h
 
   for file in gcc/config/{linux,i386/linux{,64}}.h
   do
@@ -247,6 +244,8 @@ build_gcc_pass2() {
   rm -rf mpfr-*/ gmp-*/ mpc-*/ > /dev/null
 
   tar -xf gcc-*.tar.*z
+  cat gcc/limitx.h gcc/glimits.h gcc/limity.h > \
+    `dirname $($LFS_TGT-gcc -print-libgcc-file-name)`/include-fixed/limits.h
   cd gcc-*/
 
   for dep in mpfr gmp mpc; do

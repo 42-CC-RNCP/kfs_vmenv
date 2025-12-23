@@ -310,9 +310,9 @@ build_tcl() {
 
 build_expect() {
   echo "🔧 Building expect..."
-  rm -rf expect-*/
-  tar -xf expect-*.tar.*z
-  cd expect-*/
+  rm -rf expect*/
+  tar -xf expect*.tar.*z
+  cd expect*/
 
   cp -v configure{,.orig}
   sed 's:/usr/local/bin:/bin:' configure.orig > configure
@@ -326,7 +326,7 @@ build_expect() {
   make SCRIPTS="" install
 
   cd ..
-  rm -rf expect-*/
+  rm -rf expect*/
   echo "✅ expect installed into /tools"
 }
 
@@ -507,6 +507,145 @@ build_findutils() {
   echo "✅ findutils installed into /tools"
 }
 
+build_gawk() {
+  echo "🔧 Building gawk..."
+  rm -rf gawk-*/
+  tar -xf gawk-*.tar.*z
+  cd gawk-*/
+
+  ./configure --prefix=/tools
+
+  make -j$(nproc)
+  make install
+
+  cd ..
+  rm -rf gawk-*/
+  echo "✅ gawk installed into /tools"
+}
+
+build_gettext() {
+  echo "🔧 Building gettext..."
+  rm -rf gettext-*/
+  tar -xf gettext-*.tar.*z
+  cd gettext-*/
+
+  EMACS="no" ./configure --prefix=/tools --disable-shared
+
+  make -C gnulib-lib
+  make -C intl pluralx.c
+  make -C src msgfmt
+  make -C src msgmerge
+  make -C src xgettext
+
+  cp -v src/{msgfmt,msgmerge,xgettext} /tools/bin
+
+  cd ..
+  rm -rf gettext-*/
+  echo "✅ gettext installed into /tools"
+}
+
+build_grep() {
+  echo "🔧 Building grep..."
+  rm -rf grep-*/
+  tar -xf grep-*.tar.*z
+  cd grep-*/
+
+  ./configure --prefix=/tools
+
+  make -j$(nproc)
+  make install
+
+  cd ..
+  rm -rf grep-*/
+  echo "✅ grep installed into /tools"
+}
+
+build_gzip() {
+  echo "🔧 Building gzip..."
+  rm -rf gzip-*/
+  tar -xf gzip-*.tar.*z
+  cd gzip-*/
+
+  ./configure --prefix=/tools
+
+  make -j$(nproc)
+  make install
+
+  cd ..
+  rm -rf gzip-*/
+  echo "✅ gzip installed into /tools"
+}
+
+build_make() {
+  echo "🔧 Building make..."
+  rm -rf make-*/
+  tar -xf make-*.tar.*z
+  cd make-*/
+
+  sed -i '211,217 d; 219,229 d; 232 d' glob/glob.c
+  ./configure --prefix=/tools
+
+  make -j$(nproc)
+  make install
+
+  cd ..
+  rm -rf make-*/
+  echo "✅ make installed into /tools"
+}
+
+build_patch() {
+  echo "🔧 Building patch..."
+  rm -rf patch-*/
+  tar -xf patch-*.tar.*z
+  cd patch-*/
+
+  ./configure --prefix=/tools
+
+  make -j$(nproc)
+  make install
+
+  cd ..
+  rm -rf patch-*/
+  echo "✅ patch installed into /tools"
+}
+
+build_perl() {
+  echo "🔧 Building Perl..."
+  rm -rf perl-*/
+  tar -xf perl-*.tar.*z
+  cd perl-*/
+
+  sh Configure -des -Dprefix=/tools -Dlibs=-lm -Uloclibpth -Ulocincpth
+
+  make
+
+  cp -v perl cpan/podlators/scripts/pod2man /tools/bin
+  mkdir -pv /tools/lib/perl5/5.28.1
+  cp -Rv lib/* /tools/lib/perl5/5.28.1
+
+  cd ..
+  rm -rf perl-*/
+  echo "✅ perl installed into /tools"
+}
+
+build_python() {
+  echo "🔧 Building Python..."
+  rm -rf Python-*/
+  tar -xf Python-*.tar.*z
+  cd Python-*/
+
+  sed -i '/def add_multiarch_paths/a \        return' setup.py
+
+  ./configure --prefix=/tools --enable-shared --without-ensurepip
+
+  make -j$(nproc)
+  make install
+
+  cd ..
+  rm -rf Python-*/
+  echo "✅ Python installed into /tools"
+}
+
 # build_binutils_pass1
 # build_gcc_pass1
 # build_linux_headers
@@ -515,7 +654,7 @@ build_findutils() {
 # build_binutils_pass2
 # build_gcc_pass2
 
-build_tcl
+# build_tcl
 build_expect
 build_dejagnu
 build_m4
@@ -527,3 +666,12 @@ build_coreutils
 build_diffutils
 build_file
 build_findutils
+build_gawk
+build_gettext
+build_grep
+build_make
+build_patch
+build_perl
+build_python
+
+echo "🎉 All LFS core toolchain components built and installed into /tools successfully!"

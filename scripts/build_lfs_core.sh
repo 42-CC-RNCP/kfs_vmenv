@@ -301,7 +301,9 @@ build_tcl() {
   make -j$(nproc)
   make install
 
-  TZ=UTC make test
+  chmod -v u+w /tools/lib/libtcl8.6.so
+  make install-private-headers
+  ln -sv tclsh8.6 /tools/bin/tclsh
 
   cd ../..
   rm -rf tcl*/
@@ -654,7 +656,7 @@ build_python() {
 # build_binutils_pass2
 # build_gcc_pass2
 
-# build_tcl
+build_tcl
 build_expect
 build_dejagnu
 build_m4

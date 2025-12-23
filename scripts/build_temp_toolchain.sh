@@ -550,7 +550,7 @@ build_gettext() {
 build_grep() {
   echo "🔧 Building grep..."
   rm -rf grep-*/
-  tar -xf grep-*.tar.*z
+  tar -xf grep-*.tar.*z || tar -xf grep-3.3.tar.xz
   cd grep-*/
 
   ./configure --prefix=/tools
@@ -736,7 +736,7 @@ build_xz() {
 # build_file
 # build_findutils
 # build_gawk
-build_gettext
+# build_gettext
 build_grep
 build_make
 build_patch

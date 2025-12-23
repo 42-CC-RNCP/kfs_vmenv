@@ -218,6 +218,14 @@ build_binutils_pass2() {
 
 build_gcc_pass2() {
   echo "🔧 Building gcc (pass 2)..."
+  echo "📦 Cleaning previous gcc directory if it exists..."
+  rm -rf gcc-*/ > /dev/null
+  rm -rf mpfr-*/ gmp-*/ mpc-*/ > /dev/null
+
+  tar -xf gcc-*.tar.*z
+  cd gcc-*/
+  cat gcc/limitx.h gcc/glimits.h gcc/limity.h > \
+    `dirname $($LFS_TGT-gcc -print-libgcc-file-name)`/include-fixed/limits.h
 
   for file in gcc/config/{linux,i386/linux{,64}}.h
   do
@@ -238,15 +246,6 @@ build_gcc_pass2() {
           -i.orig gcc/config/i386/t-linux64
     ;;
   esac
-
-  echo "📦 Cleaning previous gcc directory if it exists..."
-  rm -rf gcc-*/ > /dev/null
-  rm -rf mpfr-*/ gmp-*/ mpc-*/ > /dev/null
-
-  tar -xf gcc-*.tar.*z
-  cat gcc/limitx.h gcc/glimits.h gcc/limity.h > \
-    `dirname $($LFS_TGT-gcc -print-libgcc-file-name)`/include-fixed/limits.h
-  cd gcc-*/
 
   for dep in mpfr gmp mpc; do
     dep_path=$(find ../ -maxdepth 1 -name "$dep-*.tar.*z" | head -n 1)
@@ -392,12 +391,30 @@ build_ncurses() {
   echo "✅ ncurses installed into /tools"
 }
 
+build_bash() {
+  echo "🔧 Building bash..."
+  rm -rf bash-*/
+  tar -xf bash-*.tar.*z
+  cd bash-*/
+
+  ./configure --prefix=/tools --without-bash-malloc
+
+  make -j$(nproc)
+  make install
+
+  ln -sv bash /tools/bin/sh
+
+  cd ..
+  rm -rf bash-*/
+  echo "✅ bash installed into /tools"
+}
+
 # build_binutils_pass1
 # build_gcc_pass1
 # build_linux_headers
 # build_glibc
 # build_libstdc
-build_binutils_pass2
+# build_binutils_pass2
 build_gcc_pass2
 
 build_tcl
@@ -405,3 +422,4 @@ build_expect
 build_dejagnu
 build_m4
 build_ncurses
+build_bash

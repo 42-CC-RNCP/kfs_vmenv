@@ -21,12 +21,12 @@ build_binutils_pass1() {
   cd binutils-*/
 
   (mkdir -v build ) && cd build
-  ../configure --prefix=/tools \
-               --with-sysroot=$LFS \
-               --target=$LFS_TGT \
-               --disable-nls \
-               --disable-werror \
-               --enable-gprofng=no
+  ../configure --prefix=/tools            \
+               --with-sysroot=$LFS        \
+               --with-lib-path=/tools/lib \
+               --target=$LFS_TGT          \
+               --disable-nls              \
+               --disable-werror
 
   make -j$(nproc)
   make install
@@ -55,27 +55,50 @@ build_gcc_pass1() {
     tar -xf "$dep_path"
     mv -v "$dep-"* "$dep"
   done
+  
+  for file in gcc/config/{linux,i386/linux{,64}}.h
+  do
+    cp -uv $file{,.orig}
+    sed -e 's@/lib\(64\)\?\(32\)\?/ld@/tools&@g' \
+        -e 's@/usr@/tools@g' $file.orig > $file
+    echo '
+  #undef STANDARD_STARTFILE_PREFIX_1
+  #undef STANDARD_STARTFILE_PREFIX_2
+  #define STANDARD_STARTFILE_PREFIX_1 "/tools/lib/"
+  #define STANDARD_STARTFILE_PREFIX_2 ""' >> $file
+    touch $file.orig
+  done
+
+  case $(uname -m) in
+    x86_64)
+      sed -e '/m64=/s/lib64/lib/' \
+          -i.orig gcc/config/i386/t-linux64
+  ;;
+  esac
 
   mkdir -v build && cd build
-  ../configure --target=$LFS_TGT \
-               --prefix=/tools \
-               --with-glibc-version=2.13 \
-               --with-sysroot=$LFS \
-               --with-newlib \
-               --without-headers \
-               --enable-initfini-array \
-               --disable-nls \
-               --disable-shared \
-               --disable-multilib \
-               --disable-decimal-float \
-               --disable-threads \
-               --disable-libatomic \
-               --disable-libgomp \
-               --disable-libquadmath \
-               --disable-libssp \
-               --disable-libvtv \
-               --disable-libstdcxx \
-               --enable-languages=c,c++
+  ../configure                                       \
+                --target=$LFS_TGT                              \
+                --prefix=/tools                                \
+                --with-glibc-version=2.11                      \
+                --with-sysroot=$LFS                            \
+                --with-newlib                                  \
+                --without-headers                              \
+                --with-local-prefix=/tools                     \
+                --with-native-system-header-dir=/tools/include \
+                --disable-nls                                  \
+                --disable-shared                               \
+                --disable-multilib                             \
+                --disable-decimal-float                        \
+                --disable-threads                              \
+                --disable-libatomic                            \
+                --disable-libgomp                              \
+                --disable-libmpx                               \
+                --disable-libquadmath                          \
+                --disable-libssp                               \
+                --disable-libvtv                               \
+                --disable-libstdcxx                            \
+                --enable-languages=c,c++
 
   make -j$(nproc)
   make install
@@ -98,25 +121,11 @@ build_linux_headers() {
 
   rm -fv dest
   make INSTALL_HDR_PATH=dest headers_install
-
-  rm -rf "$LFS/usr/include/linux" "$LFS/usr/include/asm" "$LFS/usr/include/asm-generic"
-  mkdir -p "$LFS/usr/include"
-  cp -rv dest/include/* "$LFS/usr/include/"
+  cp -rv dest/include/* /tools/include
 
   cd ..
   rm -rf linux-*/
-  echo "✅ Linux headers installed to $LFS/usr/include"
-}
-
-check_linux_headers() {
-  header_folder="$LFS/usr/include/linux"
-  if [[ -d "$header_folder" ]]; then
-    echo "✅ Linux headers already installed at $header_folder"
-  else
-    echo "❌ Linux headers not found at $header_folder"
-    echo "Please ensure you have run the init_lfs.sh script first."
-    exit 1
-  fi
+  echo "✅ Linux headers installed to /tools/include"
 }
 
 build_glibc() {
@@ -125,175 +134,60 @@ build_glibc() {
   tar -xf glibc-*.tar.*z
   cd glibc-*/
 
-  mkdir -v build && cd build
-  echo "rootsbindir=/usr/sbin" > configparms
-
-  echo "🔧 Setting up cross-toolchain environment..."
-  export CC=/tools/bin/$LFS_TGT-gcc
-  export CXX=/tools/bin/$LFS_TGT-g++
-  export AR=/tools/bin/$LFS_TGT-ar
-  export RANLIB=/tools/bin/$LFS_TGT-ranlib
   export PATH=/tools/bin:/usr/bin:/bin
+  mkdir -v build && cd build
 
-  ../configure \
-    --prefix=/usr \
-    --host=$LFS_TGT \
-    --build=$(../scripts/config.guess) \
-    --enable-kernel=4.19 \
-    --with-headers=$LFS/usr/include \
-    --disable-nscd \
-    libc_cv_slibdir=/usr/lib
+  ../configure                             \
+      --prefix=/tools                    \
+      --host=$LFS_TGT                    \
+      --build=$(../scripts/config.guess) \
+      --enable-kernel=3.2                \
+      --with-headers=/tools/include
 
   make
-  make DESTDIR=$LFS install
+  make install
 
-  sed '/RTLDLIST=/s@/usr@@g' -i $LFS/usr/bin/ldd
+  #──── Verify glibc installation ───────────────────────────
+  echo 'int main(){}' > dummy.c
+  $LFS_TGT-gcc dummy.c
+  readelf -l a.out | grep ': /tools'
+  rm -v dummy.c a.out
 
   cd ../..
   rm -rf glibc-*/
-  echo "✅ glibc installed into \$LFS/usr (per LFS)."
+  echo "✅ glibc installed into /tools"
 }
 
-sync_glibc_headers() {
-  echo "🗂  Syncing glibc headers ..."
-  if [[ ! -e $LFS/usr/include/stdio.h ]]; then
-    mkdir -pv $LFS/usr/include
-    cp -R $LFS/tools/include/*  $LFS/usr/include/
-  fi
-  echo "✅  glibc headers copied to \$LFS/usr/include"
-}
+build_libstdc() {
+  echo "🔧  Building libstdc++ (pass 1)…"
+  rm -rf gcc-*/
+  tar -xf gcc-*.tar.*z
+  cd gcc-*/
 
-adjust_toolchain() {
-  echo "🔧 Adjusting temporary toolchain (§5.10) ..."
+  mkdir -v build && cd build
+  ../libstdc++-v3/configure      \
+                            --host=$LFS_TGT            \
+                            --build=$(../config.guess) \
+                            --prefix=/usr              \
+                            --disable-multilib         \
+                            --disable-nls              \
+                            --disable-libstdcxx-pch    \
+                            --with-gxx-include-dir=/tools/$LFS_TGT/include/c++/$(../config.guess)
 
-  # start files
-  mkdir -pv "$LFS/usr/lib"
-  for f in crt1.o crti.o crtn.o; do
-    [ -e "$LFS/usr/lib/$f" ] || ln -sv "/tools/lib/$f" "$LFS/usr/lib/$f"
-  done
-
-  # dynamic linker (x86_64)
-  if [ "$(uname -m)" = x86_64 ]; then
-    mkdir -pv "$LFS/lib64"
-    ln -sfv /tools/lib/ld-linux-x86-64.so.2 "$LFS/lib64/ld-linux-x86-64.so.2"
-    [ -e "$LFS/usr/lib/ld-linux-x86-64.so.2" ] || ln -sv /tools/lib/ld-linux-x86-64.so.2 "$LFS/usr/lib/ld-linux-x86-64.so.2"
-  fi
-
-  # libc symlinks (for link)
-  [ -e "$LFS/usr/lib/libc.so" ]          || ln -sv /tools/lib/libc.so "$LFS/usr/lib/libc.so"
-  [ -e "$LFS/usr/lib/libc_nonshared.a" ] || ln -sv /tools/lib/libc_nonshared.a "$LFS/usr/lib/libc_nonshared.a"
-}
-
-build_coreutils_pass1() {
-  echo "🔧  coreutils-8.32 (pass 1)…"
-  rm -rf coreutils-8.32
-  tar -xf coreutils-8.32.tar.xz
-  cd coreutils-8.32
-
-  #──── configure ────────────────────────────────────────────
-  export FORCE_UNSAFE_CONFIGURE=1
-  export PATH=/tools/bin:/usr/bin:/bin
-
-  CC=/tools/bin/${LFS_TGT}-gcc \
-  CFLAGS="-DMB_LEN_MAX=16" \
-  ./configure --prefix=/tools --host=$LFS_TGT \
-              --build=$(./build-aux/config.guess) \
-              --enable-install-program=hostname \
-              --enable-no-install-program=kill,uptime \
-              --disable-nls
-
-  #──── build ────────────────────────────────────────────────
-  make -j"$(nproc)"
-
-  #──── Use host tools for some commands ───────────────────
-  for f in rm mv ln basename install dircolors; do
-    mkdir -p src
-    if [ -f src/$f ]; then
-        cp -f /bin/$(basename $f) src/$f
-    fi
-  done
-
-  #──── install with path which use host tools ───────────────
-  PATH=/usr/bin:/bin make install
-
-  cd ..
-  rm -rf coreutils-8.32
-  echo "✅  coreutils-8.32 (pass 1) done."
-}
-
-_patch_termcap() {
-  local file=lib/termcap/tparam.c
-
-  grep -q '<unistd.h>' "$file" && return
-  echo "🩹  Patching $file (add <unistd.h>)"
-
-  if grep -nq '<stdlib.h>' "$file"; then
-    sed -i '0,/<stdlib.h>/a #include <unistd.h>' "$file"
-  else
-    sed -i '1a #include <unistd.h>' "$file"
-  fi
-}
-
-build_bash_pass1() {
-  export PATH=/tools/bin:/usr/bin:/bin
-  hash -r
-  echo "🔧  Bash-5.2 (pass 1)…"
-  rm -rf bash-*/
-  tar -xf bash-5.2*.tar.*z
-  cd bash-5.2*/
-
-  _patch_termcap
-
-  # ---- configure ----
-  chmod -R a+rwx support
-  ./configure  --prefix=/tools \
-               --build=$(./support/config.guess) \
-               --host=$LFS_TGT \
-               --without-bash-malloc \
-               --without-installed-readline \
-               --without-curses \
-               --disable-nls
-
-  make -j"$(nproc)"
-  make install
-  ln -sv bash /tools/bin/sh
-
-  cd ..
-  rm -rf bash-5.2*/
-  echo "✅  Bash-5.2 (pass 1) done."
-}
-
-build_make_pass1() {
-  echo "🔧  make (pass 1)…"
-  rm -rf make-*/
-  tar -xf make-*.tar.*z
-  cd make-*/
-
-  export PATH=/tools/bin:/usr/bin:/bin
-  hash -r
-  export CONFIG_SHELL=/bin/bash
-  ./configure --prefix=/tools --without-guile --host=$LFS_TGT
-
-  make -j$(nproc) > make.log 2>&1 || {
-    echo "❌ make failed. Dumping last 50 lines of make.log:"
-    tail -n 50 make.log
-    exit 1
-  }
+  make -j$(nproc)
   make install
 
-  cd ..
-  rm -rf make-*/
-  echo "✅  make (pass 1) done."
+  cd ../..
+  rm -rf gcc-*/
+  echo "✅  libstdc++ (pass 1) done."
 }
 
 
 build_binutils_pass1
 build_gcc_pass1
 build_linux_headers
-check_linux_headers
 build_glibc
-# sync_glibc_headers
-adjust_toolchain
-build_bash_pass1
-build_coreutils_pass1
-build_make_pass1
+build_libstdc
+# build_bash_pass1
+# build_coreutils_pass1
+# build_make_pass1

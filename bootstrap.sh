@@ -66,11 +66,11 @@ STEP_ORDER=(
   init_lfs
   link_tools
   build_toolchain
-  mount_lfs
-  build_pass2
-  config_system
-  unmount_lfs
-  boot_test
+  # mount_lfs
+  # build_pass2
+  # config_system
+  # unmount_lfs
+  # boot_test
 )
 
 # ----------------------------

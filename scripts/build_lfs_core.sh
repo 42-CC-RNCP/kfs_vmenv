@@ -291,9 +291,9 @@ build_gcc_pass2() {
 
 build_tcl() {
   echo "🔧 Building tcl..."
-  rm -rf tcl-*/
-  tar -xf tcl-*.tar.*z
-  cd tcl-*/
+  rm -rf tcl*/
+  tar -xf tcl*.tar.*z
+  cd tcl*/
 
   cd unix
   ./configure --prefix=/tools
@@ -304,7 +304,7 @@ build_tcl() {
   TZ=UTC make test
 
   cd ../..
-  rm -rf tcl-*/
+  rm -rf tcl*/
   echo "✅ tcl installed into /tools"
 }
 
@@ -409,13 +409,111 @@ build_bash() {
   echo "✅ bash installed into /tools"
 }
 
+build_bison() {
+  echo "🔧 Building bison..."
+  rm -rf bison-*/
+  tar -xf bison-*.tar.*z
+  cd bison-*/
+
+  ./configure --prefix=/tools
+
+  make -j$(nproc)
+  make install
+
+  cd ..
+  rm -rf bison-*/
+  echo "✅ bison installed into /tools"
+}
+
+build_bzip2() {
+  echo "🔧 Building bzip2..."
+  rm -rf bzip2-*/
+  tar -xf bzip2-*.tar.*z
+  cd bzip2-*/
+
+  make
+  make PREFIX=/tools install
+
+  cd ..
+  rm -rf bzip2-*/
+  echo "✅ bzip2 installed into /tools"
+}
+
+build_coreutils() {
+  echo "🔧 Building coreutils..."
+  rm -rf coreutils-*/
+  tar -xf coreutils-*.tar.*z
+  cd coreutils-*/
+
+  ./configure --prefix=/tools --enable-install-program=hostname
+
+  make -j$(nproc)
+  make install
+
+  cd ..
+  rm -rf coreutils-*/
+  echo "✅ coreutils installed into /tools"
+}
+
+build_diffutils() {
+  echo "🔧 Building diffutils..."
+  rm -rf diffutils-*/
+  tar -xf diffutils-*.tar.*z
+  cd diffutils-*/
+
+  ./configure --prefix=/tools
+
+  make -j$(nproc)
+  make install
+
+  cd ..
+  rm -rf diffutils-*/
+  echo "✅ diffutils installed into /tools"
+}
+
+build_file() {
+  echo "🔧 Building file..."
+  rm -rf file-*/
+  tar -xf file-*.tar.*z
+  cd file-*/
+
+  ./configure --prefix=/tools
+
+  make -j$(nproc)
+  make install
+
+  cd ..
+  rm -rf file-*/
+  echo "✅ file installed into /tools"
+}
+
+build_findutils() {
+  echo "🔧 Building findutils..."
+  rm -rf findutils-*/
+  tar -xf findutils-*.tar.*z
+  cd findutils-*/
+
+  sed -i 's/IO_ftrylockfile/IO_EOF_SEEN/' gl/lib/*.c
+  sed -i '/unistd/a #include <sys/sysmacros.h>' gl/lib/mountlist.c
+  echo "#define _IO_IN_BACKUP 0x100" >> gl/lib/stdio-impl.h
+
+  ./configure --prefix=/tools
+
+  make -j$(nproc)
+  make install
+
+  cd ..
+  rm -rf findutils-*/
+  echo "✅ findutils installed into /tools"
+}
+
 # build_binutils_pass1
 # build_gcc_pass1
 # build_linux_headers
 # build_glibc
 # build_libstdc
 # build_binutils_pass2
-build_gcc_pass2
+# build_gcc_pass2
 
 build_tcl
 build_expect
@@ -423,3 +521,9 @@ build_dejagnu
 build_m4
 build_ncurses
 build_bash
+build_bison
+build_bzip2
+build_coreutils
+build_diffutils
+build_file
+build_findutils

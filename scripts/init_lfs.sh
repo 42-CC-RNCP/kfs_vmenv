@@ -47,6 +47,7 @@ while IFS= read -r url; do
 
   echo "   -> $url"
   wget --timestamping \
+       --no-hsts \
        --retry-connrefused --timeout=30 \
        --tries=5 --no-check-certificate \
        --directory-prefix="$LFS/sources" \

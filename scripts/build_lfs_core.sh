@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-export PATH=/usr/bin:/bin
+export PATH=/tools/bin:/usr/bin:/bin
 hash -r
 
 if [[ -z "$LFS" || -z "$LFS_TGT" ]]; then
@@ -138,7 +138,6 @@ build_glibc() {
   tar -xf glibc-*.tar.*z
   cd glibc-*/
 
-  export PATH=/tools/bin:/usr/bin:/bin
   mkdir -v build && cd build
 
   ../configure                             \
@@ -203,7 +202,8 @@ build_binutils_pass2() {
       --disable-nls              \
       --disable-werror           \
       --with-lib-path=/tools/lib \
-      --with-sysroot           
+      --with-sysroot=$LFS        \
+      --target=$LFS_TGT
 
   make -j$(nproc)
   make install
@@ -310,10 +310,99 @@ build_tcl() {
   echo "✅ tcl installed into /tools"
 }
 
-build_binutils_pass1
-build_gcc_pass1
-build_linux_headers
-build_glibc
-build_libstdc
+build_expect() {
+  echo "🔧 Building expect..."
+  rm -rf expect-*/
+  tar -xf expect-*.tar.*z
+  cd expect-*/
+
+  cp -v configure{,.orig}
+  sed 's:/usr/local/bin:/bin:' configure.orig > configure
+
+  ./configure --prefix=/tools       \
+              --with-tcl=/tools/lib \
+              --with-tclinclude=/tools/include
+
+  make -j$(nproc)
+  make test
+  make SCRIPTS="" install
+
+  cd ..
+  rm -rf expect-*/
+  echo "✅ expect installed into /tools"
+}
+
+build_dejagnu() {
+  echo "🔧 Building DejaGNU..."
+  rm -rf dejagnu-*/
+  tar -xf dejagnu-*.tar.*z
+  cd dejagnu-*/
+
+  ./configure --prefix=/tools
+
+  make -j$(nproc)
+  make install
+
+  cd ..
+  rm -rf dejagnu-*/
+  echo "✅ DejaGNU installed into /tools"
+}
+
+build_m4() {
+  echo "🔧 Building m4..."
+  rm -rf m4-*/
+  tar -xf m4-*.tar.*z
+  cd m4-*/
+
+  sed -i 's/IO_ftrylockfile/IO_EOF_SEEN/' lib/*.c
+  echo "#define _IO_IN_BACKUP 0x100" >> lib/stdio-impl.h
+
+  ./configure --prefix=/tools
+
+  make -j$(nproc)
+  make check
+  make install
+
+  cd ..
+  rm -rf m4-*/
+  echo "✅ m4 installed into /tools"
+}
+
+build_ncurses() {
+  echo "🔧 Building ncurses..."
+  rm -rf ncurses-*/
+  tar -xf ncurses-*.tar.*z
+  cd ncurses-*/
+
+  sed -i s/mawk// configure
+
+  ./configure --prefix=/tools \
+              --with-shared   \
+              --without-debug \
+              --without-ada   \
+              --enable-widec  \
+              --enable-overwrite
+
+  make -j$(nproc)
+  make install
+
+  ln -s libncursesw.so /tools/lib/libncurses.so
+
+  cd ..
+  rm -rf ncurses-*/
+  echo "✅ ncurses installed into /tools"
+}
+
+# build_binutils_pass1
+# build_gcc_pass1
+# build_linux_headers
+# build_glibc
+# build_libstdc
 build_binutils_pass2
 build_gcc_pass2
+
+build_tcl
+build_expect
+build_dejagnu
+build_m4
+build_ncurses

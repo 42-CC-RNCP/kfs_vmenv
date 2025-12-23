@@ -15,7 +15,7 @@ NC='\033[0m'
 ARCH=$(uname -m)
 HOST="lyeh"
 BASEDIR=$(pwd)
-KERNEL_VERSION="4.19.295"
+KERNEL_VERSION="4.20.12"
 KERNEL_URL="https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-${KERNEL_VERSION}.tar.xz"
 KERNEL_NAME="linux-${KERNEL_VERSION}"
 BUILD_DIR="/tmp/$KERNEL_NAME"
@@ -25,7 +25,7 @@ MNT_ROOT="/mnt/kernel_disk"
 BOOT_MNT="$MNT_ROOT/boot"
 ROOT_MNT="$MNT_ROOT/root"
 BUSYBOX_URL="https://busybox.net/downloads/binaries/1.31.0-defconfig-multiarch-musl/busybox-x86_64"
-LFS="$ROOT_MNT"
+LFS="/mnt/lfs"
 LFS_TGT="$(uname -m)-lfs-linux-gnu"
 
 export HOST BASEDIR KERNEL_VERSION KERNEL_URL KERNEL_NAME BUILD_DIR \

@@ -4,7 +4,7 @@ set -e
 #---------------------------------------
 # Variables
 #---------------------------------------
-WGET_LIST_SRC="$BASEDIR/config/lfs-wget-list-minimal.txt"
+WGET_LIST_SRC="$BASEDIR/config/lfs-wget-list-4.20.12.txt"
 WGET_LIST_DEST="$LFS/sources/wget-list.txt"
 
 #---------------------------------------

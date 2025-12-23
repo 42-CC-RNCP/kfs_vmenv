@@ -1,45 +1,27 @@
 #!/bin/bash
 set -e
 
-ensure_mount () {
-  local src=$1 tgt=$2 type=$3 opts=$4
-  if ! mountpoint -q "$tgt"; then
-    mkdir -p "$tgt"
-    mount -v ${type:+-t "$type"} ${opts:+-o "$opts"} "$src" "$tgt"
-  fi
-}
+# 6.2: mount points
+mkdir -pv "$LFS"/{dev,proc,sys,run}
 
-ensure_mount /dev               "$LFS/dev"      ""      "rbind"
-ensure_mount /dev/pts           "$LFS/dev/pts"  ""      "rbind"
-ensure_mount proc               "$LFS/proc"     proc    ""
-ensure_mount sysfs              "$LFS/sys"      sysfs   ""
-ensure_mount "$BASEDIR/scripts" "$LFS/scripts"  ""      "bind"
-ensure_mount tmpfs              "$LFS/run"      tmpfs   "mode=0755,nosuid,nodev"
+# 6.2.1: initial device nodes (on disk)
+mknod -m 600 "$LFS/dev/console" c 5 1
+mknod -m 666 "$LFS/dev/null"    c 1 3
 
-echo "✅  LFS pseudo-fs mounted."
+# 6.2.2: bind-mount /dev
+mountpoint -q "$LFS/dev" || mount -v --bind /dev "$LFS/dev"
 
-# --- Fix baked sysroot path for pass1 toolchain (only if your toolchain sysroot is /mnt/kernel_disk/root) ---
-mkdir -p "$LFS/mnt/kernel_disk"
-ln -snf / "$LFS/mnt/kernel_disk/root"
+# 6.2.3: virtual kernel file systems
+mountpoint -q "$LFS/dev/pts" || mount -vt devpts devpts "$LFS/dev/pts" -o gid=5,mode=620
+mountpoint -q "$LFS/proc"    || mount -vt proc  proc  "$LFS/proc"
+mountpoint -q "$LFS/sys"     || mount -vt sysfs sysfs "$LFS/sys"
+mountpoint -q "$LFS/run"     || mount -vt tmpfs tmpfs "$LFS/run" -o mode=0755,nosuid,nodev
 
-# # ── make sure basic interpreter symlinks exist inside $LFS ────────────────
-# echo "🔗  Ensuring /bin/bash and /usr/bin/env are available in chroot..."
+# /dev/shm special case
+if [ -h "$LFS/dev/shm" ]; then
+  mkdir -pv "$LFS/$(readlink "$LFS/dev/shm")"
+fi
 
-# install -dv "$LFS/bin" "$LFS/usr/bin"
+mountpoint -q "$LFS/scripts" || mount -v --bind "$BASEDIR/scripts" "$LFS/scripts"
 
-# echo "🔧 Fixing tool symlinks in /bin and /usr/bin..."
-
-# for tool in bash cat chmod chown cp cut echo env false grep install ln ls mkdir \
-#              mv pwd rm sed sh stty test touch true uname which head tail basename; do
-#   for dir in /bin /usr/bin; do
-#     [ -x "$LFS/tools/bin/$tool" ] && ln -sf /tools/bin/$tool "$LFS$dir/$tool"
-#   done
-# done
-
-# # --- Fix baked sysroot path for pass1 toolchain ---
-# echo "🔗 Ensuring baked sysroot path exists inside chroot..."
-# mkdir -p "$LFS/mnt/kernel_disk"
-# ln -snf / "$LFS/mnt/kernel_disk/root"
-# echo "✅ /mnt/kernel_disk/root -> / created inside $LFS"
-
-# echo "✅  Interpreter symlinks created."
+echo "✅ LFS pseudo-fs mounted (per LFS 8.4 ch6.2)."

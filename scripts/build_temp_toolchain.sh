@@ -479,7 +479,7 @@ build_file() {
   tar -xf file-*.tar.*z
   cd file-*/
 
-  ./configure --prefix=/tools
+  ./configure --prefix=/tools --disable-zlib
 
   make -j$(nproc)
   make install
@@ -648,6 +648,72 @@ build_python() {
   echo "✅ Python installed into /tools"
 }
 
+build_sed() {
+  echo "🔧 Building sed..."
+  rm -rf sed-*/
+  tar -xf sed-*.tar.*z
+  cd sed-*/
+
+  ./configure --prefix=/tools
+
+  make -j$(nproc)
+  make install
+
+  cd ..
+  rm -rf sed-*/
+  echo "✅ sed installed into /tools"
+}
+
+build_tar() {
+  echo "🔧 Building tar..."
+  rm -rf tar-*/
+  tar -xf tar-*.tar.*z
+  cd tar-*/
+
+  ./configure --prefix=/tools
+
+  make -j$(nproc)
+  make install
+
+  cd ..
+  rm -rf tar-*/
+  echo "✅ tar installed into /tools"
+}
+
+build_texinfo() {
+  echo "🔧 Building texinfo..."
+  rm -rf texinfo-*/
+  tar -xf texinfo-*.tar.*z
+  cd texinfo-*/
+
+  ./configure --prefix=/tools
+
+  make -j$(nproc)
+  make install
+
+  cd ..
+  rm -rf texinfo-*/
+  echo "✅ texinfo installed into /tools"
+}
+
+build_xz() {
+  echo "🔧 Building xz..."
+  rm -rf xz-*/
+  tar -xf xz-*.tar.*z
+  cd xz-*/
+
+  ./configure --prefix=/tools
+
+  make -j$(nproc)
+  make install
+
+  cd ..
+  rm -rf xz-*/
+  echo "✅ xz installed into /tools"
+}
+
+# ---------------------------------------
+
 # build_binutils_pass1
 # build_gcc_pass1
 # build_linux_headers
@@ -656,16 +722,16 @@ build_python() {
 # build_binutils_pass2
 # build_gcc_pass2
 
-build_tcl
-build_expect
-build_dejagnu
-build_m4
-build_ncurses
-build_bash
-build_bison
-build_bzip2
-build_coreutils
-build_diffutils
+# build_tcl
+# build_expect
+# build_dejagnu
+# build_m4
+# build_ncurses
+# build_bash
+# build_bison
+# build_bzip2
+# build_coreutils
+# build_diffutils
 build_file
 build_findutils
 build_gawk
@@ -675,5 +741,9 @@ build_make
 build_patch
 build_perl
 build_python
+build_sed
+build_tar
+build_texinfo
+build_xz
 
 echo "🎉 All LFS core toolchain components built and installed into /tools successfully!"

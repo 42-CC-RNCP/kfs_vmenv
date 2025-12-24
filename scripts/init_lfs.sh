@@ -19,7 +19,7 @@ sudo chown -vR root:root "$LFS"
 # Create symlink /tools
 #---------------------------------------
 echo "🔗 Creating symlink /tools -> $LFS/tools"
-sudo ln -sv "$LFS/tools" /
+sudo ln -sv "$LFS/tools" / || echo "Symlink /tools already exists, skipping."
 sudo chown -R lfs:lfs "$LFS/tools"
 
 #---------------------------------------

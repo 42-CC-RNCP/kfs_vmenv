@@ -446,12 +446,13 @@ build_ncurses() {
               --without-debug \
               --without-ada   \
               --enable-widec  \
-              --enable-overwrite
+              --enable-overwrite \
+              --with-termlib
 
   make -j$(nproc)
   make install
 
-  ln -s libncursesw.so /tools/lib/libncurses.so
+  ln -sfv libncursesw.so /tools/lib/libncurses.so
 
   cd ..
   rm -rf ncurses-*/

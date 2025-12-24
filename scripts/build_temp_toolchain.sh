@@ -614,6 +614,7 @@ build_gettext() {
 
 build_grep() {
   echo "🔧 Building grep..."
+  cd $LFS/sources
   rm -rf grep-*/
   tar -xf grep-*.tar.*z || tar -xf grep-3.3.tar.xz
   cd grep-*/

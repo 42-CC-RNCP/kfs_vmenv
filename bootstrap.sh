@@ -51,7 +51,7 @@ declare -A STEPS=(
     /bin/bash ./scripts/build_temp_toolchain.sh"
   [finalize_tools_owner]="chown -R root:root \"$LFS/tools\""
   [mount_lfs]="./scripts/mount_lfs.sh"
-  [build_lfs]="chroot_exec build_lfs.sh"
+  [build_lfs_toolchain]="chroot_exec ./scripts/build_lfs_toolchain.sh"
   [config_system]="chroot_exec config_system.sh"
   [unmount_lfs]="./scripts/unmount_lfs.sh"
   [boot_test]="./scripts/boot_test.sh"
@@ -68,7 +68,7 @@ STEP_ORDER=(
   build_temp_toolchain
   finalize_tools_owner
   mount_lfs
-  build_lfs
+  build_lfs_toolchain
   # config_system
   # unmount_lfs
   # boot_test

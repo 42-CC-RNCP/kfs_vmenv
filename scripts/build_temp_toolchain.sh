@@ -1,14 +1,79 @@
 #!/bin/bash
-set -e
+set -eEuo pipefail
 
 export PATH=/tools/bin:/usr/bin:/bin
 hash -r
 
-if [[ -z "$LFS" || -z "$LFS_TGT" ]]; then
-  echo "❌ Error: LFS or LFS_TGT environment variables are not set."
-  echo "Please ensure you have run the init_lfs.sh script first."
-  exit 1
-fi
+: "${LFS:?LFS not set}"
+: "${LFS_TGT:?LFS_TGT not set}"
+
+STAMP_DIR="${STAMP_DIR:-$LFS/.kfs/stamps/temp-tools}"
+mkdir -p "$STAMP_DIR"
+
+START_FROM=""
+ONLY=""
+REBUILD=""
+KEEP_BUILD="${KEEP_BUILD:-0}"
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --from) START_FROM="$2"; shift 2 ;;
+    --only) ONLY="$2"; shift 2 ;;
+    --rebuild) REBUILD="$2"; shift 2 ;;
+    --keep-build) KEEP_BUILD=1; shift ;;
+    *) echo "Unknown arg: $1"; exit 2 ;;
+  esac
+done
+
+CURRENT=""
+trap 'echo "❌ FAILED at: $CURRENT"; echo "   Tip: rerun with: $0 --from $CURRENT --keep-build"; exit 1' ERR
+
+should_run=false
+[[ -z "$START_FROM" ]] && should_run=true
+
+want_rebuild() {
+  [[ -z "$REBUILD" ]] && return 1
+  [[ ",$REBUILD," == *",$1,"* ]] && return 0 || return 1
+}
+
+run_step() {
+  local name="$1"; shift
+  local stamp="$STAMP_DIR/$name.done"
+
+  # handle --from
+  if ! $should_run; then
+    if [[ "$name" == "$START_FROM" ]]; then
+      should_run=true
+    else
+      echo "⏭  (before --from) $name"
+      return 0
+    fi
+  fi
+
+  # handle --only
+  if [[ -n "$ONLY" && "$name" != "$ONLY" ]]; then
+    echo "⏭  (not --only) $name"
+    return 0
+  fi
+
+  # handle --rebuild
+  if want_rebuild "$name"; then
+    rm -f "$stamp"
+  fi
+
+  # skip if done
+  if [[ -f "$stamp" ]]; then
+    echo "✅ (done) $name"
+    return 0
+  fi
+
+  CURRENT="$name"
+  echo "🔷 RUN $name"
+  "$@"
+  touch "$stamp"
+  echo "✅ DONE $name"
+}
+
 
 cd $LFS/sources
 
@@ -715,36 +780,36 @@ build_xz() {
 
 # ---------------------------------------
 
-build_binutils_pass1
-build_gcc_pass1
-build_linux_headers
-build_glibc
-build_libstdc
-build_binutils_pass2
-build_gcc_pass2
+run_step binutils_pass1 build_binutils_pass1
+run_step gcc_pass1      build_gcc_pass1
+run_step linux_headers  build_linux_headers
+run_step glibc          build_glibc
+run_step libstdc        build_libstdc
+run_step binutils_pass2 build_binutils_pass2
+run_step gcc_pass2      build_gcc_pass2
 
-build_tcl
-build_expect
-build_dejagnu
-build_m4
-build_ncurses
-build_bash
-build_bison
-build_bzip2
-build_coreutils
-build_diffutils
-build_file
-build_findutils
-build_gawk
-build_gettext
-build_grep
-build_make
-build_patch
-build_perl
-build_python
-build_sed
-build_tar
-build_texinfo
-build_xz
+run_step tcl            build_tcl
+run_step expect         build_expect
+run_step dejagnu        build_dejagnu
+run_step m4             build_m4
+run_step ncurses        build_ncurses
+run_step bash           build_bash
+run_step bison          build_bison
+run_step bzip2          build_bzip2
+run_step coreutils      build_coreutils
+run_step diffutils      build_diffutils
+run_step file           build_file
+run_step findutils      build_findutils
+run_step gawk           build_gawk
+run_step gettext        build_gettext
+run_step grep           build_grep
+run_step make           build_make
+run_step patch          build_patch
+run_step perl           build_perl
+run_step python         build_python
+run_step sed            build_sed
+run_step tar            build_tar
+run_step texinfo        build_texinfo
+run_step xz             build_xz
 
 echo "🎉 All LFS core toolchain components built and installed into /tools successfully!"

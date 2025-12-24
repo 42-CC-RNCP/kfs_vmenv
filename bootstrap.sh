@@ -45,7 +45,7 @@ declare -A STEPS=(
   [setup_bootloader]="./scripts/setup_bootloader.sh"
   [init_lfs]="./scripts/init_lfs.sh"
   [link_tools]="./scripts/link_tools.sh"
-  [build_toolchain]="sudo -u lfs env -i HOME=/home/lfs TERM=\"$TERM\" \
+  [build_temp_toolchain]="sudo -u lfs env -i HOME=/home/lfs TERM=\"$TERM\" \
     LFS=\"$LFS\" LFS_TGT=\"$LFS_TGT\" BASEDIR=\"$BASEDIR\" BUILD_DIR=\"$BUILD_DIR\" \
     PATH=\"/tools/bin:/usr/bin:/bin\" \
     /bin/bash ./scripts/build_temp_toolchain.sh"
@@ -65,10 +65,10 @@ STEP_ORDER=(
   setup_bootloader
   init_lfs
   link_tools
-  build_toolchain
+  build_temp_toolchain
   finalize_tools_owner
   mount_lfs
-  # build_pass2
+  build_lfs
   # config_system
   # unmount_lfs
   # boot_test

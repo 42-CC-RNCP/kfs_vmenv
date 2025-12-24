@@ -715,31 +715,31 @@ build_xz() {
 
 # ---------------------------------------
 
-# build_binutils_pass1
-# build_gcc_pass1
-# build_linux_headers
-# build_glibc
-# build_libstdc
-# build_binutils_pass2
-# build_gcc_pass2
+build_binutils_pass1
+build_gcc_pass1
+build_linux_headers
+build_glibc
+build_libstdc
+build_binutils_pass2
+build_gcc_pass2
 
-# build_tcl
-# build_expect
-# build_dejagnu
-# build_m4
+build_tcl
+build_expect
+build_dejagnu
+build_m4
 build_ncurses
-# build_bash
-# build_bison
-# build_bzip2
-# build_coreutils
-# build_diffutils
-# build_file
-# build_findutils
-# build_gawk
-# build_gettext
-# build_grep
-# build_make
-# build_patch
+build_bash
+build_bison
+build_bzip2
+build_coreutils
+build_diffutils
+build_file
+build_findutils
+build_gawk
+build_gettext
+build_grep
+build_make
+build_patch
 build_perl
 build_python
 build_sed

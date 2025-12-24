@@ -88,10 +88,11 @@ run_step() {
     local inside_path="/scripts/$(basename "$inside_script")"
 
     chroot "$LFS" /tools/bin/env -i \
-      HOME=/root TERM="$TERM" PS1='(lfs) \u:\w\$ ' \
-      PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin \
-      LFS_TGT="$LFS_TGT" \
-      /tools/bin/bash --login -c "$inside_path"
+        HOME=/root                  \
+        TERM="$TERM"                \
+        PS1='(lfs chroot) \u:\w\$ ' \
+        PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin \
+        /tools/bin/bash --login +h
   else
     if ! eval "$cmd"; then
       echo -e "${RED}❌ Step '$name' failed. Aborting.${NC}"

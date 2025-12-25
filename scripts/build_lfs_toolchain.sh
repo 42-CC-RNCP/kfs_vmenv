@@ -106,35 +106,35 @@ init_var_log_files() {
 
 build_linux_headers() {
   echo "🔧 Building Linux kernel headers ch6.7"
-  rm -rf /tmp/linux-* || true
-  tar -xf /sources/linux-*.tar.* -C /tmp/
-  cd /tmp/linux-*/
+  rm -rf linux-* || true
+  tar -xf /sources/linux-*.tar.*
+  cd linux-*/
 
   make mrproper
   make INSTALL_HDR_PATH=dest headers_install
   find dest/include \( -name .install -o -name ..install.cmd \) -delete
   cp -rv dest/include/* /usr/include
 
-  cd /
-  rm -rf /tmp/linux-*/
+  cd ../..
+  rm -rf linux-*/
 }
 
 build_manpages() {
   echo "🔧 Building man-pages ch6.8"
-  rm -rf /tmp/man-pages-* || true
-  tar -xf /tmp/man-pages-*.tar.* -C /tmp/
-  cd /tmp/man-pages-*/
+  rm -rf man-pages-* || true
+  tar -xf /tmp/man-pages-*.tar.*
+  cd man-pages-*/
 
   make install
-  cd /
-  rm -rf /tmp/man-pages-*/
+  cd ../..
+  rm -rf man-pages-*/
 }
 
 build_glibc() {
   echo "🔧 Building glibc ch6.9"
-  rm -rf /tmp/glibc-* || true
-  tar -xf /sources/glibc-*.tar.* -C /tmp/
-  cd /tmp/glibc-*/
+  rm -rf glibc-* || true
+  tar -xf /sources/glibc-*.tar.*
+  cd glibc-*/
 
   patch -Np1 -i /sources/glibc-2.29-fhs-1.patch
   ln -sfv /tools/lib/gcc /usr/lib
@@ -254,8 +254,8 @@ include /etc/ld.so.conf.d/*.conf
 EOF
   mkdir -pv /etc/ld.so.conf.d
 
-  cd /
-  rm -rf /tmp/glibc-*/
+  cd ../..
+  rm -rf glibc-*/
 }
 
 adjust_toolchain() {
@@ -286,9 +286,9 @@ adjust_toolchain() {
 
 build_zlib() {
   echo "🔧 Building zlib ch6.11"
-  rm -rf /tmp/zlib-* || true
-  tar -xf /sources/zlib-*.tar.* -C /tmp/
-  cd /tmp/zlib-*/
+  rm -rf zlib-* || true
+  tar -xf /sources/zlib-*.tar.*
+  cd zlib-*/
 
   ./configure --prefix=/usr
   make
@@ -298,30 +298,30 @@ build_zlib() {
   mv -v /usr/lib/libz.so.* /lib
   ln -sfv ../../lib/$(readlink /usr/lib/libz.so) /usr/lib/libz.so
 
-  cd /
-  rm -rf /tmp/zlib-*/
+  cd ../..
+  rm -rf zlib-*/
 }
 
 build_file() {
   echo "🔧 Building file ch6.12"
-  rm -rf /tmp/file-* || true
-  tar -xf /sources/file-*.tar.* -C /tmp/
-  cd /tmp/file-*/
+  rm -rf file-* || true
+  tar -xf /sources/file-*.tar.*
+  cd file-*/
 
   ./configure --prefix=/usr
   make
   make check
   make install
 
-  cd /
-  rm -rf /tmp/file-*/
+  cd ../..
+  rm -rf file-*/
 }
 
 build_readline() {
   echo "🔧 Building readline ch6.13"
-  rm -rf /tmp/readline-* || true
-  tar -xf /sources/readline-*.tar.* -C /tmp/
-  cd /tmp/readline-*/
+  rm -rf readline-* || true
+  tar -xf /sources/readline-*.tar.*
+  cd readline-*/
 
   sed -i '/MV.*old/d' Makefile.in
   sed -i '/{OLDSUFF}/c:' support/shlib-install
@@ -336,6 +336,1113 @@ build_readline() {
   chmod -v u+w /lib/lib{readline,history}.so.*
   ln -sfv ../../lib/$(readlink /usr/lib/libreadline.so) /usr/lib/libreadline.so
   ln -sfv ../../lib/$(readlink /usr/lib/libhistory.so ) /usr/lib/libhistory.so
+
+  cd ../..
+  rm -rf readline-*/
+}
+
+build_m4() {
+  echo "🔧 Building m4 ch6.14"
+  rm -rf m4-* || true
+  tar -xf /sources/m4-*.tar.*
+  cd m4-*/
+
+  sed -i 's/IO_ftrylockfile/IO_EOF_SEEN/' lib/*.c
+  echo "#define _IO_IN_BACKUP 0x100" >> lib/stdio-impl.h
+  ./configure --prefix=/usr
+  make
+  make check
+  make install
+
+  cd ../..
+  rm -rf m4-*/
+}
+
+build_bc() {
+  echo "🔧 Building bc ch6.15"
+  rm -rf bc-* || true
+  tar -xf /sources/bc-*.tar.*
+  cd bc-*/
+
+  cat > bc/fix-libmath_h << "EOF"
+#! /bin/bash
+sed -e '1   s/^/{"/' \
+    -e     's/$/",/' \
+    -e '2,$ s/^/"/'  \
+    -e   '$ d'       \
+    -i libmath.h
+
+sed -e '$ s/$/0}/' \
+    -i libmath.h
+EOF
+
+  ln -sv /tools/lib/libncursesw.so.6 /usr/lib/libncursesw.so.6
+  ln -sfv libncursesw.so.6 /usr/lib/libncurses.so
+
+  sed -i -e '/flex/s/as_fn_error/: ;; # &/' configure
+
+  ./configure --prefix=/usr           \
+            --with-readline         \
+            --mandir=/usr/share/man \
+            --infodir=/usr/share/info
+  make
+  make install
+
+  cd ../..
+  rm -rf bc-*/
+}
+
+build_binutils() {
+  echo "🔧 Building binutils ch6.16"
+  expect -c "spawn ls"
+  rm -rf binutils-* || true
+  tar -xf /sources/binutils-*.tar.*
+  cd binutils-*/
+
+  mkdir -v build
+  cd       build
+
+  ../configure --prefix=/usr       \
+             --enable-gold       \
+             --enable-ld=default \
+             --enable-plugins    \
+             --enable-shared     \
+             --disable-werror    \
+             --enable-64-bit-bfd \
+             --with-system-zlib
+
+  make tooldir=/usr
+  make tooldir=/usr install
+
+  cd ../..
+  rm -rf binutils-*/
+}
+
+build_gmp() {
+  echo "🔧 Building gmp ch6.17"
+  rm -rf gmp-* || true
+  tar -xf /sources/gmp-*.tar.*
+  cd gmp-*/
+
+
+  cp -v configfsf.guess config.guess
+  cp -v configfsf.sub   config.sub
+
+  ./configure --prefix=/usr    \
+            --enable-cxx     \
+            --disable-static \
+            --docdir=/usr/share/doc/gmp-6.1.2
+
+  make
+  make html
+  make check 2>&1 | tee gmp-check-log
+  awk '/# PASS:/{total+=$3} ; END{print total}' gmp-check-log
+  
+  make install
+  make install-html
+
+  cd ../..
+  rm -rf gmp-*/
+}
+
+build_mpfr() {
+  echo "🔧 Building mpfr ch6.18"
+  rm -rf mpfr-* || true
+  tar -xf /sources/mpfr-*.tar.*
+  cd mpfr-*/
+
+  ./configure --prefix=/usr        \
+            --disable-static     \
+            --enable-thread-safe \
+            --docdir=/usr/share/doc/mpfr-4.0.2
+
+  make
+  make html
+  make check
+  make install
+  make install-html
+
+  cd ../..
+  rm -rf mpfr-*/
+}
+
+build_mpc() {
+  echo "🔧 Building mpc ch6.19"
+  rm -rf mpc-* || true
+  tar -xf /sources/mpc-*.tar.*
+  cd mpc-*/
+
+  ./configure --prefix=/usr    \
+            --disable-static \
+            --docdir=/usr/share/doc/mpc-1.1.0
+
+  make
+  make html
+  make check
+  make install
+  make install-html
+
+  cd ../..  
+  rm -rf mpc-*/
+}
+
+build_shadow() {
+  echo "🔧 Building shadow ch6.20"
+  rm -rf shadow-* || true
+  tar -xf /sources/shadow-*.tar.*
+  cd shadow-*/
+
+  sed -i 's/groups$(EXEEXT) //' src/Makefile.in
+  find man -name Makefile.in -exec sed -i 's/groups\.1 / /'   {} \;
+  find man -name Makefile.in -exec sed -i 's/getspnam\.3 / /' {} \;
+  find man -name Makefile.in -exec sed -i 's/passwd\.5 / /'   {} \;
+
+  sed -i -e 's@#ENCRYPT_METHOD DES@ENCRYPT_METHOD SHA512@' \
+       -e 's@/var/spool/mail@/var/mail@' etc/login.defs
+
+  sed -i 's/1000/999/' etc/useradd
+
+  ./configure --sysconfdir=/etc --with-group-name-max-length=32
+
+  make
+  make install
+
+  mv -v /usr/bin/passwd /bin
+
+  pwconv
+  grpconv
+  sed -i 's/yes/no/' /etc/default/useradd
+
+  cd ../..
+  rm -rf shadow-*/
+}
+
+build_gcc() {
+  echo "🔧 Building gcc ch6.21"
+  rm -rf gcc-* || true
+  tar -xf /sources/gcc-*.tar.*
+  cd gcc-*/
+
+  case $(uname -m) in
+    x86_64)
+      sed -e '/m64=/s/lib64/lib/' \
+          -i.orig gcc/config/i386/t-linux64
+    ;;
+  esac
+
+  rm -f /usr/lib/gcc
+
+  mkdir -v build
+  cd       build
+
+  SED=sed                               \
+  ../configure --prefix=/usr            \
+              --enable-languages=c,c++ \
+              --disable-multilib       \
+              --disable-bootstrap      \
+              --disable-libmpx         \
+              --with-system-zlib
+
+  make
+  ulimit -s 32768
+  rm ../gcc/testsuite/g++.dg/pr83239.C
+
+  set +e
+  chown -Rv nobody .
+  su nobody -s /bin/bash -c "PATH=$PATH make -k check"
+  TEST_RC=$?
+  set -e
+
+  ../contrib/test_summary
+
+  make install
+  ln -sfv ../usr/bin/cpp /lib
+  ln -sfv gcc /usr/bin/cc
+
+  install -v -dm755 /usr/lib/bfd-plugins
+  ln -sfv ../../libexec/gcc/$(gcc -dumpmachine)/8.2.0/liblto_plugin.so \
+          /usr/lib/bfd-plugins/
+
+  echo 'int main(){}' > dummy.c
+  cc dummy.c -v -Wl,--verbose &> dummy.log
+  readelf -l a.out | grep ': /lib'
+
+  grep -o '/usr/lib.*/crt[1in].*succeeded' dummy.log
+  grep -B4 '^ /usr/include' dummy.log
+  grep 'SEARCH.*/usr/lib' dummy.log |sed 's|; |\n|g'
+  grep "/lib.*/libc.so.6 " dummy.log
+  grep found dummy.log
+  rm -v dummy.c a.out dummy.log
+
+  mkdir -pv /usr/share/gdb/auto-load/usr/lib
+  mv -v /usr/lib/*gdb.py /usr/share/gdb/auto-load/usr/lib
+
+  cd ../..
+  rm -rf gcc-*/
+}
+
+build_bzip2() {
+  echo "🔧 Building bzip2 ch6.22"
+  rm -rf bzip2-* || true
+  tar -xf /sources/bzip2-*.tar.*
+  cd bzip2-*/
+
+  patch -Np1 -i ../bzip2-1.0.6-install_docs-1.patch
+  sed -i 's@\(ln -s -f \)$(PREFIX)/bin/@\1@' Makefile
+  sed -i "s@(PREFIX)/man@(PREFIX)/share/man@g" Makefile
+
+  make -f Makefile-libbz2_so
+  make clean
+
+  make
+  make PREFIX=/usr install
+
+  cp -v bzip2-shared /bin/bzip2
+  cp -av libbz2.so* /lib
+  ln -sv ../../lib/libbz2.so.1.0 /usr/lib/libbz2.so
+  rm -v /usr/bin/{bunzip2,bzcat,bzip2}
+  ln -sv bzip2 /bin/bunzip2
+  ln -sv bzip2 /bin/bzcat
+
+  cd ../..
+  rm -rf bzip2-*/
+}
+
+build_pkg-config() {
+  echo "🔧 Building pkg-config ch6.23"
+  rm -rf pkg-config-* || true
+  tar -xf /sources/pkg-config-*.tar.*
+  cd pkg-config-*/
+
+  ./configure --prefix=/usr              \
+            --with-internal-glib       \
+            --disable-host-tool        \
+            --docdir=/usr/share/doc/pkg-config-0.29.2
+  
+  make
+  make check
+  make install
+
+  cd ../..
+  rm -rf pkg-config-*/
+}
+
+build_ncurses() {
+  echo "🔧 Building ncurses ch6.24"
+  rm -rf ncurses-* || true
+  tar -xf /sources/ncurses-*.tar.*
+  cd ncurses-*/
+
+  sed -i '/LIBTOOL_INSTALL/d' c++/Makefile.in
+
+  ./configure --prefix=/usr           \
+            --mandir=/usr/share/man \
+            --with-shared           \
+            --without-debug         \
+            --without-normal        \
+            --enable-pc-files       \
+            --enable-widec
+
+  make
+  make install
+
+  mv -v /usr/lib/libncursesw.so.6* /lib
+  ln -sfv ../../lib/$(readlink /usr/lib/libncursesw.so) /usr/lib/libncursesw.so
+
+  for lib in ncurses form panel menu ; do
+      rm -vf                    /usr/lib/lib${lib}.so
+      echo "INPUT(-l${lib}w)" > /usr/lib/lib${lib}.so
+      ln -sfv ${lib}w.pc        /usr/lib/pkgconfig/${lib}.pc
+  done
+
+  rm -vf                     /usr/lib/libcursesw.so
+  echo "INPUT(-lncursesw)" > /usr/lib/libcursesw.so
+  ln -sfv libncurses.so      /usr/lib/libcurses.so
+
+  mkdir -v       /usr/share/doc/ncurses-6.1
+  cp -v -R doc/* /usr/share/doc/ncurses-6.1
+
+  make distclean
+  ./configure --prefix=/usr    \
+              --with-shared    \
+              --without-normal \
+              --without-debug  \
+              --without-cxx-binding \
+              --with-abi-version=5 
+  make sources libs
+  cp -av lib/lib*.so.5* /usr/lib
+
+  cd ../..
+  rm -rf ncurses-*/
+}
+
+build_attr() {
+  echo "🔧 Building attr ch6.25"
+  rm -rf attr-* || true
+  tar -xf /sources/attr-*.tar.*
+  cd attr-*/
+
+  ./configure --prefix=/usr     \
+            --bindir=/bin     \
+            --disable-static  \
+            --sysconfdir=/etc \
+            --docdir=/usr/share/doc/attr-2.4.48
+
+  make
+  make check
+  make install
+
+  mv -v /usr/lib/libattr.so.* /lib
+  ln -sfv ../../lib/$(readlink /usr/lib/libattr.so) /usr/lib/libattr.so
+
+  cd ../..
+  rm -rf attr-*/
+}
+
+build_acl() {
+  echo "🔧 Building acl ch6.26"
+  rm -rf acl-* || true
+  tar -xf /sources/acl-*.tar.*
+  cd acl-*/
+
+  ./configure --prefix=/usr         \
+            --bindir=/bin         \
+            --disable-static      \
+            --libexecdir=/usr/lib \
+            --docdir=/usr/share/doc/acl-2.2.53
+
+  make
+  make install
+
+  mv -v /usr/lib/libacl.so.* /lib
+  ln -sfv ../../lib/$(readlink /usr/lib/libacl.so) /usr/lib/libacl.so
+
+  cd ../..
+  rm -rf acl-*/
+}
+
+build_libcap() {
+  echo "🔧 Building libcap ch6.27"
+  rm -rf libcap-* || true
+  tar -xf /sources/libcap-*.tar.*
+  cd libcap-*/
+
+  sed -i '/install.*STALIBNAME/d' libcap/Makefile
+
+  make
+  make RAISE_SETFCAP=no lib=lib prefix=/usr install
+  chmod -v 755 /usr/lib/libcap.so.2.26
+
+  mv -v /usr/lib/libcap.so.* /lib
+  ln -sfv ../../lib/$(readlink /usr/lib/libcap.so) /usr/lib/libcap.so
+
+  cd ../..
+  rm -rf libcap-*/
+}
+
+build_sed() {
+  echo "🔧 Building sed ch6.28"
+  rm -rf sed-* || true
+  tar -xf /sources/sed-*.tar.*
+  cd sed-*/
+
+  sed -i 's/usr/tools/'                 build-aux/help2man
+  sed -i 's/testsuite.panic-tests.sh//' Makefile.in
+
+  ./configure --prefix=/usr --bindir=/bin
+
+  make
+  make html
+  make check
+  make install
+  install -d -m755           /usr/share/doc/sed-4.7
+  install -m644 doc/sed.html /usr/share/doc/sed-4.7
+
+  cd ../..
+  rm -rf sed-*/
+}
+
+build_psmisc() {
+  echo "🔧 Building psmisc ch6.29"
+  rm -rf psmisc-* || true
+  tar -xf /sources/psmisc-*.tar.*
+  cd psmisc-*/
+
+  ./configure --prefix=/usr
+
+  make
+  make install
+
+  mv -v /usr/bin/fuser   /bin
+  mv -v /usr/bin/killall /bin
+
+  cd ../..
+  rm -rf psmisc-*/
+}
+
+build_iana-etc() {
+  echo "🔧 Building iana-etc ch6.30"
+  rm -rf iana-etc-* || true
+  tar -xf /sources/iana-etc-*.tar.*
+  cd iana-etc-*/
+
+  make
+  make install
+
+  cd ../..
+  rm -rf iana-etc-*/
+}
+
+build_bison() {
+  echo "🔧 Building bison ch6.31"
+  rm -rf bison-* || true
+  tar -xf /sources/bison-*.tar.*
+  cd bison-*/
+
+  ./configure --prefix=/usr --docdir=/usr/share/doc/bison-3.3.2
+
+  make
+  make install
+
+  cd ../..
+  rm -rf bison-*/
+}
+
+build_flex() {
+  echo "🔧 Building flex ch6.32"
+  rm -rf flex-* || true
+  tar -xf /sources/flex-*.tar.*
+  cd flex-*/
+
+  sed -i "/math.h/a #include <malloc.h>" src/flexdef.h
+  HELP2MAN=/tools/bin/true \
+  ./configure --prefix=/usr --docdir=/usr/share/doc/flex-2.6.4
+
+  make
+  make install
+
+  ln -sv flex /usr/bin/lex
+
+  cd ../..
+  rm -rf flex-*/
+}
+
+build_grep() {
+  echo "🔧 Building grep ch6.33"
+  rm -rf grep-* || true
+  tar -xf /sources/grep-*.tar.*
+  cd grep-*/
+
+  ./configure --prefix=/usr --bindir=/bin
+
+  make
+  make -k check
+  make install
+
+  cd ../..
+  rm -rf grep-*/
+}
+
+build_bash() {
+  echo "🔧 Building bash ch6.34"
+  rm -rf bash-* || true
+  tar -xf /sources/bash-*.tar.*
+  cd bash-*/
+
+  ./configure --prefix=/usr                    \
+            --docdir=/usr/share/doc/bash-5.0 \
+            --without-bash-malloc            \
+            --with-installed-readline
+
+  make
+  chown -Rv nobody .
+  su nobody -s /bin/bash -c "PATH=$PATH HOME=/home make tests"
+  make install
+  mv -vf /usr/bin/bash /bin
+
+  hash -r
+
+  cd ../..
+  rm -rf bash-*/
+}
+
+build_libtool() {
+  echo "🔧 Building libtool ch6.35"
+  rm -rf libtool-* || true
+  tar -xf /sources/libtool-*.tar.*
+  cd libtool-*/
+
+  ./configure --prefix=/usr
+
+  make
+  make check
+  make install
+
+  cd ../..
+  rm -rf libtool-*/
+}
+
+build_gdbm() {
+  echo "🔧 Building gdbm ch6.36"
+  rm -rf gdbm-* || true
+  tar -xf /sources/gdbm-*.tar.*
+  cd gdbm-*/
+
+  ./configure --prefix=/usr    \
+            --disable-static \
+            --enable-libgdbm-compat
+
+  make
+  make check
+  make install
+
+  cd ../..
+  rm -rf gdbm-*/
+}
+
+build_gperf() {
+  echo "🔧 Building gperf ch6.37"
+  rm -rf gperf-* || true
+  tar -xf /sources/gperf-*.tar.*
+  cd gperf-*/
+
+  ./configure --prefix=/usr --docdir=/usr/share/doc/gperf-3.1
+
+  make
+  make -j1 check
+  make install
+
+  cd ../..
+  rm -rf gperf-*/
+}
+
+build_expat() {
+  echo "🔧 Building expat ch6.38"
+  rm -rf expat-* || true
+  tar -xf /sources/expat-*.tar.*
+  cd expat-*/
+
+  sed -i 's|usr/bin/env |bin/|' run.sh.in
+
+  ./configure --prefix=/usr    \
+            --disable-static \
+            --docdir=/usr/share/doc/expat-2.2.6
+
+  make
+  make check
+  make install
+  install -v -m644 doc/*.{html,png,css} /usr/share/doc/expat-2.2.6
+
+  cd ../..
+  rm -rf expat-*/
+}
+
+build_inetutils() {
+  echo "🔧 Building inetutils ch6.39"
+  rm -rf inetutils-* || true
+  tar -xf /sources/inetutils-*.tar.*
+  cd inetutils-*/
+
+  ./configure --prefix=/usr        \
+            --localstatedir=/var \
+            --disable-logger     \
+            --disable-whois      \
+            --disable-rcp        \
+            --disable-rexec      \
+            --disable-rlogin     \
+            --disable-rsh        \
+            --disable-servers
+
+  make
+  make check
+  make install
+
+  mv -v /usr/bin/{hostname,ping,ping6,traceroute} /bin
+  mv -v /usr/bin/ifconfig /sbin
+
+  cd ../..
+  rm -rf inetutils-*/
+}
+
+build_perl() {
+  echo "🔧 Building perl ch6.40"
+  rm -rf perl-* || true
+  tar -xf /sources/perl-*.tar.*
+  cd perl-*/
+
+  echo "127.0.0.1 localhost $(hostname)" > /etc/hosts
+  export BUILD_ZLIB=False
+  export BUILD_BZIP2=0
+
+  sh Configure -des -Dprefix=/usr                 \
+                  -Dvendorprefix=/usr           \
+                  -Dman1dir=/usr/share/man/man1 \
+                  -Dman3dir=/usr/share/man/man3 \
+                  -Dpager="/usr/bin/less -isR"  \
+                  -Duseshrplib                  \
+                  -Dusethreads
+
+  make
+  make -k test
+
+  make install
+  unset BUILD_ZLIB BUILD_BZIP2
+
+  cd ../..
+  rm -rf perl-*/
+}
+
+build_xml-parser() {
+  echo "🔧 Building XML::Parser ch6.41"
+  rm -rf XML-Parser-* || true
+  tar -xf /sources/XML-Parser-*.tar.*
+  cd XML-Parser-*/
+
+  perl Makefile.PL
+  make
+  make test
+  make install
+
+  cd ../..
+  rm -rf XML-Parser-*/
+}
+
+build_intltool() {
+  echo "🔧 Building intltool ch6.42"
+  rm -rf intltool-* || true
+  tar -xf /sources/intltool-*.tar.*
+  cd intltool-*/
+
+  sed -i 's:\\\${:\\\$\\{:' intltool-update.in
+
+  ./configure --prefix=/usr
+
+  make
+  make check
+  make install
+  install -v -Dm644 doc/I18N-HOWTO /usr/share/doc/intltool-0.51.0/I18N-HOWTO
+
+  cd ../..
+  rm -rf intltool-*/
+}
+
+build_autoconf() {
+  echo "🔧 Building autoconf ch6.43"
+  rm -rf autoconf-* || true
+  tar -xf /sources/autoconf-*.tar.*
+  cd autoconf-*/
+
+  sed '361 s/{/\\{/' -i bin/autoscan.in
+
+  ./configure --prefix=/usr
+
+  make
+  make check
+  make install
+
+  cd ../..
+  rm -rf autoconf-*/
+}
+
+build_automake() {
+  echo "🔧 Building automake ch6.44"
+  rm -rf automake-* || true
+  tar -xf /sources/automake-*.tar.*
+  cd automake-*/
+
+  ./configure --prefix=/usr --docdir=/usr/share/doc/automake-1.16.1
+
+  make
+  make -j4 check
+  make install
+
+  cd ../..
+  rm -rf automake-*/
+}
+
+build_xz() {
+  echo "🔧 Building xz ch6.45"
+  rm -rf xz-* || true
+  tar -xf /sources/xz-*.tar.*
+  cd xz-*/
+
+  ./configure --prefix=/usr    \
+            --disable-static \
+            --docdir=/usr/share/doc/xz-5.2.4
+
+  make
+  make check
+  make install
+  mv -v   /usr/bin/{lzma,unlzma,lzcat,xz,unxz,xzcat} /bin
+  mv -v /usr/lib/liblzma.so.* /lib
+  ln -svf ../../lib/$(readlink /usr/lib/liblzma.so) /usr/lib/liblzma.so
+
+  cd ../..
+  rm -rf xz-*/
+}
+
+build_kmod() {
+  echo "🔧 Building kmod ch6.46"
+  rm -rf kmod-* || true
+  tar -xf /sources/kmod-*.tar.*
+  cd kmod-*/
+
+  ./configure --prefix=/usr          \
+            --bindir=/bin          \
+            --sysconfdir=/etc      \
+            --with-rootlibdir=/lib \
+            --with-xz              \
+            --with-zlib
+
+  make
+  make install
+
+  for target in depmod insmod lsmod modinfo modprobe rmmod; do
+    ln -sfv ../bin/kmod /sbin/$target
+  done
+
+  ln -sfv kmod /bin/lsmod
+
+  cd ../..
+  rm -rf kmod-*/
+}
+
+build_gettext() {
+  echo "🔧 Building gettext ch6.47"
+  rm -rf gettext-* || true
+  tar -xf /sources/gettext-*.tar.*
+  cd gettext-*/
+
+  sed -i '/^TESTS =/d' gettext-runtime/tests/Makefile.in &&
+  sed -i 's/test-lock..EXEEXT.//' gettext-tools/gnulib-tests/Makefile.in
+
+  sed -e '/AppData/{N;N;p;s/\.appdata\./.metainfo./}' \
+    -i gettext-tools/its/appdata.loc
+
+  ./configure --prefix=/usr    \
+            --disable-static \
+            --docdir=/usr/share/doc/gettext-0.19.8.1
+
+  make 
+  make check
+  make install
+  chmod -v 0755 /usr/lib/preloadable_libintl.so
+
+  cd ../..
+  rm -rf gettext-*/
+}
+
+build_elfutils() {
+  echo "🔧 Building elfutils ch6.48"
+  rm -rf elfutils-* || true
+  tar -xf /sources/elfutils-*.tar.*
+  cd elfutils-*/
+
+  mkdir -v build
+  cd       build
+
+  ./configure --prefix=/usr
+
+  make
+  make check
+  make -C libelf install
+  install -vm644 config/libelf.pc /usr/lib/pkgconfig
+
+  cd ../..
+  rm -rf elfutils-*/
+}
+
+build_libffi() {
+  echo "🔧 Building libffi ch6.49"
+  rm -rf libffi-* || true
+  tar -xf /sources/libffi-*.tar.*
+  cd libffi-*/
+
+  sed -e '/^includesdir/ s/$(libdir).*$/$(includedir)/' \
+    -i include/Makefile.in
+
+  sed -e '/^includedir/ s/=.*$/=@includedir@/' \
+      -e 's/^Cflags: -I${includedir}/Cflags:/' \
+      -i libffi.pc.in
+
+  ./configure --prefix=/usr --disable-static --with-gcc-arch=native
+
+  make
+  make check
+  make install
+
+  cd ../..
+  rm -rf libffi-*/
+}
+
+build_openssl() {
+  echo "🔧 Building openssl ch6.50"
+  rm -rf openssl-* || true
+  tar -xf /sources/openssl-*.tar.*
+  cd openssl-*/
+
+  ./config --prefix=/usr         \
+         --openssldir=/etc/ssl \
+         --libdir=lib          \
+         shared                \
+         zlib-dynamic
+
+  make
+  make test
+  sed -i '/INSTALL_LIBS/s/libcrypto.a libssl.a//' Makefile
+  make MANSUFFIX=ssl install
+
+  mv -v /usr/share/doc/openssl /usr/share/doc/openssl-1.1.1a
+  cp -vfr doc/* /usr/share/doc/openssl-1.1.1a
+
+  cd ../..
+  rm -rf openssl-*/
+}
+
+build_python() {
+  echo "🔧 Building python ch6.51"
+  rm -rf Python-* || true
+  tar -xf /sources/Python-*.tar.*
+  cd Python-*/
+
+  ./configure --prefix=/usr       \
+            --enable-shared     \
+            --with-system-expat \
+            --with-system-ffi   \
+            --with-ensurepip=yes
+
+  make
+  make install
+  chmod -v 755 /`usr/lib/libpython3.7m.so
+  chmod -v 755 /usr/lib/libpython3.so`
+  
+  install -v -dm755 /usr/share/doc/python-3.7.2/html 
+
+  tar --strip-components=1  \
+      --no-same-owner       \
+      --no-same-permissions \
+      -C /usr/share/doc/python-3.7.2/html \
+      -xvf ../python-3.7.2-docs-html.tar.bz2
+
+  cd ../..
+  rm -rf Python-*/
+}
+
+build_ninja() {
+  echo "🔧 Building ninja ch6.52"
+  rm -rf ninja-* || true
+  tar -xf /sources/ninja-*.tar.*
+  cd ninja-*/
+
+  export NINJAJOBS=4
+  sed -i '/int Guess/a \
+    int   j = 0;\
+    char* jobs = getenv( "NINJAJOBS" );\
+    if ( jobs != NULL ) j = atoi( jobs );\
+    if ( j > 0 ) return j;\
+  ' src/ninja.cc
+
+  python3 configure.py --bootstrap
+
+  python3 configure.py
+  ./ninja ninja_test
+  ./ninja_test --gtest_filter=-SubprocessTest.SetWithLots
+
+  install -vm755 ninja /usr/bin/
+  install -vDm644 misc/bash-completion /usr/share/bash-completion/completions/ninja
+  install -vDm644 misc/zsh-completion  /usr/share/zsh/site-functions/_ninja
+
+  cd ../..
+  rm -rf ninja-*/
+}
+
+build_meson() {
+  echo "🔧 Building meson ch6.53"
+  rm -rf meson-* || true
+  tar -xf /sources/meson-*.tar.*
+  cd meson-*/
+
+  python3 setup.py build
+  python3 setup.py install --root=dest
+  cp -rv dest/* /
+
+  cd ../..
+  rm -rf meson-*/
+}
+
+build_coreutils() {
+  echo "🔧 Building coreutils ch6.54"
+  rm -rf coreutils-* || true
+  tar -xf /sources/coreutils-*.tar.*
+  cd coreutils-*/
+
+  patch -Np1 -i ../coreutils-8.30-i18n-1.patch
+  sed -i '/test.lock/s/^/#/' gnulib-tests/gnulib.mk
+
+  autoreconf -fiv
+  FORCE_UNSAFE_CONFIGURE=1 ./configure \
+              --prefix=/usr            \
+              --enable-no-install-program=kill,uptime
+
+  FORCE_UNSAFE_CONFIGURE=1 make
+  make install
+
+  mv -v /usr/bin/{cat,chgrp,chmod,chown,cp,date,dd,df,echo} /bin
+  mv -v /usr/bin/{false,ln,ls,mkdir,mknod,mv,pwd,rm} /bin
+  mv -v /usr/bin/{rmdir,stty,sync,true,uname} /bin
+  mv -v /usr/bin/chroot /usr/sbin
+  mv -v /usr/share/man/man1/chroot.1 /usr/share/man/man8/chroot.8
+  sed -i s/\"1\"/\"8\"/1 /usr/share/man/man8/chroot.8
+
+  mv -v /usr/bin/{head,nice,sleep,touch} /bin
+
+  cd ../..
+  rm -rf coreutils-*/
+}
+
+build_check() {
+  echo "🔧 Building check ch6.55"
+  rm -rf check-* || true
+  tar -xf /sources/check-*.tar.*
+  cd check-*/
+
+  ./configure --prefix=/usr
+
+  make
+  make check
+  make install
+  sed -i '1 s/tools/usr/' /usr/bin/checkmk
+
+  cd ../..
+  rm -rf check-*/
+}
+
+build_diffutils() {
+  echo "🔧 Building diffutils ch6.11"
+  rm -rf diffutils-* || true
+  tar -xf /sources/diffutils-*.tar.*
+  cd diffutils-*/
+
+  ./configure --prefix=/usr
+
+  make
+  make check
+  make install
+
+  cd ../..
+  rm -rf diffutils-*/
+}
+
+build_gawk() {
+  echo "🔧 Building gawk ch6.12"
+  rm -rf gawk-* || true
+  tar -xf /sources/gawk-*.tar.*
+  cd gawk-*/
+
+  sed -i 's/extras//' Makefile.in
+  ./configure --prefix=/usr
+
+  make
+  make check
+  make install
+
+  mkdir -v /usr/share/doc/gawk-4.2.1
+  cp    -v doc/{awkforai.txt,*.{eps,pdf,jpg}} /usr/share/doc/gawk-4.2.1
+
+  cd ../..
+  rm -rf gawk-*/
+}
+
+build_findutils() {
+  echo "🔧 Building findutils ch6.58"
+  rm -rf findutils-* || true
+  tar -xf /sources/findutils-*.tar.*
+  cd findutils-*/
+
+  sed -i 's/test-lock..EXEEXT.//' tests/Makefile.in
+
+  sed -i 's/IO_ftrylockfile/IO_EOF_SEEN/' gl/lib/*.c
+  sed -i '/unistd/a #include <sys/sysmacros.h>' gl/lib/mountlist.c
+  echo "#define _IO_IN_BACKUP 0x100" >> gl/lib/stdio-impl.h
+
+  ./configure --prefix=/usr --localstatedir=/var/lib/locate
+
+  make
+  make check
+  make install
+
+  mv -v /usr/bin/find /bin
+  sed -i 's|find:=${BINDIR}|find:=/bin|' /usr/bin/updatedb
+
+  cd ../..
+  rm -rf findutils-*/
+}
+
+build_groff() {
+  echo "🔧 Building groff ch6.59"
+  rm -rf groff-* || true
+  tar -xf /sources/groff-*.tar.*
+  cd groff-*/
+
+  PAGE=<paper_size> ./configure --prefix=/usr
+
+  make -j1
+  make install
+
+  cd ../..
+  rm -rf groff-*/
+}
+
+build_grub() {
+  echo "🔧 Building grub ch6.60"
+  rm -rf grub-* || true
+  tar -xf /sources/grub-*.tar.*
+  cd grub-*/
+
+  ./configure --prefix=/usr          \
+            --sbindir=/sbin        \
+            --sysconfdir=/etc      \
+            --disable-efiemu       \
+            --disable-werror
+
+  make
+  make install
+  mv -v /etc/bash_completion.d/grub /usr/share/bash-completion/completions
+
+  cd ../..
+  rm -rf grub-*/
+}
+
+build_less() {
+  echo "🔧 Building less ch6.61"
+  rm -rf less-* || true
+  tar -xf /sources/less-*.tar.*
+  cd less-*/
+
+  ./configure --prefix=/usr --sysconfdir=/etc
+
+  make
+  make install
+
+  cd ../..
+  rm -rf less-*/
+}
+
+build_gzip() {
+  echo "🔧 Building gzip ch6.62"
+  rm -rf gzip-* || true
+  tar -xf /sources/gzip-*.tar.*
+  cd gzip-*/
+
+  ./configure --prefix=/usr
+
+  make
+  make check
+  make install
+  mv -v /usr/bin/gzip /bin
+
+  cd ../..
+  rm -rf gzip-*/
 }
 
 # ===== execute in order (rerunnable) =====
@@ -344,6 +1451,7 @@ run_step symlinks      create_symlinks
 run_step passwd_group  create_passwd_group
 run_step var_logs      init_var_log_files
 # ----------
+cd /sources
 run_step linux_headers build_linux_headers
 run_step manpages      build_manpages
 run_step glibc         build_glibc
@@ -351,5 +1459,54 @@ run_step toolchain     adjust_toolchain
 run_step zlib          build_zlib
 run_step file          build_file
 run_step readline      build_readline
+run_step m4            build_m4
+run_step bc            build_bc
+run_step binutils      build_binutils
+run_step gmp           build_gmp
+run_step mpfr          build_mpfr
+run_step mpc           build_mpc
+run_step shadow        build_shadow
+run_step gcc           build_gcc
+run_step bzip2         build_bzip2
+run_step pkg_config    build_pkg-config
+run_step ncurses       build_ncurses
+run_step attr          build_attr
+run_step acl           build_acl
+run_step libcap        build_libcap
+run_step sed           build_sed
+run_step psmisc        build_psmisc
+run_step iana_etc      build_iana-etc
+run_step bison         build_bison
+run_step flex          build_flex
+run_step grep          build_grep
+run_step bash          build_bash
+run_step libtool       build_libtool
+run_step gdbm          build_gdbm
+run_step gperf         build_gperf
+run_step expat         build_expat
+run_step inetutils     build_inetutils
+run_step perl          build_perl
+run_step xml_parser    build_xml-parser
+run_step intltool      build_intltool
+run_step autoconf       build_autoconf
+run_step automake      build_automake
+run_step xz            build_xz
+run_step kmod          build_kmod
+run_step gettext       build_gettext
+run_step elfutils      build_elfutils
+run_step libffi        build_libffi
+run_step openssl       build_openssl
+run_step python        build_python
+run_step ninja         build_ninja
+run_step meson         build_meson
+run_step coreutils     build_coreutils
+run_step check         build_check
+run_step diffutils     build_diffutils
+run_step gawk          build_gawk
+run_step findutils     build_findutils
+run_step groff         build_groff
+run_step grub          build_grub
+run_step less          build_less
+run_step gzip          build_gzip
 
-echo "🎉 ch6.5~6.7 done."
+echo "🎉 ch6 done"

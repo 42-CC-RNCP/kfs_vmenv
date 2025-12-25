@@ -501,7 +501,7 @@ build_bash() {
   make -j$(nproc)
   make install
 
-  ln -sv bash /tools/bin/sh
+  ln -sfv bash /tools/bin/sh
 
   cd ..
   rm -rf bash-*/
@@ -722,7 +722,7 @@ build_perl() {
 
   with_host_sh sh Configure -des -Dprefix=/tools -Dlibs=-lm -Uloclibpth -Ulocincpth
 
-  make
+  with_host_sh make -j$(nproc) SHELL=/bin/bash
 
   cp -v perl cpan/podlators/scripts/pod2man /tools/bin
   mkdir -pv /tools/lib/perl5/5.28.1

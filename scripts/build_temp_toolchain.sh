@@ -446,8 +446,7 @@ build_ncurses() {
               --without-debug \
               --without-ada   \
               --enable-widec  \
-              --enable-overwrite \
-              --with-termlib
+              --enable-overwrite
 
   make -j$(nproc)
   make install
@@ -684,6 +683,10 @@ build_perl() {
   rm -rf perl-*/
   tar -xf perl-*.tar.*z
   cd perl-*/
+
+  echo "Checking shell..."
+  /tools/bin/sh -c 'echo OK'
+  ldd /tools/bin/bash | grep -E 'tinfo|ncurses' || true
 
   sh Configure -des -Dprefix=/tools -Dlibs=-lm -Uloclibpth -Ulocincpth
 

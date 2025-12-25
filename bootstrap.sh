@@ -38,7 +38,7 @@ env | grep -E '^(ARCH|HOST|BASEDIR|KERNEL_VERSION|KERNEL_URL|KERNEL_NAME|BUILD_D
 # Define steps and their scripts
 # ----------------------------
 declare -A STEPS=(
-  [cleanup]="./scripts/cleanup.sh"
+  [cleanup]="WIPE_LFS_TOOLS=1 ./scripts/cleanup.sh"
   [create_disk]="./scripts/create_disk.sh"
   [install_rootfs]="./scripts/install_rootfs.sh"
   [build_kernel]="./scripts/build_kernel.sh"

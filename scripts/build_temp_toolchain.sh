@@ -31,6 +31,38 @@ trap 'echo "❌ FAILED at: $CURRENT"; echo "   Tip: rerun with: $0 --from $CURRE
 should_run=false
 [[ -z "$START_FROM" ]] && should_run=true
 
+tools_sh_works() {
+  /tools/bin/sh -c ':' >/dev/null 2>&1
+}
+
+with_host_sh() {
+  local old_path="$PATH"
+  local old_shell="${SHELL-}"
+  local old_cfg="${CONFIG_SHELL-}"
+  local old_link=""
+  old_link="$(readlink /tools/bin/sh 2>/dev/null || true)"
+
+  if ! tools_sh_works; then
+    echo "⚠️  /tools/bin/sh is broken; temporarily use /bin/bash"
+    ln -sf /bin/bash /tools/bin/sh
+  fi
+
+  export PATH="/bin:/usr/bin:/tools/bin"
+  export SHELL="/bin/bash"
+  export CONFIG_SHELL="/bin/bash"
+
+  "$@"
+  local rc=$?
+
+  # restore env + link
+  export PATH="$old_path"
+  [[ -n "$old_shell" ]] && export SHELL="$old_shell" || unset SHELL || true
+  [[ -n "$old_cfg"   ]] && export CONFIG_SHELL="$old_cfg" || unset CONFIG_SHELL || true
+  [[ -n "$old_link"  ]] && ln -sf "$old_link" /tools/bin/sh || true
+
+  return $rc
+}
+
 want_rebuild() {
   [[ -z "$REBUILD" ]] && return 1
   [[ ",$REBUILD," == *",$1,"* ]] && return 0 || return 1
@@ -441,15 +473,15 @@ build_ncurses() {
 
   sed -i s/mawk// configure
 
-  ./configure --prefix=/tools \
+  with_host_sh ./configure --prefix=/tools \
               --with-shared   \
               --without-debug \
               --without-ada   \
               --enable-widec  \
               --enable-overwrite
 
-  make -j$(nproc)
-  make install
+  with_host_sh make -j$(nproc)
+  with_host_sh make install
 
   ln -sfv libncursesw.so /tools/lib/libncurses.so
 
@@ -685,10 +717,10 @@ build_perl() {
   cd perl-*/
 
   echo "Checking shell..."
-  /tools/bin/sh -c 'echo OK'
+  with_host_sh sh -c 'echo OK'
   ldd /tools/bin/bash | grep -E 'tinfo|ncurses' || true
 
-  sh Configure -des -Dprefix=/tools -Dlibs=-lm -Uloclibpth -Ulocincpth
+  with_host_sh sh Configure -des -Dprefix=/tools -Dlibs=-lm -Uloclibpth -Ulocincpth
 
   make
 

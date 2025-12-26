@@ -639,7 +639,7 @@ build_bzip2() {
   rm -rf bzip2-*/
 }
 
-build_pkg-config() {
+build_pkg_config() {
   echo "🔧 Building pkg-config ch6.23"
   rm -rf pkg-config-*/ || true
   tar -xf pkg-config-*.tar.*
@@ -811,7 +811,7 @@ build_psmisc() {
   rm -rf psmisc-*/
 }
 
-build_iana-etc() {
+build_iana_etc() {
   echo "🔧 Building iana-etc ch6.30"
   rm -rf iana-etc-*/ || true
   tar -xf iana-etc-*.tar.*
@@ -1023,7 +1023,7 @@ build_perl() {
   rm -rf perl-*/
 }
 
-build_xml-parser() {
+build_xml_parser() {
   echo "🔧 Building XML::Parser ch6.41"
   rm -rf XML-Parser-*/ || true
   tar -xf XML-Parser-*.tar.*
@@ -1567,7 +1567,7 @@ build_patch() {
   rm -rf patch-*/
 }
 
-build_man-db() {
+build_man_db() {
   echo "🔧 Building Man-DB ch6.68"
   rm -rf man-db-*/ || true
   tar -xf man-db-*.tar.*
@@ -1701,7 +1701,7 @@ build_procps() {
   rm -rf procps-*/
 }
 
-build_util-linux() {
+build_util_linux() {
   echo "🔧 Building util-linux ch6.73"
   rm -rf util-linux-*/ || true
   tar -xf util-linux-*.tar.*
@@ -1889,14 +1889,14 @@ run_step mpc           build_mpc
 run_step shadow        build_shadow
 run_step gcc           build_gcc
 run_step bzip2         build_bzip2
-run_step pkg_config    build_pkg-config
+run_step pkg_config    build_pkg_config
 run_step ncurses       build_ncurses
 run_step attr          build_attr
 run_step acl           build_acl
 run_step libcap        build_libcap
 run_step sed           build_sed
 run_step psmisc        build_psmisc
-run_step iana_etc      build_iana-etc
+run_step iana_etc      build_iana_etc
 run_step bison         build_bison
 run_step flex          build_flex
 run_step grep          build_grep
@@ -1907,9 +1907,9 @@ run_step gperf         build_gperf
 run_step expat         build_expat
 run_step inetutils     build_inetutils
 run_step perl          build_perl
-run_step xml_parser    build_xml-parser
+run_step xml_parser    build_xml_parser
 run_step intltool      build_intltool
-run_step autoconf       build_autoconf
+run_step autoconf      build_autoconf
 run_step automake      build_automake
 run_step xz            build_xz
 run_step kmod          build_kmod
@@ -1934,12 +1934,12 @@ run_step kbd           build_kbd
 run_step libpipeline   build_libpipeline
 run_step make          build_make
 run_step patch         build_patch
-run_step man-db        build_man-db
+run_step man-db        build_man_db
 run_step tar           build_tar
 run_step texinfo       build_texinfo
 run_step vim           build_vim
 run_step procps        build_procps
-run_step util_linux    build_util-linux
+run_step util_linux    build_util_linux
 run_step e2fsprogs     build_e2fsprogs
 run_step sysklogd      build_sysklogd
 run_step sysvinit      build_sysvinit

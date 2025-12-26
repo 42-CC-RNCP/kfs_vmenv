@@ -25,7 +25,7 @@ MNT_ROOT="/mnt/kernel_disk"
 BOOT_MNT="$MNT_ROOT/boot"
 ROOT_MNT="$MNT_ROOT/root"
 BUSYBOX_URL="https://busybox.net/downloads/binaries/1.31.0-defconfig-multiarch-musl/busybox-x86_64"
-LFS="/mnt/lfs"
+LFS=$ROOT_MNT
 LFS_TGT="$(uname -m)-lfs-linux-gnu"
 
 export HOST BASEDIR KERNEL_VERSION KERNEL_URL KERNEL_NAME BUILD_DIR \

@@ -4,7 +4,8 @@ set -e
 # 6.2: mount points
 mkdir -pv "$LFS"/{dev,proc,sys,run}
 mkdir -pv "$LFS/scripts"
-# mkdir -pv "$LFS/sources"
+mkdir -pv "$LFS/sources"
+cp -v /tmp/$KERNEL_NAME.tar.xz "$LFS/sources/"
 
 # 6.2.1: initial device nodes (on disk)
 mknod -m 600 "$LFS/dev/console" c 5 1 || true

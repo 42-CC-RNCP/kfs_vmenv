@@ -107,7 +107,7 @@ init_var_log_files() {
 build_linux_headers() {
   echo "🔧 Building Linux kernel headers ch6.7"
   rm -rf linux-* || true
-  tar -xf /tmp/linux-*.tar.*
+  tar -xf linux-*.tar.*
   cd linux-*/
 
   make mrproper

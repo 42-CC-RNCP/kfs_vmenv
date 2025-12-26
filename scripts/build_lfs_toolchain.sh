@@ -1866,7 +1866,7 @@ clean_up() {
 # ===== execute in order (rerunnable) =====
 echo "🚀 Starting ch6 build process"
 
-run_step symlinks      ensure_binutils_symlinks
+ensure_binutils_symlinks
 run_step dirs          create_dirs
 run_step symlinks      create_symlinks
 run_step passwd_group  create_passwd_group

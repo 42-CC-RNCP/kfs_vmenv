@@ -1445,6 +1445,377 @@ build_gzip() {
   rm -rf gzip-*/
 }
 
+build_iproute2() {
+  echo "🔧 Building iproute2 ch6.63"
+  rm -rf iproute2-* || true
+  tar -xf /sources/iproute2-*.tar.*
+  cd iproute2-*/
+
+  sed -i /ARPD/d Makefile
+  rm -fv man/man8/arpd.8
+  sed -i 's/.m_ipt.o//' tc/Makefile
+
+  make
+  make DOCDIR=/usr/share/doc/iproute2-4.20.0 install
+
+  cd ../..
+  rm -rf iproute2-*/
+}
+
+build_kbd() {
+  echo "🔧 Building kbd ch6.64"
+  rm -rf kbd-* || true
+  tar -xf /sources/kbd-*.tar.*
+  cd kbd-*/
+
+  patch -Np1 -i ../kbd-2.0.4-backspace-1.patch
+
+  sed -i 's/\(RESIZECONS_PROGS=\)yes/\1no/g' configure
+  sed -i 's/resizecons.8 //' docs/man/man8/Makefile.in
+
+  PKG_CONFIG_PATH=/tools/lib/pkgconfig ./configure --prefix=/usr --disable-vlock
+
+  make
+  make check
+  make install
+
+  mkdir -v       /usr/share/doc/kbd-2.0.4
+  cp -R -v docs/doc/* /usr/share/doc/kbd-2.0.4
+
+  cd ../..
+  rm -rf kbd-*/
+}
+
+build_libpipeline() {
+  echo "🔧 Building libpipeline ch6.65"
+  rm -rf libpipeline-* || true
+  tar -xf /sources/libpipeline-*.tar.*
+  cd libpipeline-*/
+
+  ./configure --prefix=/usr
+
+  make
+  make check
+  make install
+
+  cd ../..
+  rm -rf libpipeline-*/
+}
+
+build_make() {
+  echo "🔧 Building make ch6.66"
+  rm -rf make-* || true
+  tar -xf /sources/make-*.tar.*
+  cd make-*/
+
+  sed -i '211,217 d; 219,229 d; 232 d' glob/glob.c
+
+  ./configure --prefix=/usr
+
+  make
+  make PERL5LIB=$PWD/tests/ check
+  make install
+
+  cd ../..
+  rm -rf make-*/
+}
+
+build_patch() {
+  echo "🔧 Building patch ch6.67"
+  rm -rf patch-* || true
+  tar -xf /sources/patch-*.tar.*
+  cd patch-*/
+
+  ./configure --prefix=/usr
+
+  make
+  make check
+  make install
+
+  cd ../..
+  rm -rf patch-*/
+}
+
+build_man-db() {
+  echo "🔧 Building Man-DB ch6.68"
+  rm -rf man-db-* || true
+  tar -xf /sources/man-db-*.tar.*
+  cd man-db-*/
+
+  ./configure --prefix=/usr                        \
+            --docdir=/usr/share/doc/man-db-2.8.5 \
+            --sysconfdir=/etc                    \
+            --disable-setuid                     \
+            --enable-cache-owner=bin             \
+            --with-browser=/usr/bin/lynx         \
+            --with-vgrind=/usr/bin/vgrind        \
+            --with-grap=/usr/bin/grap            \
+            --with-systemdtmpfilesdir=           \
+            --with-systemdsystemunitdir=
+  
+  make
+  make check
+  make install
+
+  cd ../..
+  rm -rf man-db-*/
+}
+
+build_tar() {
+  echo "🔧 Building tar ch6.69"
+  rm -rf tar-* || true
+  tar -xf /sources/tar-*.tar.*
+  cd tar-*/
+
+  sed -i 's/abort.*/FALLTHROUGH;/' src/extract.c
+
+  FORCE_UNSAFE_CONFIGURE=1  \
+  ./configure --prefix=/usr \
+              --bindir=/bin
+
+  make
+  make check
+  make install
+  make -C doc install-html docdir=/usr/share/doc/tar-1.31
+
+  cd ../..
+  rm -rf tar-*/
+}
+
+build_texinfo() {
+  echo "🔧 Building texinfo ch6.70"
+  rm -rf texinfo-* || true
+  tar -xf /sources/texinfo-*.tar.*
+  cd texinfo-*/
+
+  sed -i '5481,5485 s/({/(\\{/' tp/Texinfo/Parser.pm
+
+  ./configure --prefix=/usr --disable-static
+
+  make
+  make check
+  make install
+
+  cd ../..
+  rm -rf texinfo-*/
+}
+
+build_vim() {
+  echo "🔧 Building vim ch6.71"
+  rm -rf vim-* || true
+  tar -xf /sources/vim-*.tar.*
+  cd vim-*/
+
+  echo '#define SYS_VIMRC_FILE "/etc/vimrc"' >> src/feature.h
+
+  ./configure --prefix=/usr
+
+  make
+  LANG=en_US.UTF-8 make -j1 test &> vim-test.log
+  make install
+
+  ln -sv vim /usr/bin/vi
+  for L in  /usr/share/man/{,*/}man1/vim.1; do
+      ln -sv vim.1 $(dirname $L)/vi.1
+  done
+
+  ln -sv ../vim/vim81/doc /usr/share/doc/vim-8.1
+
+  cat > /etc/vimrc << "EOF"
+" Begin /etc/vimrc
+
+" Ensure defaults are set before customizing settings, not after
+source $VIMRUNTIME/defaults.vim
+let skip_defaults_vim=1 
+
+set nocompatible
+set backspace=2
+set mouse=
+syntax on
+if (&term == "xterm") || (&term == "putty")
+  set background=dark
+endif
+
+" End /etc/vimrc
+EOF
+
+  cd ../..
+  rm -rf vim-*/
+}
+
+build_procps() {
+  echo "🔧 Building procps ch6.72"
+  rm -rf procps-* || true
+  tar -xf /sources/procps-*.tar.*
+  cd procps-*/
+
+  ./configure --prefix=/usr                            \
+            --exec-prefix=                           \
+            --libdir=/usr/lib                        \
+            --docdir=/usr/share/doc/procps-ng-3.3.15 \
+            --disable-static                         \
+            --disable-kill
+
+  make
+  sed -i -r 's|(pmap_initname)\\\$|\1|' testsuite/pmap.test/pmap.exp
+  sed -i '/set tty/d' testsuite/pkill.test/pkill.exp
+  rm testsuite/pgrep.test/pgrep.exp
+  make check
+  make install
+
+  mv -v /usr/lib/libprocps.so.* /lib
+  ln -sfv ../../lib/$(readlink /usr/lib/libprocps.so) /usr/lib/libprocps.so
+
+  cd ../..
+  rm -rf procps-*/
+}
+
+build_util-linux() {
+  echo "🔧 Building util-linux ch6.73"
+  rm -rf util-linux-* || true
+  tar -xf /sources/util-linux-*.tar.*
+  cd util-linux-*/
+
+  mkdir -pv /var/lib/hwclock
+  rm -vf /usr/include/{blkid,libmount,uuid}
+
+  ./configure ADJTIME_PATH=/var/lib/hwclock/adjtime   \
+            --docdir=/usr/share/doc/util-linux-2.33.1 \
+            --disable-chfn-chsh  \
+            --disable-login      \
+            --disable-nologin    \
+            --disable-su         \
+            --disable-setpriv    \
+            --disable-runuser    \
+            --disable-pylibmount \
+            --disable-static     \
+            --without-python     \
+            --without-systemd    \
+            --without-systemdsystemunitdir
+
+  make
+  make install
+
+  cd ../..
+  rm -rf util-linux-*/
+}
+
+build_e2fsprogs() {
+  echo "🔧 Building e2fsprogs ch6.74"
+  rm -rf e2fsprogs-* || true
+  tar -xf /sources/e2fsprogs-*.tar.*
+  cd e2fsprogs-*/
+
+  mkdir -v build
+  cd       build
+
+  ../configure --prefix=/usr           \
+             --bindir=/bin           \
+             --with-root-prefix=""   \
+             --enable-elf-shlibs     \
+             --disable-libblkid      \
+             --disable-libuuid       \
+             --disable-uuidd         \
+             --disable-fsck
+
+  make
+  make check
+  make install
+  make install-libs
+
+  chmod -v u+w /usr/lib/{libcom_err,libe2p,libext2fs,libss}.a
+  gunzip -v /usr/share/info/libext2fs.info.gz
+  install-info --dir-file=/usr/share/info/dir /usr/share/info/libext2fs.info
+
+  cd ../..
+  rm -rf e2fsprogs-*/
+}
+
+build_sysklogd() {
+  echo "🔧 Building sysklogd ch6.75"
+  rm -rf sysklogd-* || true
+  tar -xf /sources/sysklogd-*.tar.*
+  cd sysklogd-*/
+
+  sed -i '/Error loading kernel symbols/{n;n;d}' ksym_mod.c
+  sed -i 's/union wait/int/' syslogd.c
+
+  make
+  make BINDIR=/sbin install
+
+  cat > /etc/syslog.conf << "EOF"
+# Begin /etc/syslog.conf
+
+auth,authpriv.* -/var/log/auth.log
+*.*;auth,authpriv.none -/var/log/sys.log
+daemon.* -/var/log/daemon.log
+kern.* -/var/log/kern.log
+mail.* -/var/log/mail.log
+user.* -/var/log/user.log
+*.emerg *
+
+# End /etc/syslog.conf
+EOF
+
+  cd ../..
+  rm -rf sysklogd-*/
+}
+
+build_sysvinit() {
+  echo "🔧 Building sysvinit ch6.76"
+  rm -rf sysvinit-* || true
+  tar -xf /sources/sysvinit-*.tar.*
+  cd sysvinit-*/
+
+  patch -Np1 -i ../sysvinit-2.93-consolidated-1.patch
+
+  make
+  make install
+
+  cd ../..
+  rm -rf sysvinit-*/
+}
+
+build_eudev() {
+  echo "🔧 Building eudev ch6.77"
+  rm -rf eudev-* || true
+  tar -xf /sources/eudev-*.tar.*
+  cd eudev-*/
+
+  cat > config.cache << "EOF"
+HAVE_BLKID=1
+BLKID_LIBS="-lblkid"
+BLKID_CFLAGS="-I/tools/include"
+EOF
+
+  ./configure --prefix=/usr           \
+            --bindir=/sbin          \
+            --sbindir=/sbin         \
+            --libdir=/usr/lib       \
+            --sysconfdir=/etc       \
+            --libexecdir=/lib       \
+            --with-rootprefix=      \
+            --with-rootlibdir=/lib  \
+            --enable-manpages       \
+            --disable-static        \
+            --config-cache
+
+  LIBRARY_PATH=/tools/lib make
+
+  mkdir -pv /lib/udev/rules.d
+  mkdir -pv /etc/udev/rules.d
+  make LD_LIBRARY_PATH=/tools/lib check
+  make LD_LIBRARY_PATH=/tools/lib install
+
+  tar -xvf ../udev-lfs-20171102.tar.bz2
+  make -f udev-lfs-20171102/Makefile.lfs install
+
+  LD_LIBRARY_PATH=/tools/lib udevadm hwdb --update
+
+  cd ../..
+  rm -rf eudev-*/
+}
+
 # ===== execute in order (rerunnable) =====
 run_step dirs          create_dirs
 run_step symlinks      create_symlinks
@@ -1508,5 +1879,20 @@ run_step groff         build_groff
 run_step grub          build_grub
 run_step less          build_less
 run_step gzip          build_gzip
+run_step iproute2      build_iproute2
+run_step kbd           build_kbd
+run_step libpipeline   build_libpipeline
+run_step make          build_make
+run_step patch         build_patch
+run_step man-db        build_man-db
+run_step tar           build_tar
+run_step texinfo       build_texinfo
+run_step vim           build_vim
+run_step procps        build_procps
+run_step util_linux    build_util-linux
+run_step e2fsprogs     build_e2fsprogs
+run_step sysklogd      build_sysklogd
+run_step sysvinit      build_sysvinit
+run_step eudev         build_eudev
 
 echo "🎉 ch6 done"

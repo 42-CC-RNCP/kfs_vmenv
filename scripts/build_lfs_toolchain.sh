@@ -152,7 +152,7 @@ build_linux_headers() {
 
 build_manpages() {
   echo "🔧 Building man-pages ch6.8"
-  rm -rf man-pages-* || true
+  rm -rf man-pages-*/ || true
   tar -xf man-pages-*.tar.*
   cd man-pages-*/
 
@@ -163,8 +163,8 @@ build_manpages() {
 
 build_glibc() {
   echo "🔧 Building glibc ch6.9"
-  rm -rf glibc-* || true
-  tar -xf /sources/glibc-*.tar.*
+  rm -rf glibc-*/ || true
+  tar -xf glibc-*.tar.*
   cd glibc-*/
 
   patch -Np1 -i /sources/glibc-2.29-fhs-1.patch
@@ -317,8 +317,8 @@ adjust_toolchain() {
 
 build_zlib() {
   echo "🔧 Building zlib ch6.11"
-  rm -rf zlib-* || true
-  tar -xf /sources/zlib-*.tar.*
+  rm -rf zlib-*/ || true
+  tar -xf zlib-*.tar.*
   cd zlib-*/
 
   ./configure --prefix=/usr
@@ -335,8 +335,8 @@ build_zlib() {
 
 build_file() {
   echo "🔧 Building file ch6.12"
-  rm -rf file-* || true
-  tar -xf /sources/file-*.tar.*
+  rm -rf file-*/ || true
+  tar -xf file-*.tar.*
   cd file-*/
 
   ./configure --prefix=/usr
@@ -350,8 +350,8 @@ build_file() {
 
 build_readline() {
   echo "🔧 Building readline ch6.13"
-  rm -rf readline-* || true
-  tar -xf /sources/readline-*.tar.*
+  rm -rf readline-*/ || true
+  tar -xf readline-*.tar.*
   cd readline-*/
 
   sed -i '/MV.*old/d' Makefile.in
@@ -374,8 +374,8 @@ build_readline() {
 
 build_m4() {
   echo "🔧 Building m4 ch6.14"
-  rm -rf m4-* || true
-  tar -xf /sources/m4-*.tar.*
+  rm -rf m4-*/ || true
+  tar -xf m4-*.tar.*
   cd m4-*/
 
   sed -i 's/IO_ftrylockfile/IO_EOF_SEEN/' lib/*.c
@@ -391,8 +391,8 @@ build_m4() {
 
 build_bc() {
   echo "🔧 Building bc ch6.15"
-  rm -rf bc-* || true
-  tar -xf /sources/bc-*.tar.*
+  rm -rf bc-*/ || true
+  tar -xf bc-*.tar.*
   cd bc-*/
 
   cat > bc/fix-libmath_h << "EOF"
@@ -426,8 +426,8 @@ EOF
 build_binutils() {
   echo "🔧 Building binutils ch6.16"
   expect -c "spawn ls"
-  rm -rf binutils-* || true
-  tar -xf /sources/binutils-*.tar.*
+  rm -rf binutils-*/ || true
+  tar -xf binutils-*.tar.*
   cd binutils-*/
 
   mkdir -v build
@@ -451,8 +451,8 @@ build_binutils() {
 
 build_gmp() {
   echo "🔧 Building gmp ch6.17"
-  rm -rf gmp-* || true
-  tar -xf /sources/gmp-*.tar.*
+  rm -rf gmp-*/ || true
+  tar -xf gmp-*.tar.*
   cd gmp-*/
 
 
@@ -478,8 +478,8 @@ build_gmp() {
 
 build_mpfr() {
   echo "🔧 Building mpfr ch6.18"
-  rm -rf mpfr-* || true
-  tar -xf /sources/mpfr-*.tar.*
+  rm -rf mpfr-*/ || true
+  tar -xf mpfr-*.tar.*
   cd mpfr-*/
 
   ./configure --prefix=/usr        \
@@ -499,8 +499,8 @@ build_mpfr() {
 
 build_mpc() {
   echo "🔧 Building mpc ch6.19"
-  rm -rf mpc-* || true
-  tar -xf /sources/mpc-*.tar.*
+  rm -rf mpc-*/ || true
+  tar -xf mpc-*.tar.*
   cd mpc-*/
 
   ./configure --prefix=/usr    \
@@ -519,8 +519,8 @@ build_mpc() {
 
 build_shadow() {
   echo "🔧 Building shadow ch6.20"
-  rm -rf shadow-* || true
-  tar -xf /sources/shadow-*.tar.*
+  rm -rf shadow-*/ || true
+  tar -xf shadow-*.tar.*
   cd shadow-*/
 
   sed -i 's/groups$(EXEEXT) //' src/Makefile.in
@@ -550,8 +550,8 @@ build_shadow() {
 
 build_gcc() {
   echo "🔧 Building gcc ch6.21"
-  rm -rf gcc-* || true
-  tar -xf /sources/gcc-*.tar.*
+  rm -rf gcc-*/ || true
+  tar -xf gcc-*.tar.*
   cd gcc-*/
 
   case $(uname -m) in
@@ -614,8 +614,8 @@ build_gcc() {
 
 build_bzip2() {
   echo "🔧 Building bzip2 ch6.22"
-  rm -rf bzip2-* || true
-  tar -xf /sources/bzip2-*.tar.*
+  rm -rf bzip2-*/ || true
+  tar -xf bzip2-*.tar.*
   cd bzip2-*/
 
   patch -Np1 -i ../bzip2-1.0.6-install_docs-1.patch
@@ -641,8 +641,8 @@ build_bzip2() {
 
 build_pkg-config() {
   echo "🔧 Building pkg-config ch6.23"
-  rm -rf pkg-config-* || true
-  tar -xf /sources/pkg-config-*.tar.*
+  rm -rf pkg-config-*/ || true
+  tar -xf pkg-config-*.tar.*
   cd pkg-config-*/
 
   ./configure --prefix=/usr              \
@@ -660,8 +660,8 @@ build_pkg-config() {
 
 build_ncurses() {
   echo "🔧 Building ncurses ch6.24"
-  rm -rf ncurses-* || true
-  tar -xf /sources/ncurses-*.tar.*
+  rm -rf ncurses-*/ || true
+  tar -xf ncurses-*.tar.*
   cd ncurses-*/
 
   sed -i '/LIBTOOL_INSTALL/d' c++/Makefile.in
@@ -709,8 +709,8 @@ build_ncurses() {
 
 build_attr() {
   echo "🔧 Building attr ch6.25"
-  rm -rf attr-* || true
-  tar -xf /sources/attr-*.tar.*
+  rm -rf attr-*/ || true
+  tar -xf attr-*.tar.*
   cd attr-*/
 
   ./configure --prefix=/usr     \
@@ -732,8 +732,8 @@ build_attr() {
 
 build_acl() {
   echo "🔧 Building acl ch6.26"
-  rm -rf acl-* || true
-  tar -xf /sources/acl-*.tar.*
+  rm -rf acl-*/ || true
+  tar -xf acl-*.tar.*
   cd acl-*/
 
   ./configure --prefix=/usr         \
@@ -754,8 +754,8 @@ build_acl() {
 
 build_libcap() {
   echo "🔧 Building libcap ch6.27"
-  rm -rf libcap-* || true
-  tar -xf /sources/libcap-*.tar.*
+  rm -rf libcap-*/ || true
+  tar -xf libcap-*.tar.*
   cd libcap-*/
 
   sed -i '/install.*STALIBNAME/d' libcap/Makefile
@@ -773,8 +773,8 @@ build_libcap() {
 
 build_sed() {
   echo "🔧 Building sed ch6.28"
-  rm -rf sed-* || true
-  tar -xf /sources/sed-*.tar.*
+  rm -rf sed-*/ || true
+  tar -xf sed-*.tar.*
   cd sed-*/
 
   sed -i 's/usr/tools/'                 build-aux/help2man
@@ -795,8 +795,8 @@ build_sed() {
 
 build_psmisc() {
   echo "🔧 Building psmisc ch6.29"
-  rm -rf psmisc-* || true
-  tar -xf /sources/psmisc-*.tar.*
+  rm -rf psmisc-*/ || true
+  tar -xf psmisc-*.tar.*
   cd psmisc-*/
 
   ./configure --prefix=/usr
@@ -813,8 +813,8 @@ build_psmisc() {
 
 build_iana-etc() {
   echo "🔧 Building iana-etc ch6.30"
-  rm -rf iana-etc-* || true
-  tar -xf /sources/iana-etc-*.tar.*
+  rm -rf iana-etc-*/ || true
+  tar -xf iana-etc-*.tar.*
   cd iana-etc-*/
 
   make
@@ -826,8 +826,8 @@ build_iana-etc() {
 
 build_bison() {
   echo "🔧 Building bison ch6.31"
-  rm -rf bison-* || true
-  tar -xf /sources/bison-*.tar.*
+  rm -rf bison-*/ || true
+  tar -xf bison-*.tar.*
   cd bison-*/
 
   ./configure --prefix=/usr --docdir=/usr/share/doc/bison-3.3.2
@@ -841,8 +841,8 @@ build_bison() {
 
 build_flex() {
   echo "🔧 Building flex ch6.32"
-  rm -rf flex-* || true
-  tar -xf /sources/flex-*.tar.*
+  rm -rf flex-*/ || true
+  tar -xf flex-*.tar.*
   cd flex-*/
 
   sed -i "/math.h/a #include <malloc.h>" src/flexdef.h
@@ -860,8 +860,8 @@ build_flex() {
 
 build_grep() {
   echo "🔧 Building grep ch6.33"
-  rm -rf grep-* || true
-  tar -xf /sources/grep-*.tar.*
+  rm -rf grep-*/ || true
+  tar -xf grep-*.tar.*
   cd grep-*/
 
   ./configure --prefix=/usr --bindir=/bin
@@ -876,8 +876,8 @@ build_grep() {
 
 build_bash() {
   echo "🔧 Building bash ch6.34"
-  rm -rf bash-* || true
-  tar -xf /sources/bash-*.tar.*
+  rm -rf bash-*/ || true
+  tar -xf bash-*.tar.*
   cd bash-*/
 
   ./configure --prefix=/usr                    \
@@ -899,8 +899,8 @@ build_bash() {
 
 build_libtool() {
   echo "🔧 Building libtool ch6.35"
-  rm -rf libtool-* || true
-  tar -xf /sources/libtool-*.tar.*
+  rm -rf libtool-*/ || true
+  tar -xf libtool-*.tar.*
   cd libtool-*/
 
   ./configure --prefix=/usr
@@ -915,8 +915,8 @@ build_libtool() {
 
 build_gdbm() {
   echo "🔧 Building gdbm ch6.36"
-  rm -rf gdbm-* || true
-  tar -xf /sources/gdbm-*.tar.*
+  rm -rf gdbm-*/ || true
+  tar -xf gdbm-*.tar.*
   cd gdbm-*/
 
   ./configure --prefix=/usr    \
@@ -933,8 +933,8 @@ build_gdbm() {
 
 build_gperf() {
   echo "🔧 Building gperf ch6.37"
-  rm -rf gperf-* || true
-  tar -xf /sources/gperf-*.tar.*
+  rm -rf gperf-*/ || true
+  tar -xf gperf-*.tar.*
   cd gperf-*/
 
   ./configure --prefix=/usr --docdir=/usr/share/doc/gperf-3.1
@@ -949,8 +949,8 @@ build_gperf() {
 
 build_expat() {
   echo "🔧 Building expat ch6.38"
-  rm -rf expat-* || true
-  tar -xf /sources/expat-*.tar.*
+  rm -rf expat-*/ || true
+  tar -xf expat-*.tar.*
   cd expat-*/
 
   sed -i 's|usr/bin/env |bin/|' run.sh.in
@@ -970,8 +970,8 @@ build_expat() {
 
 build_inetutils() {
   echo "🔧 Building inetutils ch6.39"
-  rm -rf inetutils-* || true
-  tar -xf /sources/inetutils-*.tar.*
+  rm -rf inetutils-*/ || true
+  tar -xf inetutils-*.tar.*
   cd inetutils-*/
 
   ./configure --prefix=/usr        \
@@ -997,8 +997,8 @@ build_inetutils() {
 
 build_perl() {
   echo "🔧 Building perl ch6.40"
-  rm -rf perl-* || true
-  tar -xf /sources/perl-*.tar.*
+  rm -rf perl-*/ || true
+  tar -xf perl-*.tar.*
   cd perl-*/
 
   echo "127.0.0.1 localhost $(hostname)" > /etc/hosts
@@ -1025,8 +1025,8 @@ build_perl() {
 
 build_xml-parser() {
   echo "🔧 Building XML::Parser ch6.41"
-  rm -rf XML-Parser-* || true
-  tar -xf /sources/XML-Parser-*.tar.*
+  rm -rf XML-Parser-*/ || true
+  tar -xf XML-Parser-*.tar.*
   cd XML-Parser-*/
 
   perl Makefile.PL
@@ -1040,8 +1040,8 @@ build_xml-parser() {
 
 build_intltool() {
   echo "🔧 Building intltool ch6.42"
-  rm -rf intltool-* || true
-  tar -xf /sources/intltool-*.tar.*
+  rm -rf intltool-*/ || true
+  tar -xf intltool-*.tar.*
   cd intltool-*/
 
   sed -i 's:\\\${:\\\$\\{:' intltool-update.in
@@ -1059,8 +1059,8 @@ build_intltool() {
 
 build_autoconf() {
   echo "🔧 Building autoconf ch6.43"
-  rm -rf autoconf-* || true
-  tar -xf /sources/autoconf-*.tar.*
+  rm -rf autoconf-*/ || true
+  tar -xf autoconf-*.tar.*
   cd autoconf-*/
 
   sed '361 s/{/\\{/' -i bin/autoscan.in
@@ -1077,8 +1077,8 @@ build_autoconf() {
 
 build_automake() {
   echo "🔧 Building automake ch6.44"
-  rm -rf automake-* || true
-  tar -xf /sources/automake-*.tar.*
+  rm -rf automake-*/ || true
+  tar -xf automake-*.tar.*
   cd automake-*/
 
   ./configure --prefix=/usr --docdir=/usr/share/doc/automake-1.16.1
@@ -1093,8 +1093,8 @@ build_automake() {
 
 build_xz() {
   echo "🔧 Building xz ch6.45"
-  rm -rf xz-* || true
-  tar -xf /sources/xz-*.tar.*
+  rm -rf xz-*/ || true
+  tar -xf xz-*.tar.*
   cd xz-*/
 
   ./configure --prefix=/usr    \
@@ -1114,8 +1114,8 @@ build_xz() {
 
 build_kmod() {
   echo "🔧 Building kmod ch6.46"
-  rm -rf kmod-* || true
-  tar -xf /sources/kmod-*.tar.*
+  rm -rf kmod-*/ || true
+  tar -xf kmod-*.tar.*
   cd kmod-*/
 
   ./configure --prefix=/usr          \
@@ -1140,8 +1140,8 @@ build_kmod() {
 
 build_gettext() {
   echo "🔧 Building gettext ch6.47"
-  rm -rf gettext-* || true
-  tar -xf /sources/gettext-*.tar.*
+  rm -rf gettext-*/ || true
+  tar -xf gettext-*.tar.*
   cd gettext-*/
 
   sed -i '/^TESTS =/d' gettext-runtime/tests/Makefile.in &&
@@ -1165,8 +1165,8 @@ build_gettext() {
 
 build_elfutils() {
   echo "🔧 Building elfutils ch6.48"
-  rm -rf elfutils-* || true
-  tar -xf /sources/elfutils-*.tar.*
+  rm -rf elfutils-*/ || true
+  tar -xf elfutils-*.tar.*
   cd elfutils-*/
 
   mkdir -v build
@@ -1185,8 +1185,8 @@ build_elfutils() {
 
 build_libffi() {
   echo "🔧 Building libffi ch6.49"
-  rm -rf libffi-* || true
-  tar -xf /sources/libffi-*.tar.*
+  rm -rf libffi-*/ || true
+  tar -xf libffi-*.tar.*
   cd libffi-*/
 
   sed -e '/^includesdir/ s/$(libdir).*$/$(includedir)/' \
@@ -1208,8 +1208,8 @@ build_libffi() {
 
 build_openssl() {
   echo "🔧 Building openssl ch6.50"
-  rm -rf openssl-* || true
-  tar -xf /sources/openssl-*.tar.*
+  rm -rf openssl-*/ || true
+  tar -xf openssl-*.tar.*
   cd openssl-*/
 
   ./config --prefix=/usr         \
@@ -1232,8 +1232,8 @@ build_openssl() {
 
 build_python() {
   echo "🔧 Building python ch6.51"
-  rm -rf Python-* || true
-  tar -xf /sources/Python-*.tar.*
+  rm -rf Python-*/ || true
+  tar -xf Python-*.tar.*
   cd Python-*/
 
   ./configure --prefix=/usr       \
@@ -1261,8 +1261,8 @@ build_python() {
 
 build_ninja() {
   echo "🔧 Building ninja ch6.52"
-  rm -rf ninja-* || true
-  tar -xf /sources/ninja-*.tar.*
+  rm -rf ninja-*/ || true
+  tar -xf ninja-*.tar.*
   cd ninja-*/
 
   export NINJAJOBS=4
@@ -1289,8 +1289,8 @@ build_ninja() {
 
 build_meson() {
   echo "🔧 Building meson ch6.53"
-  rm -rf meson-* || true
-  tar -xf /sources/meson-*.tar.*
+  rm -rf meson-*/ || true
+  tar -xf meson-*.tar.*
   cd meson-*/
 
   python3 setup.py build
@@ -1303,8 +1303,8 @@ build_meson() {
 
 build_coreutils() {
   echo "🔧 Building coreutils ch6.54"
-  rm -rf coreutils-* || true
-  tar -xf /sources/coreutils-*.tar.*
+  rm -rf coreutils-*/ || true
+  tar -xf coreutils-*.tar.*
   cd coreutils-*/
 
   patch -Np1 -i ../coreutils-8.30-i18n-1.patch
@@ -1333,8 +1333,8 @@ build_coreutils() {
 
 build_check() {
   echo "🔧 Building check ch6.55"
-  rm -rf check-* || true
-  tar -xf /sources/check-*.tar.*
+  rm -rf check-*/ || true
+  tar -xf check-*.tar.*
   cd check-*/
 
   ./configure --prefix=/usr
@@ -1350,8 +1350,8 @@ build_check() {
 
 build_diffutils() {
   echo "🔧 Building diffutils ch6.11"
-  rm -rf diffutils-* || true
-  tar -xf /sources/diffutils-*.tar.*
+  rm -rf diffutils-*/ || true
+  tar -xf diffutils-*.tar.*
   cd diffutils-*/
 
   ./configure --prefix=/usr
@@ -1366,8 +1366,8 @@ build_diffutils() {
 
 build_gawk() {
   echo "🔧 Building gawk ch6.12"
-  rm -rf gawk-* || true
-  tar -xf /sources/gawk-*.tar.*
+  rm -rf gawk-*/ || true
+  tar -xf gawk-*.tar.*
   cd gawk-*/
 
   sed -i 's/extras//' Makefile.in
@@ -1386,8 +1386,8 @@ build_gawk() {
 
 build_findutils() {
   echo "🔧 Building findutils ch6.58"
-  rm -rf findutils-* || true
-  tar -xf /sources/findutils-*.tar.*
+  rm -rf findutils-*/ || true
+  tar -xf findutils-*.tar.*
   cd findutils-*/
 
   sed -i 's/test-lock..EXEEXT.//' tests/Makefile.in
@@ -1411,8 +1411,8 @@ build_findutils() {
 
 build_groff() {
   echo "🔧 Building groff ch6.59"
-  rm -rf groff-* || true
-  tar -xf /sources/groff-*.tar.*
+  rm -rf groff-*/ || true
+  tar -xf groff-*.tar.*
   cd groff-*/
 
   PAGE=<paper_size> ./configure --prefix=/usr
@@ -1426,8 +1426,8 @@ build_groff() {
 
 build_grub() {
   echo "🔧 Building grub ch6.60"
-  rm -rf grub-* || true
-  tar -xf /sources/grub-*.tar.*
+  rm -rf grub-*/ || true
+  tar -xf grub-*.tar.*
   cd grub-*/
 
   ./configure --prefix=/usr          \
@@ -1446,8 +1446,8 @@ build_grub() {
 
 build_less() {
   echo "🔧 Building less ch6.61"
-  rm -rf less-* || true
-  tar -xf /sources/less-*.tar.*
+  rm -rf less-*/ || true
+  tar -xf less-*.tar.*
   cd less-*/
 
   ./configure --prefix=/usr --sysconfdir=/etc
@@ -1461,8 +1461,8 @@ build_less() {
 
 build_gzip() {
   echo "🔧 Building gzip ch6.62"
-  rm -rf gzip-* || true
-  tar -xf /sources/gzip-*.tar.*
+  rm -rf gzip-*/ || true
+  tar -xf gzip-*.tar.*
   cd gzip-*/
 
   ./configure --prefix=/usr
@@ -1478,8 +1478,8 @@ build_gzip() {
 
 build_iproute2() {
   echo "🔧 Building iproute2 ch6.63"
-  rm -rf iproute2-* || true
-  tar -xf /sources/iproute2-*.tar.*
+  rm -rf iproute2-*/ || true
+  tar -xf iproute2-*.tar.*
   cd iproute2-*/
 
   sed -i /ARPD/d Makefile
@@ -1495,8 +1495,8 @@ build_iproute2() {
 
 build_kbd() {
   echo "🔧 Building kbd ch6.64"
-  rm -rf kbd-* || true
-  tar -xf /sources/kbd-*.tar.*
+  rm -rf kbd-*/ || true
+  tar -xf kbd-*.tar.*
   cd kbd-*/
 
   patch -Np1 -i ../kbd-2.0.4-backspace-1.patch
@@ -1519,8 +1519,8 @@ build_kbd() {
 
 build_libpipeline() {
   echo "🔧 Building libpipeline ch6.65"
-  rm -rf libpipeline-* || true
-  tar -xf /sources/libpipeline-*.tar.*
+  rm -rf libpipeline-*/ || true
+  tar -xf libpipeline-*.tar.*
   cd libpipeline-*/
 
   ./configure --prefix=/usr
@@ -1535,8 +1535,8 @@ build_libpipeline() {
 
 build_make() {
   echo "🔧 Building make ch6.66"
-  rm -rf make-* || true
-  tar -xf /sources/make-*.tar.*
+  rm -rf make-*/ || true
+  tar -xf make-*.tar.*
   cd make-*/
 
   sed -i '211,217 d; 219,229 d; 232 d' glob/glob.c
@@ -1553,8 +1553,8 @@ build_make() {
 
 build_patch() {
   echo "🔧 Building patch ch6.67"
-  rm -rf patch-* || true
-  tar -xf /sources/patch-*.tar.*
+  rm -rf patch-*/ || true
+  tar -xf patch-*.tar.*
   cd patch-*/
 
   ./configure --prefix=/usr
@@ -1569,8 +1569,8 @@ build_patch() {
 
 build_man-db() {
   echo "🔧 Building Man-DB ch6.68"
-  rm -rf man-db-* || true
-  tar -xf /sources/man-db-*.tar.*
+  rm -rf man-db-*/ || true
+  tar -xf man-db-*.tar.*
   cd man-db-*/
 
   ./configure --prefix=/usr                        \
@@ -1594,8 +1594,8 @@ build_man-db() {
 
 build_tar() {
   echo "🔧 Building tar ch6.69"
-  rm -rf tar-* || true
-  tar -xf /sources/tar-*.tar.*
+  rm -rf tar-*/ || true
+  tar -xf tar-*.tar.*
   cd tar-*/
 
   sed -i 's/abort.*/FALLTHROUGH;/' src/extract.c
@@ -1615,8 +1615,8 @@ build_tar() {
 
 build_texinfo() {
   echo "🔧 Building texinfo ch6.70"
-  rm -rf texinfo-* || true
-  tar -xf /sources/texinfo-*.tar.*
+  rm -rf texinfo-*/ || true
+  tar -xf texinfo-*.tar.*
   cd texinfo-*/
 
   sed -i '5481,5485 s/({/(\\{/' tp/Texinfo/Parser.pm
@@ -1633,8 +1633,8 @@ build_texinfo() {
 
 build_vim() {
   echo "🔧 Building vim ch6.71"
-  rm -rf vim-* || true
-  tar -xf /sources/vim-*.tar.*
+  rm -rf vim-*/ || true
+  tar -xf vim-*.tar.*
   cd vim-*/
 
   echo '#define SYS_VIMRC_FILE "/etc/vimrc"' >> src/feature.h
@@ -1676,8 +1676,8 @@ EOF
 
 build_procps() {
   echo "🔧 Building procps ch6.72"
-  rm -rf procps-* || true
-  tar -xf /sources/procps-*.tar.*
+  rm -rf procps-*/ || true
+  tar -xf procps-*.tar.*
   cd procps-*/
 
   ./configure --prefix=/usr                            \
@@ -1703,8 +1703,8 @@ build_procps() {
 
 build_util-linux() {
   echo "🔧 Building util-linux ch6.73"
-  rm -rf util-linux-* || true
-  tar -xf /sources/util-linux-*.tar.*
+  rm -rf util-linux-*/ || true
+  tar -xf util-linux-*.tar.*
   cd util-linux-*/
 
   mkdir -pv /var/lib/hwclock
@@ -1733,8 +1733,8 @@ build_util-linux() {
 
 build_e2fsprogs() {
   echo "🔧 Building e2fsprogs ch6.74"
-  rm -rf e2fsprogs-* || true
-  tar -xf /sources/e2fsprogs-*.tar.*
+  rm -rf e2fsprogs-*/ || true
+  tar -xf e2fsprogs-*.tar.*
   cd e2fsprogs-*/
 
   mkdir -v build
@@ -1764,8 +1764,8 @@ build_e2fsprogs() {
 
 build_sysklogd() {
   echo "🔧 Building sysklogd ch6.75"
-  rm -rf sysklogd-* || true
-  tar -xf /sources/sysklogd-*.tar.*
+  rm -rf sysklogd-*/ || true
+  tar -xf sysklogd-*.tar.*
   cd sysklogd-*/
 
   sed -i '/Error loading kernel symbols/{n;n;d}' ksym_mod.c
@@ -1794,8 +1794,8 @@ EOF
 
 build_sysvinit() {
   echo "🔧 Building sysvinit ch6.76"
-  rm -rf sysvinit-* || true
-  tar -xf /sources/sysvinit-*.tar.*
+  rm -rf sysvinit-*/ || true
+  tar -xf sysvinit-*.tar.*
   cd sysvinit-*/
 
   patch -Np1 -i ../sysvinit-2.93-consolidated-1.patch
@@ -1809,8 +1809,8 @@ build_sysvinit() {
 
 build_eudev() {
   echo "🔧 Building eudev ch6.77"
-  rm -rf eudev-* || true
-  tar -xf /sources/eudev-*.tar.*
+  rm -rf eudev-*/ || true
+  tar -xf eudev-*.tar.*
   cd eudev-*/
 
   cat > config.cache << "EOF"

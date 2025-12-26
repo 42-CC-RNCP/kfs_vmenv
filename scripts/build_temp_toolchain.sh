@@ -485,6 +485,11 @@ build_ncurses() {
 
   ln -sfv libncursesw.so /tools/lib/libncurses.so
 
+  if ! ls /tools/lib/libtinfo.so.6* >/dev/null 2>&1; then
+    ln -sfv libncursesw.so.6 /tools/lib/libtinfo.so.6
+    ln -sfv libtinfo.so.6 /tools/lib/libtinfo.so
+  fi
+
   cd ..
   rm -rf ncurses-*/
   echo "✅ ncurses installed into /tools"

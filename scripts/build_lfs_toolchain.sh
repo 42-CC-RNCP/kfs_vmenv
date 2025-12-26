@@ -1816,6 +1816,19 @@ EOF
   rm -rf eudev-*/
 }
 
+clean_up() {
+  echo "🧹 Cleaning up files ch6.80"
+  
+  rm -rf /tmp/*
+
+  rm -f /usr/lib/lib{bfd,opcodes}.a
+  rm -f /usr/lib/libbz2.a
+  rm -f /usr/lib/lib{com_err,e2p,ext2fs,ss}.a
+  rm -f /usr/lib/libltdl.a
+  rm -f /usr/lib/libfl.a
+  rm -f /usr/lib/libz.a
+}
+
 # ===== execute in order (rerunnable) =====
 run_step dirs          create_dirs
 run_step symlinks      create_symlinks
@@ -1894,5 +1907,7 @@ run_step e2fsprogs     build_e2fsprogs
 run_step sysklogd      build_sysklogd
 run_step sysvinit      build_sysvinit
 run_step eudev         build_eudev
+
+run_step cleanup       clean_up
 
 echo "🎉 ch6 done"

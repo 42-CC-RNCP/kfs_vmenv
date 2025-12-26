@@ -20,9 +20,9 @@ run_step() {
 }
 
 ensure_binutils_symlinks() {
-  # 1) find target prefix (prefer $LFS_TGT, otherwise infer from /tools/bin/*-as)
   local tgt="${LFS_TGT:-}"
 
+  # infer prefix if LFS_TGT not provided
   if [ -z "$tgt" ]; then
     local as_path
     as_path="$(ls -1 /tools/bin/*-as 2>/dev/null | head -n1 || true)"
@@ -32,22 +32,22 @@ ensure_binutils_symlinks() {
     fi
   fi
 
-  # 2) create /tools/bin/as if missing
-  if ! command -v as >/dev/null 2>&1; then
-    if [ -n "$tgt" ] && [ -x "/tools/bin/${tgt}-as" ]; then
-      ln -sfv "/tools/bin/${tgt}-as" /tools/bin/as
-    else
-      echo "❌ ERROR: cannot find assembler in /tools/bin (expected *-as). Rebuild binutils." >&2
-      exit 1
-    fi
+  if [ -z "$tgt" ]; then
+    echo "❌ ERROR: cannot infer binutils prefix in /tools/bin (no *-as found)" >&2
+    exit 1
   fi
 
-  # 3) create /tools/bin/ld if missing (often next failure)
-  if ! command -v ld >/dev/null 2>&1; then
-    if [ -n "$tgt" ] && [ -x "/tools/bin/${tgt}-ld" ]; then
-      ln -sfv "/tools/bin/${tgt}-ld" /tools/bin/ld
+  # link common binutils names if missing
+  for tool in as ld ar ranlib nm strip objcopy objdump readelf; do
+    if ! command -v "$tool" >/dev/null 2>&1; then
+      if [ -x "/tools/bin/${tgt}-${tool}" ]; then
+        ln -sfv "/tools/bin/${tgt}-${tool}" "/tools/bin/${tool}"
+      fi
     fi
-  fi
+  done
+
+  # hard fail if assembler still missing
+  command -v as >/dev/null 2>&1 || { echo "❌ ERROR: 'as' still missing" >&2; exit 1; }
 }
 
 create_dirs() {

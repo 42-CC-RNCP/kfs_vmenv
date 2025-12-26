@@ -97,6 +97,7 @@ run_step() {
     else
       # legacy chroot (chapter 6 build)
       chroot "$LFS" /tools/bin/env -i \
+          LFS_TGT="$LFS_TGT" \
           HOME=/root TERM="$TERM" \
           PS1='(lfs chroot) \u:\w\$ ' \
           PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin \

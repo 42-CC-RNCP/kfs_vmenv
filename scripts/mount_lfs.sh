@@ -4,6 +4,7 @@ set -e
 # 6.2: mount points
 mkdir -pv "$LFS"/{dev,proc,sys,run}
 mkdir -pv "$LFS/scripts"
+mkdir -pv "$LFS/sources"
 
 # 6.2.1: initial device nodes (on disk)
 mknod -m 600 "$LFS/dev/console" c 5 1 || true
@@ -18,6 +19,7 @@ mountpoint -q "$LFS/proc"    || mount -vt proc  proc  "$LFS/proc"
 mountpoint -q "$LFS/sys"     || mount -vt sysfs sysfs "$LFS/sys"
 mountpoint -q "$LFS/run"     || mount -vt tmpfs tmpfs "$LFS/run" -o mode=0755,nosuid,nodev
 mountpoint -q "$LFS/scripts" || mount -v --bind "$BASEDIR/scripts" "$LFS/scripts"
+mountpoint -q "$LFS/sources" || mount -v --bind "$BASEDIR/sources" "$LFS/sources"
 
 # /dev/shm special case
 if [ -h "$LFS/dev/shm" ]; then

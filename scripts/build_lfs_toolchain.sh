@@ -122,7 +122,7 @@ build_linux_headers() {
 build_manpages() {
   echo "🔧 Building man-pages ch6.8"
   rm -rf man-pages-* || true
-  tar -xf /tmp/man-pages-*.tar.*
+  tar -xf man-pages-*.tar.*
   cd man-pages-*/
 
   make install

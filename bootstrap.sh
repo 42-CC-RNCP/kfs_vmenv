@@ -87,12 +87,22 @@ run_step() {
     local inside_script="${cmd#chroot_exec }"
     local inside_path="/scripts/$(basename "$inside_script")"
 
-    chroot "$LFS" /tools/bin/env -i \
-        HOME=/root                  \
-        TERM="$TERM"                \
-        PS1='(lfs chroot) \u:\w\$ ' \
-        PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin \
-        /tools/bin/bash --login +h "$inside_path"
+    if [[ -f "$LFS/etc/.revised-chroot" ]]; then
+      # revised chroot (after 6.80)
+      chroot "$LFS" /usr/bin/env -i \
+          HOME=/root TERM="$TERM" \
+          PS1='(lfs chroot) \u:\w\$ ' \
+          PATH=/bin:/usr/bin:/sbin:/usr/sbin \
+          /bin/bash --login "$inside_path"
+    else
+      # legacy chroot (chapter 6 build)
+      chroot "$LFS" /tools/bin/env -i \
+          HOME=/root TERM="$TERM" \
+          PS1='(lfs chroot) \u:\w\$ ' \
+          PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin \
+          /tools/bin/bash --login +h "$inside_path"
+    fi
+
   else
     if ! eval "$cmd"; then
       echo -e "${RED}❌ Step '$name' failed. Aborting.${NC}"

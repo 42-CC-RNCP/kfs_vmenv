@@ -115,7 +115,7 @@ build_linux_headers() {
   find dest/include \( -name .install -o -name ..install.cmd \) -delete
   cp -rv dest/include/* /usr/include
 
-  cd ../..
+  cd /sources
   rm -rf linux-*/ || true
 }
 
@@ -126,7 +126,7 @@ build_manpages() {
   cd man-pages-*/
 
   make install
-  cd ../..
+  cd /sources
   rm -rf man-pages-*/
 }
 
@@ -254,7 +254,7 @@ include /etc/ld.so.conf.d/*.conf
 EOF
   mkdir -pv /etc/ld.so.conf.d
 
-  cd ../..
+  cd /sources
   rm -rf glibc-*/
 }
 
@@ -298,7 +298,7 @@ build_zlib() {
   mv -v /usr/lib/libz.so.* /lib
   ln -sfv ../../lib/$(readlink /usr/lib/libz.so) /usr/lib/libz.so
 
-  cd ../..
+  cd /sources
   rm -rf zlib-*/
 }
 
@@ -313,7 +313,7 @@ build_file() {
   make check
   make install
 
-  cd ../..
+  cd /sources
   rm -rf file-*/
 }
 
@@ -337,7 +337,7 @@ build_readline() {
   ln -sfv ../../lib/$(readlink /usr/lib/libreadline.so) /usr/lib/libreadline.so
   ln -sfv ../../lib/$(readlink /usr/lib/libhistory.so ) /usr/lib/libhistory.so
 
-  cd ../..
+  cd /sources
   rm -rf readline-*/
 }
 
@@ -354,7 +354,7 @@ build_m4() {
   make check
   make install
 
-  cd ../..
+  cd /sources
   rm -rf m4-*/
 }
 
@@ -388,7 +388,7 @@ EOF
   make
   make install
 
-  cd ../..
+  cd /sources
   rm -rf bc-*/
 }
 
@@ -414,7 +414,7 @@ build_binutils() {
   make tooldir=/usr
   make tooldir=/usr install
 
-  cd ../..
+  cd /sources
   rm -rf binutils-*/
 }
 
@@ -441,7 +441,7 @@ build_gmp() {
   make install
   make install-html
 
-  cd ../..
+  cd /sources
   rm -rf gmp-*/
 }
 
@@ -462,7 +462,7 @@ build_mpfr() {
   make install
   make install-html
 
-  cd ../..
+  cd /sources
   rm -rf mpfr-*/
 }
 
@@ -482,7 +482,7 @@ build_mpc() {
   make install
   make install-html
 
-  cd ../..  
+  cd /sources  
   rm -rf mpc-*/
 }
 
@@ -513,7 +513,7 @@ build_shadow() {
   grpconv
   sed -i 's/yes/no/' /etc/default/useradd
 
-  cd ../..
+  cd /sources
   rm -rf shadow-*/
 }
 
@@ -577,7 +577,7 @@ build_gcc() {
   mkdir -pv /usr/share/gdb/auto-load/usr/lib
   mv -v /usr/lib/*gdb.py /usr/share/gdb/auto-load/usr/lib
 
-  cd ../..
+  cd /sources
   rm -rf gcc-*/
 }
 
@@ -604,7 +604,7 @@ build_bzip2() {
   ln -sv bzip2 /bin/bunzip2
   ln -sv bzip2 /bin/bzcat
 
-  cd ../..
+  cd /sources
   rm -rf bzip2-*/
 }
 
@@ -623,7 +623,7 @@ build_pkg-config() {
   make check
   make install
 
-  cd ../..
+  cd /sources
   rm -rf pkg-config-*/
 }
 
@@ -672,7 +672,7 @@ build_ncurses() {
   make sources libs
   cp -av lib/lib*.so.5* /usr/lib
 
-  cd ../..
+  cd /sources
   rm -rf ncurses-*/
 }
 
@@ -695,7 +695,7 @@ build_attr() {
   mv -v /usr/lib/libattr.so.* /lib
   ln -sfv ../../lib/$(readlink /usr/lib/libattr.so) /usr/lib/libattr.so
 
-  cd ../..
+  cd /sources
   rm -rf attr-*/
 }
 
@@ -717,7 +717,7 @@ build_acl() {
   mv -v /usr/lib/libacl.so.* /lib
   ln -sfv ../../lib/$(readlink /usr/lib/libacl.so) /usr/lib/libacl.so
 
-  cd ../..
+  cd /sources
   rm -rf acl-*/
 }
 
@@ -736,7 +736,7 @@ build_libcap() {
   mv -v /usr/lib/libcap.so.* /lib
   ln -sfv ../../lib/$(readlink /usr/lib/libcap.so) /usr/lib/libcap.so
 
-  cd ../..
+  cd /sources
   rm -rf libcap-*/
 }
 
@@ -758,7 +758,7 @@ build_sed() {
   install -d -m755           /usr/share/doc/sed-4.7
   install -m644 doc/sed.html /usr/share/doc/sed-4.7
 
-  cd ../..
+  cd /sources
   rm -rf sed-*/
 }
 
@@ -776,7 +776,7 @@ build_psmisc() {
   mv -v /usr/bin/fuser   /bin
   mv -v /usr/bin/killall /bin
 
-  cd ../..
+  cd /sources
   rm -rf psmisc-*/
 }
 
@@ -789,7 +789,7 @@ build_iana-etc() {
   make
   make install
 
-  cd ../..
+  cd /sources
   rm -rf iana-etc-*/
 }
 
@@ -804,7 +804,7 @@ build_bison() {
   make
   make install
 
-  cd ../..
+  cd /sources
   rm -rf bison-*/
 }
 
@@ -823,7 +823,7 @@ build_flex() {
 
   ln -sv flex /usr/bin/lex
 
-  cd ../..
+  cd /sources
   rm -rf flex-*/
 }
 
@@ -839,7 +839,7 @@ build_grep() {
   make -k check
   make install
 
-  cd ../..
+  cd /sources
   rm -rf grep-*/
 }
 
@@ -862,7 +862,7 @@ build_bash() {
 
   hash -r
 
-  cd ../..
+  cd /sources
   rm -rf bash-*/
 }
 
@@ -878,7 +878,7 @@ build_libtool() {
   make check
   make install
 
-  cd ../..
+  cd /sources
   rm -rf libtool-*/
 }
 
@@ -896,7 +896,7 @@ build_gdbm() {
   make check
   make install
 
-  cd ../..
+  cd /sources
   rm -rf gdbm-*/
 }
 
@@ -912,7 +912,7 @@ build_gperf() {
   make -j1 check
   make install
 
-  cd ../..
+  cd /sources
   rm -rf gperf-*/
 }
 
@@ -933,7 +933,7 @@ build_expat() {
   make install
   install -v -m644 doc/*.{html,png,css} /usr/share/doc/expat-2.2.6
 
-  cd ../..
+  cd /sources
   rm -rf expat-*/
 }
 
@@ -960,7 +960,7 @@ build_inetutils() {
   mv -v /usr/bin/{hostname,ping,ping6,traceroute} /bin
   mv -v /usr/bin/ifconfig /sbin
 
-  cd ../..
+  cd /sources
   rm -rf inetutils-*/
 }
 
@@ -988,7 +988,7 @@ build_perl() {
   make install
   unset BUILD_ZLIB BUILD_BZIP2
 
-  cd ../..
+  cd /sources
   rm -rf perl-*/
 }
 
@@ -1003,7 +1003,7 @@ build_xml-parser() {
   make test
   make install
 
-  cd ../..
+  cd /sources
   rm -rf XML-Parser-*/
 }
 
@@ -1022,7 +1022,7 @@ build_intltool() {
   make install
   install -v -Dm644 doc/I18N-HOWTO /usr/share/doc/intltool-0.51.0/I18N-HOWTO
 
-  cd ../..
+  cd /sources
   rm -rf intltool-*/
 }
 
@@ -1040,7 +1040,7 @@ build_autoconf() {
   make check
   make install
 
-  cd ../..
+  cd /sources
   rm -rf autoconf-*/
 }
 
@@ -1056,7 +1056,7 @@ build_automake() {
   make -j4 check
   make install
 
-  cd ../..
+  cd /sources
   rm -rf automake-*/
 }
 
@@ -1077,7 +1077,7 @@ build_xz() {
   mv -v /usr/lib/liblzma.so.* /lib
   ln -svf ../../lib/$(readlink /usr/lib/liblzma.so) /usr/lib/liblzma.so
 
-  cd ../..
+  cd /sources
   rm -rf xz-*/
 }
 
@@ -1103,7 +1103,7 @@ build_kmod() {
 
   ln -sfv kmod /bin/lsmod
 
-  cd ../..
+  cd /sources
   rm -rf kmod-*/
 }
 
@@ -1128,7 +1128,7 @@ build_gettext() {
   make install
   chmod -v 0755 /usr/lib/preloadable_libintl.so
 
-  cd ../..
+  cd /sources
   rm -rf gettext-*/
 }
 
@@ -1148,7 +1148,7 @@ build_elfutils() {
   make -C libelf install
   install -vm644 config/libelf.pc /usr/lib/pkgconfig
 
-  cd ../..
+  cd /sources
   rm -rf elfutils-*/
 }
 
@@ -1171,7 +1171,7 @@ build_libffi() {
   make check
   make install
 
-  cd ../..
+  cd /sources
   rm -rf libffi-*/
 }
 
@@ -1195,7 +1195,7 @@ build_openssl() {
   mv -v /usr/share/doc/openssl /usr/share/doc/openssl-1.1.1a
   cp -vfr doc/* /usr/share/doc/openssl-1.1.1a
 
-  cd ../..
+  cd /sources
   rm -rf openssl-*/
 }
 
@@ -1224,7 +1224,7 @@ build_python() {
       -C /usr/share/doc/python-3.7.2/html \
       -xvf ../python-3.7.2-docs-html.tar.bz2
 
-  cd ../..
+  cd /sources
   rm -rf Python-*/
 }
 
@@ -1252,7 +1252,7 @@ build_ninja() {
   install -vDm644 misc/bash-completion /usr/share/bash-completion/completions/ninja
   install -vDm644 misc/zsh-completion  /usr/share/zsh/site-functions/_ninja
 
-  cd ../..
+  cd /sources
   rm -rf ninja-*/
 }
 
@@ -1266,7 +1266,7 @@ build_meson() {
   python3 setup.py install --root=dest
   cp -rv dest/* /
 
-  cd ../..
+  cd /sources
   rm -rf meson-*/
 }
 
@@ -1296,7 +1296,7 @@ build_coreutils() {
 
   mv -v /usr/bin/{head,nice,sleep,touch} /bin
 
-  cd ../..
+  cd /sources
   rm -rf coreutils-*/
 }
 
@@ -1313,7 +1313,7 @@ build_check() {
   make install
   sed -i '1 s/tools/usr/' /usr/bin/checkmk
 
-  cd ../..
+  cd /sources
   rm -rf check-*/
 }
 
@@ -1329,7 +1329,7 @@ build_diffutils() {
   make check
   make install
 
-  cd ../..
+  cd /sources
   rm -rf diffutils-*/
 }
 
@@ -1349,7 +1349,7 @@ build_gawk() {
   mkdir -v /usr/share/doc/gawk-4.2.1
   cp    -v doc/{awkforai.txt,*.{eps,pdf,jpg}} /usr/share/doc/gawk-4.2.1
 
-  cd ../..
+  cd /sources
   rm -rf gawk-*/
 }
 
@@ -1374,7 +1374,7 @@ build_findutils() {
   mv -v /usr/bin/find /bin
   sed -i 's|find:=${BINDIR}|find:=/bin|' /usr/bin/updatedb
 
-  cd ../..
+  cd /sources
   rm -rf findutils-*/
 }
 
@@ -1389,7 +1389,7 @@ build_groff() {
   make -j1
   make install
 
-  cd ../..
+  cd /sources
   rm -rf groff-*/
 }
 
@@ -1409,7 +1409,7 @@ build_grub() {
   make install
   mv -v /etc/bash_completion.d/grub /usr/share/bash-completion/completions
 
-  cd ../..
+  cd /sources
   rm -rf grub-*/
 }
 
@@ -1424,7 +1424,7 @@ build_less() {
   make
   make install
 
-  cd ../..
+  cd /sources
   rm -rf less-*/
 }
 
@@ -1441,7 +1441,7 @@ build_gzip() {
   make install
   mv -v /usr/bin/gzip /bin
 
-  cd ../..
+  cd /sources
   rm -rf gzip-*/
 }
 
@@ -1458,7 +1458,7 @@ build_iproute2() {
   make
   make DOCDIR=/usr/share/doc/iproute2-4.20.0 install
 
-  cd ../..
+  cd /sources
   rm -rf iproute2-*/
 }
 
@@ -1482,7 +1482,7 @@ build_kbd() {
   mkdir -v       /usr/share/doc/kbd-2.0.4
   cp -R -v docs/doc/* /usr/share/doc/kbd-2.0.4
 
-  cd ../..
+  cd /sources
   rm -rf kbd-*/
 }
 
@@ -1498,7 +1498,7 @@ build_libpipeline() {
   make check
   make install
 
-  cd ../..
+  cd /sources
   rm -rf libpipeline-*/
 }
 
@@ -1516,7 +1516,7 @@ build_make() {
   make PERL5LIB=$PWD/tests/ check
   make install
 
-  cd ../..
+  cd /sources
   rm -rf make-*/
 }
 
@@ -1532,7 +1532,7 @@ build_patch() {
   make check
   make install
 
-  cd ../..
+  cd /sources
   rm -rf patch-*/
 }
 
@@ -1557,7 +1557,7 @@ build_man-db() {
   make check
   make install
 
-  cd ../..
+  cd /sources
   rm -rf man-db-*/
 }
 
@@ -1578,7 +1578,7 @@ build_tar() {
   make install
   make -C doc install-html docdir=/usr/share/doc/tar-1.31
 
-  cd ../..
+  cd /sources
   rm -rf tar-*/
 }
 
@@ -1596,7 +1596,7 @@ build_texinfo() {
   make check
   make install
 
-  cd ../..
+  cd /sources
   rm -rf texinfo-*/
 }
 
@@ -1639,7 +1639,7 @@ endif
 " End /etc/vimrc
 EOF
 
-  cd ../..
+  cd /sources
   rm -rf vim-*/
 }
 
@@ -1666,7 +1666,7 @@ build_procps() {
   mv -v /usr/lib/libprocps.so.* /lib
   ln -sfv ../../lib/$(readlink /usr/lib/libprocps.so) /usr/lib/libprocps.so
 
-  cd ../..
+  cd /sources
   rm -rf procps-*/
 }
 
@@ -1696,7 +1696,7 @@ build_util-linux() {
   make
   make install
 
-  cd ../..
+  cd /sources
   rm -rf util-linux-*/
 }
 
@@ -1727,7 +1727,7 @@ build_e2fsprogs() {
   gunzip -v /usr/share/info/libext2fs.info.gz
   install-info --dir-file=/usr/share/info/dir /usr/share/info/libext2fs.info
 
-  cd ../..
+  cd /sources
   rm -rf e2fsprogs-*/
 }
 
@@ -1757,7 +1757,7 @@ user.* -/var/log/user.log
 # End /etc/syslog.conf
 EOF
 
-  cd ../..
+  cd /sources
   rm -rf sysklogd-*/
 }
 
@@ -1772,7 +1772,7 @@ build_sysvinit() {
   make
   make install
 
-  cd ../..
+  cd /sources
   rm -rf sysvinit-*/
 }
 
@@ -1812,7 +1812,7 @@ EOF
 
   LD_LIBRARY_PATH=/tools/lib udevadm hwdb --update
 
-  cd ../..
+  cd /sources
   rm -rf eudev-*/
 }
 
@@ -1827,6 +1827,9 @@ clean_up() {
   rm -f /usr/lib/libltdl.a
   rm -f /usr/lib/libfl.a
   rm -f /usr/lib/libz.a
+
+  echo "📝 Marking chroot as revised"
+  touch /etc/.revised-chroot
 }
 
 # ===== execute in order (rerunnable) =====

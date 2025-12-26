@@ -81,4 +81,6 @@ if [[ -f "$IMAGE" ]]; then
   echo "✅ Removed $IMAGE"
 fi
 
+rm $LFS/etc/.revised-chroot 2>/dev/null || true
+
 echo "🎉 Cleanup finished."

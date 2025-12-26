@@ -19,6 +19,37 @@ run_step() {
   echo "✅ DONE $name"
 }
 
+ensure_binutils_symlinks() {
+  # 1) find target prefix (prefer $LFS_TGT, otherwise infer from /tools/bin/*-as)
+  local tgt="${LFS_TGT:-}"
+
+  if [ -z "$tgt" ]; then
+    local as_path
+    as_path="$(ls -1 /tools/bin/*-as 2>/dev/null | head -n1 || true)"
+    if [ -n "$as_path" ]; then
+      tgt="$(basename "$as_path")"
+      tgt="${tgt%-as}"
+    fi
+  fi
+
+  # 2) create /tools/bin/as if missing
+  if ! command -v as >/dev/null 2>&1; then
+    if [ -n "$tgt" ] && [ -x "/tools/bin/${tgt}-as" ]; then
+      ln -sfv "/tools/bin/${tgt}-as" /tools/bin/as
+    else
+      echo "❌ ERROR: cannot find assembler in /tools/bin (expected *-as). Rebuild binutils." >&2
+      exit 1
+    fi
+  fi
+
+  # 3) create /tools/bin/ld if missing (often next failure)
+  if ! command -v ld >/dev/null 2>&1; then
+    if [ -n "$tgt" ] && [ -x "/tools/bin/${tgt}-ld" ]; then
+      ln -sfv "/tools/bin/${tgt}-ld" /tools/bin/ld
+    fi
+  fi
+}
+
 create_dirs() {
   mkdir -pv /{bin,boot,etc/{opt,sysconfig},home,lib/firmware,mnt,opt}
   mkdir -pv /{media/{floppy,cdrom},sbin,srv,var}
@@ -1833,6 +1864,9 @@ clean_up() {
 }
 
 # ===== execute in order (rerunnable) =====
+echo "🚀 Starting ch6 build process"
+
+run_step symlinks      ensure_binutils_symlinks
 run_step dirs          create_dirs
 run_step symlinks      create_symlinks
 run_step passwd_group  create_passwd_group

@@ -106,7 +106,7 @@ init_var_log_files() {
 
 build_linux_headers() {
   echo "🔧 Building Linux kernel headers ch6.7"
-  rm -rf linux-* || true
+  rm -rf linux-*/ || true
   tar -xf linux-*.tar.*
   cd linux-*/
 
@@ -116,7 +116,7 @@ build_linux_headers() {
   cp -rv dest/include/* /usr/include
 
   cd ../..
-  rm -rf linux-*/
+  rm -rf linux-*/ || true
 }
 
 build_manpages() {

@@ -1,4 +1,5 @@
 #!/bin/bash
+# scripts/create_disk.sh
 set -e
 
 ARCH=$(uname -m)

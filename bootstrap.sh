@@ -22,8 +22,8 @@ BUILD_DIR="/tmp/$KERNEL_NAME"
 IMAGE="kernel_disk.img"
 IMAGE_SIZE="20G"
 MNT_ROOT="/mnt/kernel_disk"
-BOOT_MNT="$MNT_ROOT/boot"
 ROOT_MNT="$MNT_ROOT/root"
+BOOT_MNT="$ROOT_MNT/boot"
 BUSYBOX_URL="https://busybox.net/downloads/binaries/1.31.0-defconfig-multiarch-musl/busybox-x86_64"
 LFS=$ROOT_MNT
 LFS_TGT="$(uname -m)-lfs-linux-gnu"
@@ -60,20 +60,19 @@ declare -A STEPS=(
 
 STEP_ORDER=(
   cleanup
-  create_disk
-  install_rootfs
-  init_lfs
-  link_tools
-  build_temp_toolchain
-  finalize_tools_owner
-  mount_lfs
-  build_lfs_toolchain
-  install_bootscripts
-  config_system
-  build_kernel
-  setup_bootloader
-  unmount_lfs
-  boot_test
+  create_disk           # ch2: Create and partition disk image
+  init_lfs              # ch3: download sources; ch4: setup LFS user env
+  link_tools            # ch4: Link /tools
+  build_temp_toolchain  # ch5: Build temporary toolchain
+  finalize_tools_owner  # ch5: Change ownership of /tools to root
+  mount_lfs             # ch6: Mount LFS partitions
+  build_lfs_toolchain   # ch6: Build LFS toolchain
+  install_bootscripts   # ch7: Install boot scripts
+  config_system         # ch7: Configure the system
+  build_kernel          # ch8: Build the Linux kernel
+  setup_bootloader      # ch8: Setup the bootloader
+  unmount_lfs           # ch9: Unmount LFS partitions
+  boot_test             # ch9: Test booting into the new system
 )
 
 # ----------------------------

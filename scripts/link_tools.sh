@@ -1,4 +1,5 @@
 #!/bin/bash
+# scripts/link_tools.sh
 set -euo pipefail
 
 : "${LFS:?❌ LFS not set}"

@@ -1,4 +1,5 @@
 #!/bin/bash
+# scripts/cleanup.sh
 set -eEuo pipefail
 
 IMAGE="${IMAGE:-kernel_disk.img}"

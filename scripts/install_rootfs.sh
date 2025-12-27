@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# scripts/install_rootfs.sh
 set -e
 
 echo "📁 Creating rootfs directories in $ROOT_MNT..."

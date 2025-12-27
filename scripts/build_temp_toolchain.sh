@@ -1,4 +1,5 @@
 #!/bin/bash
+# scripts/build_temp_toolchain.sh
 set -eEuo pipefail
 
 export PATH=/tools/bin:/usr/bin:/bin

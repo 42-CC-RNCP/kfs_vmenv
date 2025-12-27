@@ -5,7 +5,14 @@ set -e
 mkdir -pv "$LFS"/{dev,proc,sys,run}
 mkdir -pv "$LFS/scripts"
 mkdir -pv "$LFS/sources"
-cp -v /tmp/$KERNEL_NAME.tar.xz "$LFS/sources/"
+echo "📦 Downloading kernel $KERNEL_VERSION..."
+wget --timestamping \
+       --no-hsts \
+       --no-adjust-extension \
+       --retry-connrefused --timeout=30 \
+       --tries=5 --no-check-certificate \
+       --directory-prefix="$LFS/sources" \
+       "$KERNEL_URL" || { echo "❌ Download failed: $KERNEL_URL"; exit 1; }
 
 # 6.2.1: initial device nodes (on disk)
 mknod -m 600 "$LFS/dev/console" c 5 1 || true

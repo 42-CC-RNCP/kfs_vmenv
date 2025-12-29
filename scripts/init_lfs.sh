@@ -93,6 +93,9 @@ PATH=/tools/bin:/bin:/usr/bin
 export LFS LC_ALL LFS_TGT PATH
 EOF"
 
+sudo mkdir -p "$LFS/sources/.kfs" "$LFS/tools"
+sudo chown -v lfs:lfs "$LFS/sources/.kfs" "$LFS/tools"
+
 echo "✅ LFS environment is ready."
 echo
 echo "👉  Switch to the LFS user with:  sudo su - lfs"

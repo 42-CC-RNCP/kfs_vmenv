@@ -8,7 +8,7 @@ hash -r
 : "${LFS:?LFS not set}"
 : "${LFS_TGT:?LFS_TGT not set}"
 
-STAMP_DIR="${STAMP_DIR:-$LFS/.kfs/stamps/temp-tools}"
+STAMP_DIR="${STAMP_DIR:-$LFS/sources/.kfs/stamps/temp-tools}"
 mkdir -p "$STAMP_DIR"
 
 START_FROM=""

@@ -222,4 +222,27 @@ cat > /etc/shells <<'EOF'
 /bin/bash
 EOF
 
+# ===========================================================
+# 8.2 create /etc/fstab (x86_64)
+# ===========================================================
+
+mkdir -pv /boot
+
+cat > /etc/fstab << "EOF"
+# Begin /etc/fstab
+
+# file system   mount-point  type     options             dump  fsck
+LABEL=root      /            ext4     defaults            1     1
+LABEL=swap      swap         swap     pri=1               0     0
+LABEL=boot      /boot        ext2     defaults            1     2
+
+proc            /proc        proc     nosuid,noexec,nodev 0     0
+sysfs           /sys         sysfs    nosuid,noexec,nodev 0     0
+devpts          /dev/pts     devpts   gid=5,mode=620      0     0
+tmpfs           /run         tmpfs    defaults            0     0
+devtmpfs        /dev         devtmpfs mode=0755,nosuid    0     0
+
+# End /etc/fstab
+EOF
+
 echo "[config_system] Done. Next: Chapter 8 (make system bootable)."

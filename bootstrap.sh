@@ -71,7 +71,6 @@ STEP_ORDER=(
   config_system         # ch7: Configure the system
   build_kernel          # ch8: Build the Linux kernel
   setup_bootloader      # ch8: Setup the bootloader
-  unmount_lfs           # ch9: Unmount LFS partitions
   boot_test             # ch9: Test booting into the new system
 )
 

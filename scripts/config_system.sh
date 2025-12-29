@@ -6,7 +6,7 @@ echo "[config_system] Chapter 7: bootscripts + devices + network + sysv + profil
 # ----------------------------
 # Tunables (override via env)
 # ----------------------------
-HOSTNAME_VALUE="${LFS_HOSTNAME:-lyeh}"
+HOSTNAME_VALUE="${LFS_HOSTNAME:-lfs}"
 FQDN_VALUE="${LFS_FQDN:-${HOSTNAME_VALUE}.localdomain}"
 LANG_VALUE="${LFS_LANG:-en_US.UTF-8}"
 UTC_VALUE="${LFS_UTC:-1}"
@@ -32,12 +32,12 @@ if [[ -x /lib/udev/init-net-rules.sh ]]; then
   bash /lib/udev/init-net-rules.sh || true
 fi
 
-# 7.4.2: choose CD-ROM symlink rule mode
-if [[ -f /etc/udev/rules.d/83-cdrom-symlinks.rules ]]; then
-  echo "[7.4] Setting CD-ROM symlink rule mode to by-id (optional)..."
-  sed -i -e 's/"write_cd_rules"/"write_cd_rules by-id"/' \
-    /etc/udev/rules.d/83-cdrom-symlinks.rules || true
-fi
+# # 7.4.2: choose CD-ROM symlink rule mode
+# if [[ -f /etc/udev/rules.d/83-cdrom-symlinks.rules ]]; then
+#   echo "[7.4] Setting CD-ROM symlink rule mode to by-id (optional)..."
+#   sed -i -e 's/"write_cd_rules"/"write_cd_rules by-id"/' \
+#     /etc/udev/rules.d/83-cdrom-symlinks.rules || true
+# fi
 
 # ============================================================
 # 7.5 General network configuration
@@ -87,6 +87,9 @@ PREFIX=${LFS_PREFIX}
 BROADCAST=${LFS_BROADCAST}
 EOF
 
+echo "[7.5] Generated network config:"
+cat ${CFG_IF}
+
 echo "[7.5] Writing /etc/resolv.conf"
 if [[ -r /proc/1/root/etc/resolv.conf ]]; then
   # best-effort copy from host init's view; keep only relevant lines
@@ -94,26 +97,29 @@ if [[ -r /proc/1/root/etc/resolv.conf ]]; then
 fi
 if [[ ! -s /etc/resolv.conf ]]; then
   cat > /etc/resolv.conf <<EOF
-nameserver 8.8.8.8
-nameserver 8.8.4.4
+search 42vienna.com
+nameserver 10.0.2.3
 EOF
 fi
+
+echo "[7.5] Generated /etc/resolv.conf:"
+cat /etc/resolv.conf
 
 echo "[7.5] Writing /etc/hostname = ${HOSTNAME_VALUE}"
 echo "${HOSTNAME_VALUE}" > /etc/hostname
 
 echo "[7.5] Writing /etc/hosts"
-cat > /etc/hosts <<EOF
+# Begin /etc/hosts
+
 127.0.0.1 localhost
-127.0.1.1 ${FQDN_VALUE} ${HOSTNAME_VALUE}
-EOF
-if [[ -n "${LFS_IP}" ]]; then
-  echo "${LFS_IP} ${FQDN_VALUE} ${HOSTNAME_VALUE}" >> /etc/hosts
-fi
-cat >> /etc/hosts <<'EOF'
+127.0.1.1 lfs.local lfs
+10.0.2.15  lfs.local lfs
+
 ::1       localhost ip6-localhost ip6-loopback
 ff02::1   ip6-allnodes
 ff02::2   ip6-allrouters
+
+# End /etc/hosts
 EOF
 
 # ============================================================
@@ -150,11 +156,6 @@ su:S016:once:/sbin/sulogin
 # End /etc/inittab
 EOF
 
-echo "[7.6] Writing /etc/sysconfig/udev_retry (empty by default)"
-cat > /etc/sysconfig/udev_retry <<'EOF'
-# Put subsystem names (words) here if you have devices whose udev rules need retry after mountfs.
-# See udev_retry explanation in 7.6.3. :contentReference[oaicite:22]{index=22}
-EOF
 
 echo "[7.6] Writing /etc/sysconfig/clock"
 cat > /etc/sysconfig/clock <<EOF
@@ -165,22 +166,9 @@ EOF
 echo "[7.6] Writing /etc/sysconfig/console (US defaults)"
 cat > /etc/sysconfig/console <<'EOF'
 # Begin /etc/sysconfig/console
-# US defaults: do not set KEYMAP/FONT/UNICODE so the system uses defaults.
 LOGLEVEL="7"
 # End /etc/sysconfig/console
 EOF
-
-echo "[7.6] Writing /etc/sysconfig/createfiles (leave empty unless needed)"
-cat > /etc/sysconfig/createfiles <<'EOF'
-# Add entries here if you need to create files/dirs at boot time (see 7.6.6).
-EOF
-
-echo "[7.6] Writing /etc/sysconfig/rc.site (minimal)"
-cat > /etc/sysconfig/rc.site <<'EOF'
-# Minimal rc.site: extend later if you want IPROMPT etc.
-SYSKLOGD_PARMS="-m 0"
-EOF
-# 7.6.7 sysklogd 建議用 -m 0；7.6.8 rc.site 概念 :contentReference[oaicite:26]{index=26}
 
 # ============================================================
 # 7.7 Bash startup files
@@ -190,7 +178,6 @@ cat > /etc/profile <<EOF
 # Global profile
 export LANG=${LANG_VALUE}
 EOF
-# 7.7 指示建立 /etc/profile 並 export LANG :contentReference[oaicite:27]{index=27}
 
 # ============================================================
 # 7.8 /etc/inputrc
@@ -225,7 +212,6 @@ set bell-style none
 "\e[H": beginning-of-line
 "\e[F": end-of-line
 EOF
-# 7.8 提供全域 inputrc 範例 :contentReference[oaicite:28]{index=28}
 
 # ============================================================
 # 7.9 /etc/shells
@@ -235,6 +221,5 @@ cat > /etc/shells <<'EOF'
 /bin/sh
 /bin/bash
 EOF
-# 7.9 要列出合法 shells :contentReference[oaicite:29]{index=29}
 
 echo "[config_system] Done. Next: Chapter 8 (make system bootable)."

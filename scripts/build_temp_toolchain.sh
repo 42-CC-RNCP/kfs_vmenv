@@ -846,6 +846,7 @@ run_step findutils      build_findutils
 run_step gawk           build_gawk
 run_step gettext        build_gettext
 run_step grep           build_grep
+run_step gzip           build_gzip
 run_step make           build_make
 run_step patch          build_patch
 run_step perl           build_perl

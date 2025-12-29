@@ -56,7 +56,7 @@ if [[ "$BOOT_FS" == "ext2" ]]; then
 else
   sudo mkfs.vfat -F32 -n "$BOOT_LABEL" "$BOOT_PART"
 fi
-sudo mkfs.ext4 -L root "$ROOT_PART"
+sudo mkfs.ext4 -I 256 -L root "$ROOT_PART"
 sudo mkswap -L swap "$SWAP_PART"
 
 # === Mount partitions ===

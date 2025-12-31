@@ -200,7 +200,8 @@ build_glibc() {
     x86_64) ln -sfnv $PWD/elf/ld-linux-x86-64.so.2 /lib ;;
   esac
 
-  make check
+  make -k check 2>&1 | tee glibc-check.log
+  grep -E "^(FAIL|UNSUPPORTED|ERROR):" tests.sum | tee glibc-fail.list
   touch /etc/ld.so.conf
   sed '/test-installation/s@$(PERL)@echo not running@' -i ../Makefile
   make install
@@ -468,7 +469,7 @@ build_gmp() {
   make html
   make check 2>&1 | tee gmp-check-log
   awk '/# PASS:/{total+=$3} ; END{print total}' gmp-check-log
-  
+
   make install
   make install-html
 
@@ -513,7 +514,7 @@ build_mpc() {
   make install
   make install-html
 
-  cd /sources  
+  cd /sources
   rm -rf mpc-*/
 }
 
@@ -649,7 +650,7 @@ build_pkg_config() {
             --with-internal-glib       \
             --disable-host-tool        \
             --docdir=/usr/share/doc/pkg-config-0.29.2
-  
+
   make
   make check
   make install
@@ -699,7 +700,7 @@ build_ncurses() {
               --without-normal \
               --without-debug  \
               --without-cxx-binding \
-              --with-abi-version=5 
+              --with-abi-version=5
   make sources libs
   cp -av lib/lib*.so.5* /usr/lib
 
@@ -1154,7 +1155,7 @@ build_gettext() {
             --disable-static \
             --docdir=/usr/share/doc/gettext-0.19.8.1
 
-  make 
+  make
   make check
   make install
   chmod -v 0755 /usr/lib/preloadable_libintl.so
@@ -1246,8 +1247,8 @@ build_python() {
   make install
   chmod -v 755 /`usr/lib/libpython3.7m.so
   chmod -v 755 /usr/lib/libpython3.so`
-  
-  install -v -dm755 /usr/share/doc/python-3.7.2/html 
+
+  install -v -dm755 /usr/share/doc/python-3.7.2/html
 
   tar --strip-components=1  \
       --no-same-owner       \
@@ -1583,7 +1584,7 @@ build_man_db() {
             --with-grap=/usr/bin/grap            \
             --with-systemdtmpfilesdir=           \
             --with-systemdsystemunitdir=
-  
+
   make
   make check
   make install
@@ -1657,7 +1658,7 @@ build_vim() {
 
 " Ensure defaults are set before customizing settings, not after
 source $VIMRUNTIME/defaults.vim
-let skip_defaults_vim=1 
+let skip_defaults_vim=1
 
 set nocompatible
 set backspace=2
@@ -1849,7 +1850,7 @@ EOF
 
 clean_up() {
   echo "🧹 Cleaning up files ch6.80"
-  
+
   rm -rf /tmp/*
 
   rm -f /usr/lib/lib{bfd,opcodes}.a

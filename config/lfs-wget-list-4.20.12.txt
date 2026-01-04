@@ -57,8 +57,8 @@ https://openssl.org/source/openssl-1.1.1a.tar.gz
 http://ftpmirror.gnu.org/gnu/patch/patch-2.7.6.tar.xz
 https://www.cpan.org/src/5.0/perl-5.28.1.tar.xz
 https://pkg-config.freedesktop.org/releases/pkg-config-0.29.2.tar.gz
-https://repository.timesys.com/buildsources/p/procps/procps-3.3.15/procps-ng-3.3.15.tar.xz
-https://repository.timesys.com/buildsources/p/psmisc/psmisc-23.2/psmisc-23.2.tar.xz
+https://slackware.nl/slackware//slackware64/patches/source/procps-ng/procps-ng-3.3.15.tar.xz
+https://ftp.ludd.ltu.se/mirrors/lfs/lfs-packages/8.4/psmisc-23.2.tar.xz
 https://www.python.org/ftp/python/3.7.2/Python-3.7.2.tar.xz
 https://docs.python.org/ftp/python/doc/3.7.2/python-3.7.2-docs-html.tar.bz2
 http://ftpmirror.gnu.org/gnu/readline/readline-8.0.tar.gz
@@ -69,7 +69,7 @@ https://github.com/systemd/systemd/archive/v240/systemd-240.tar.gz
 http://anduin.linuxfromscratch.org/LFS/systemd-man-pages-240.tar.xz
 http://download.savannah.gnu.org/releases/sysvinit/sysvinit-2.93.tar.xz
 http://ftpmirror.gnu.org/gnu/tar/tar-1.31.tar.xz
-https://repository.timesys.com/buildsources/t/tcl/tcl-8.6.9/tcl8.6.9-src.tar.gz
+https://ftp.uni-hannover.de/tcl/tcl8_6/tcl8.6.9-src.tar.gz
 http://ftpmirror.gnu.org/gnu/texinfo/texinfo-6.5.tar.xz
 https://www.iana.org/time-zones/repository/releases/tzdata2018i.tar.gz
 http://anduin.linuxfromscratch.org/LFS/udev-lfs-20171102.tar.bz2

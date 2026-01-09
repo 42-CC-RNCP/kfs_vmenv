@@ -126,7 +126,7 @@ build_binutils_pass1() {
                --disable-nls              \
                --disable-werror
 
-  make -j$(nproc)
+  make
   case $(uname -m) in
     x86_64) mkdir -v /tools/lib && ln -sv lib /tools/lib64 ;;
   esac
@@ -201,7 +201,7 @@ build_gcc_pass1() {
                 --disable-libstdcxx                            \
                 --enable-languages=c,c++
 
-  make -j$(nproc)
+  make
   make install
 
   cd ../..
@@ -244,7 +244,7 @@ build_glibc() {
       --enable-kernel=3.2                \
       --with-headers=/tools/include
 
-  make -j$(nproc)
+  make
   make install
 
   #──── Verify glibc installation ───────────────────────────
@@ -274,7 +274,7 @@ build_libstdc() {
                             --disable-libstdcxx-pch         \
                             --with-gxx-include-dir=/tools/$LFS_TGT/include/c++/8.2.0
 
-  make -j$(nproc)
+  make
   make install
 
   cd ../..
@@ -299,10 +299,9 @@ build_binutils_pass2() {
       --disable-nls              \
       --disable-werror           \
       --with-lib-path=/tools/lib \
-      --with-sysroot=$LFS        \
-      --target=$LFS_TGT
+      --with-sysroot
 
-  make -j$(nproc)
+  make
   make install
 
   make -C ld clean
@@ -371,7 +370,7 @@ build_gcc_pass2() {
       --disable-bootstrap                            \
       --disable-libgomp
 
-  make -j$(nproc)
+  make
   make install
 
   ln -sv gcc /tools/bin/cc
@@ -379,6 +378,7 @@ build_gcc_pass2() {
   #──── Verify gcc installation ───────────────────────────
   echo 'int main(){}' > dummy.c
   cc dummy.c
+  # console output should be [Requesting program interpreter: /tools/lib64/ld-linux-x86-64.so.2]
   readelf -l a.out | grep ': /tools'
   rm -v dummy.c a.out
 
@@ -396,7 +396,7 @@ build_tcl() {
   cd unix
   ./configure --prefix=/tools
 
-  make -j$(nproc)
+  make
   make install
 
   chmod -v u+w /tools/lib/libtcl8.6.so
@@ -421,7 +421,7 @@ build_expect() {
               --with-tcl=/tools/lib \
               --with-tclinclude=/tools/include
 
-  make -j$(nproc)
+  make
   make test
   make SCRIPTS="" install
 
@@ -438,7 +438,7 @@ build_dejagnu() {
 
   ./configure --prefix=/tools
 
-  make -j$(nproc)
+  make
   make install
 
   cd ..
@@ -457,7 +457,7 @@ build_m4() {
 
   ./configure --prefix=/tools
 
-  make -j$(nproc)
+  make
   make check
   make install
 
@@ -481,7 +481,7 @@ build_ncurses() {
               --enable-widec  \
               --enable-overwrite
 
-  with_host_sh make -j$(nproc)
+  with_host_sh make
   with_host_sh make install
 
   ln -sfv libncursesw.so /tools/lib/libncurses.so
@@ -504,7 +504,7 @@ build_bash() {
 
   ./configure --prefix=/tools --without-bash-malloc
 
-  make -j$(nproc)
+  make
   make install
 
   ln -sfv bash /tools/bin/sh
@@ -522,7 +522,7 @@ build_bison() {
 
   ./configure --prefix=/tools
 
-  make -j$(nproc)
+  make
   make install
 
   cd ..
@@ -552,7 +552,7 @@ build_coreutils() {
 
   ./configure --prefix=/tools --enable-install-program=hostname
 
-  make -j$(nproc)
+  make
   make install
 
   cd ..
@@ -568,7 +568,7 @@ build_diffutils() {
 
   ./configure --prefix=/tools
 
-  make -j$(nproc)
+  make
   make install
 
   cd ..
@@ -584,7 +584,7 @@ build_file() {
 
   ./configure --prefix=/tools --disable-zlib
 
-  make -j$(nproc)
+  make
   make install
 
   cd ..
@@ -604,7 +604,7 @@ build_findutils() {
 
   ./configure --prefix=/tools
 
-  make -j$(nproc)
+  make
   make install
 
   cd ..
@@ -620,7 +620,7 @@ build_gawk() {
 
   ./configure --prefix=/tools
 
-  make -j$(nproc)
+  make
   make install
 
   cd ..
@@ -659,7 +659,7 @@ build_grep() {
 
   ./configure --prefix=/tools
 
-  make -j$(nproc)
+  make
   make install
 
   cd ..
@@ -675,7 +675,7 @@ build_gzip() {
 
   ./configure --prefix=/tools
 
-  make -j$(nproc)
+  make
   make install
 
   cd ..
@@ -692,7 +692,7 @@ build_make() {
   sed -i '211,217 d; 219,229 d; 232 d' glob/glob.c
   ./configure --prefix=/tools
 
-  make -j$(nproc)
+  make
   make install
 
   cd ..
@@ -708,7 +708,7 @@ build_patch() {
 
   ./configure --prefix=/tools
 
-  make -j$(nproc)
+  make
   make install
 
   cd ..
@@ -728,7 +728,7 @@ build_perl() {
 
   with_host_sh sh Configure -des -Dprefix=/tools -Dlibs=-lm -Uloclibpth -Ulocincpth
 
-  with_host_sh make -j$(nproc) SHELL=/bin/bash
+  with_host_sh make SHELL=/bin/bash
 
   cp -v perl cpan/podlators/scripts/pod2man /tools/bin
   mkdir -pv /tools/lib/perl5/5.28.1
@@ -749,7 +749,7 @@ build_python() {
 
   ./configure --prefix=/tools --enable-shared --without-ensurepip
 
-  make -j$(nproc)
+  make
   make install
 
   cd ..
@@ -765,7 +765,7 @@ build_sed() {
 
   ./configure --prefix=/tools
 
-  make -j$(nproc)
+  make
   make install
 
   cd ..
@@ -781,7 +781,7 @@ build_tar() {
 
   ./configure --prefix=/tools
 
-  make -j$(nproc)
+  make
   make install
 
   cd ..
@@ -797,7 +797,7 @@ build_texinfo() {
 
   ./configure --prefix=/tools
 
-  make -j$(nproc)
+  make
   make install
 
   cd ..
@@ -813,7 +813,7 @@ build_xz() {
 
   ./configure --prefix=/tools
 
-  make -j$(nproc)
+  make
   make install
 
   cd ..

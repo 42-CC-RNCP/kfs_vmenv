@@ -19,6 +19,17 @@ run_step() {
   echo "✅ DONE $name"
 }
 
+debug_toolchain_snapshot() {
+  echo "=== SNAPSHOT ==="
+  echo "PATH=$PATH"
+  echo "MAKEFLAGS=${MAKEFLAGS:-}"
+  type -a gcc ld as ar ranlib make || true
+  ls -1 /tools/bin/*-ar 2>/dev/null | head -n 5 || true
+  ls -1 /tools/bin/*-as 2>/dev/null | head -n 5 || true
+  ls -1 /tools/bin/*-ld 2>/dev/null | head -n 5 || true
+  echo "==============="
+}
+
 ensure_binutils_symlinks() {
   local tgt="${LFS_TGT:-}"
 
@@ -1867,7 +1878,8 @@ clean_up() {
 # ===== execute in order (rerunnable) =====
 echo "🚀 Starting ch6 build process"
 
-ensure_binutils_symlinks
+# ensure_binutils_symlinks
+debug_toolchain_snapshot
 run_step dirs          create_dirs
 run_step symlinks      create_symlinks
 run_step passwd_group  create_passwd_group

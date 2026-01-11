@@ -47,7 +47,7 @@ declare -A STEPS=(
   [link_tools]="./scripts/link_tools.sh"
   [build_temp_toolchain]="sudo -u lfs env -i HOME=/home/lfs TERM=\"$TERM\" \
     LFS=\"$LFS\" LFS_TGT=\"$LFS_TGT\" BASEDIR=\"$BASEDIR\" BUILD_DIR=\"$BUILD_DIR\" \
-    PATH=\"/tools/bin:/usr/bin:/bin\" \
+    PATH=\"/tools/bin:/bin:/usr/bin\" \
     /bin/bash ./scripts/build_temp_toolchain.sh"
   [finalize_tools_owner]="chown -R root:root \"$LFS/tools\""
   [mount_lfs]="./scripts/mount_lfs.sh"
@@ -87,21 +87,41 @@ run_step() {
     local inside_script="${cmd#chroot_exec }"
     local inside_path="/scripts/$(basename "$inside_script")"
 
+    use_revised=0
     if [[ -f "$LFS/etc/.revised-chroot" ]]; then
+      if [[ -x "$LFS/usr/bin/env" && -x "$LFS/bin/bash" ]]; then
+        use_revised=1
+      else
+        echo -e "${YELLOW}⚠️  .revised-chroot exists but /usr/bin/env or /bin/bash missing. Falling back to legacy chroot.${NC}"
+        use_revised=0
+      fi
+    fi
+
+    if (( use_revised )); then
       # revised chroot (after 6.80)
-      chroot "$LFS" /usr/bin/env -i \
+      if ! chroot "$LFS" /usr/bin/env -i MAKEFLAGS=-j$(nproc) \
           HOME=/root TERM="$TERM" \
           PS1='(lfs chroot) \u:\w\$ ' \
           PATH=/bin:/usr/bin:/sbin:/usr/sbin \
+          LC_ALL=POSIX \
           /bin/bash --login "$inside_path"
+      then
+        echo -e "${RED}❌ Step '$name' failed inside revised chroot. Aborting.${NC}"
+        exit 1
+      fi
     else
       # legacy chroot (chapter 6 build)
-      chroot "$LFS" /tools/bin/env -i \
+      if ! chroot "$LFS" /tools/bin/env -i MAKEFLAGS=-j$(nproc) \
           LFS_TGT="$LFS_TGT" \
           HOME=/root TERM="$TERM" \
           PS1='(lfs chroot) \u:\w\$ ' \
           PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin \
+          LC_ALL=POSIX \
           /tools/bin/bash --login +h "$inside_path"
+      then
+        echo -e "${RED}❌ Step '$name' failed inside legacy chroot. Aborting.${NC}"
+        exit 1
+      fi
     fi
 
   else

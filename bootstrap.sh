@@ -40,9 +40,7 @@ env | grep -E '^(ARCH|HOST|BASEDIR|KERNEL_VERSION|KERNEL_URL|KERNEL_NAME|BUILD_D
 declare -A STEPS=(
   [cleanup]="WIPE_LFS_TOOLS=1 ./scripts/cleanup.sh"
   [create_disk]="./scripts/create_disk.sh"
-  [install_rootfs]="./scripts/install_rootfs.sh"
-  [build_kernel]="./scripts/build_kernel.sh"
-  [setup_bootloader]="./scripts/setup_bootloader.sh"
+  # [install_rootfs]="./scripts/install_rootfs.sh"
   [init_lfs]="./scripts/init_lfs.sh"
   [link_tools]="./scripts/link_tools.sh"
   [build_temp_toolchain]="sudo -u lfs env -i HOME=/home/lfs TERM=\"$TERM\" MAKEFLAGS=\"-j$(nproc)\" \
@@ -54,7 +52,9 @@ declare -A STEPS=(
   [build_lfs_toolchain]="chroot_exec ./scripts/build_lfs_toolchain.sh"
   [install_bootscripts]="chroot_exec ./scripts/install_bootscripts.sh"
   [config_system]="chroot_exec ./scripts/config_system.sh"
-  [unmount_lfs]="./scripts/unmount_lfs.sh"
+  # [unmount_lfs]="./scripts/unmount_lfs.sh"
+  [build_kernel]="./scripts/build_kernel.sh"
+  [setup_bootloader]="./scripts/setup_bootloader.sh"
   [boot_test]="./scripts/boot_test.sh"
 )
 

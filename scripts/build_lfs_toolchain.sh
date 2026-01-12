@@ -211,8 +211,18 @@ build_glibc() {
     x86_64) ln -sfnv $PWD/elf/ld-linux-x86-64.so.2 /lib ;;
   esac
 
+  set +e
   make -k check 2>&1 | tee glibc-check.log
+  set -e
   grep -E "^(FAIL|UNSUPPORTED|ERROR):" tests.sum | tee glibc-fail.list
+  unexpected="$(grep -E '^FAIL:' tests.sum \
+    | grep -Ev 'FAIL: (misc/tst-ttyname|inet/tst-idna_name_classify)' || true)"
+  if [ -n "$unexpected" ]; then
+    echo "❌ ERROR: glibc tests failed unexpectedly:"
+    echo "$unexpected"
+    exit 1
+  fi
+
   touch /etc/ld.so.conf
   sed '/test-installation/s@$(PERL)@echo not running@' -i ../Makefile
   make install

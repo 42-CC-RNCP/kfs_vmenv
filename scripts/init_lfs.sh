@@ -60,6 +60,14 @@ echo "⬇️  Downloading LFS toolchain sources (abort on first failure) ..."
 while IFS= read -r url; do
   [[ -z "$url" || "$url" =~ ^[[:space:]]*# ]] && continue
 
+  fname="$(basename "${url%%\?*}")"
+  dest="$LFS/sources/$fname"
+
+  if [[ -s "$dest" ]]; then
+    echo "   -> (skip, exists) $fname"
+    continue
+  fi
+
   echo "   -> $url"
   wget --timestamping \
        --no-hsts \

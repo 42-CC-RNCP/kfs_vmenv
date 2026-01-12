@@ -8,6 +8,12 @@ EFI_MNT="$BOOT_MNT/efi"  # Only for ARM64
 
 echo "🧭 Detected architecture: $ARCH"
 
+if [[ -f "$IMAGE" && "${FORCE_RECREATE_IMAGE:-0}" != "1" ]]; then
+  echo "⚠️  Image already exists: $IMAGE"
+  echo "    Refusing to recreate. Set FORCE_RECREATE_IMAGE=1 if you REALLY want to wipe it."
+  exit 0
+fi
+
 # === Create Sparse Disk ===
 echo "💾 Creating sparse $IMAGE_SIZE image..."
 dd if=/dev/zero of="$IMAGE" bs=1M count=0 seek=$(( $(echo "$IMAGE_SIZE" | tr -d 'G') * 1024 ))

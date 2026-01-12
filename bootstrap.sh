@@ -45,7 +45,7 @@ declare -A STEPS=(
   [setup_bootloader]="./scripts/setup_bootloader.sh"
   [init_lfs]="./scripts/init_lfs.sh"
   [link_tools]="./scripts/link_tools.sh"
-  [build_temp_toolchain]="sudo -u lfs env -i HOME=/home/lfs TERM=\"$TERM\" \
+  [build_temp_toolchain]="sudo -u lfs env -i HOME=/home/lfs TERM=\"$TERM\" MAKEFLAGS=\"-j$(nproc)\" \
     LFS=\"$LFS\" LFS_TGT=\"$LFS_TGT\" BASEDIR=\"$BASEDIR\" BUILD_DIR=\"$BUILD_DIR\" \
     PATH=\"/tools/bin:/bin:/usr/bin\" \
     /bin/bash ./scripts/build_temp_toolchain.sh"

@@ -43,7 +43,7 @@ declare -A STEPS=(
   # [install_rootfs]="./scripts/install_rootfs.sh"
   [init_lfs]="./scripts/init_lfs.sh"
   [link_tools]="./scripts/link_tools.sh"
-  [build_temp_toolchain]="sudo -u lfs env -i HOME=/home/lfs TERM=\"$TERM\" MAKEFLAGS=\"-j$(nproc)\" \
+  [build_temp_toolchain]="sudo -u lfs env -i HOME=/home/lfs TERM=\"$TERM\" \
     LFS=\"$LFS\" LFS_TGT=\"$LFS_TGT\" BASEDIR=\"$BASEDIR\" BUILD_DIR=\"$BUILD_DIR\" \
     PATH=\"/tools/bin:/bin:/usr/bin\" \
     /bin/bash ./scripts/build_temp_toolchain.sh"
@@ -99,7 +99,7 @@ run_step() {
 
     if (( use_revised )); then
       # revised chroot (after 6.80)
-      if ! chroot "$LFS" /usr/bin/env -i MAKEFLAGS=-j$(nproc) \
+      if ! chroot "$LFS" /usr/bin/env -i \
           HOME=/root TERM="$TERM" \
           PS1='(lfs chroot) \u:\w\$ ' \
           PATH=/bin:/usr/bin:/sbin:/usr/sbin \
@@ -111,7 +111,7 @@ run_step() {
       fi
     else
       # legacy chroot (chapter 6 build)
-      if ! chroot "$LFS" /tools/bin/env -i MAKEFLAGS=-j$(nproc) \
+      if ! chroot "$LFS" /tools/bin/env -i \
           LFS_TGT="$LFS_TGT" \
           HOME=/root TERM="$TERM" \
           PS1='(lfs chroot) \u:\w\$ ' \

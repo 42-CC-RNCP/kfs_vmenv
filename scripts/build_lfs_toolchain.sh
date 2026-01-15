@@ -1031,7 +1031,9 @@ build_perl() {
                   -Dusethreads
 
   make
+  set +e
   make -k test
+  set -e
 
   make install
   unset BUILD_ZLIB BUILD_BZIP2

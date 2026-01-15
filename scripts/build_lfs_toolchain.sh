@@ -1264,8 +1264,8 @@ build_python() {
 
   make
   make install
-  chmod -v 755 /`usr/lib/libpython3.7m.so
-  chmod -v 755 /usr/lib/libpython3.so`
+  chmod -v 755 /usr/lib/libpython3.7m.so
+  chmod -v 755 /usr/lib/libpython3.so
 
   install -v -dm755 /usr/share/doc/python-3.7.2/html
 

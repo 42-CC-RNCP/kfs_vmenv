@@ -1192,9 +1192,6 @@ build_elfutils() {
   tar -xf elfutils-*.tar.*
   cd elfutils-*/
 
-  mkdir -v build
-  cd       build
-
   ./configure --prefix=/usr
 
   make

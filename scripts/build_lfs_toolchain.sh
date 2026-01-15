@@ -1435,7 +1435,7 @@ build_groff() {
   tar -xf groff-*.tar.*
   cd groff-*/
 
-  PAGE=<paper_size> ./configure --prefix=/usr
+  PAGE=A4 ./configure --prefix=/usr
 
   make -j1
   make install

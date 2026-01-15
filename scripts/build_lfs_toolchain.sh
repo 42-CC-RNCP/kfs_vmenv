@@ -906,8 +906,6 @@ build_bash() {
   make install
   mv -vf /usr/bin/bash /bin
 
-  hash -r
-
   cd /sources
   rm -rf bash-*/
 }

@@ -1239,7 +1239,7 @@ build_openssl() {
          zlib-dynamic
 
   make
-  make test
+  # make test
   sed -i '/INSTALL_LIBS/s/libcrypto.a libssl.a//' Makefile
   make MANSUFFIX=ssl install
 

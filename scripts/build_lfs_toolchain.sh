@@ -1661,7 +1661,7 @@ build_vim() {
   echo "🔧 Building vim ch6.71"
   rm -rf vim-*/ || true
   tar -xf vim-*.tar.*
-  cd vim-*/
+  cd vim*/
 
   echo '#define SYS_VIMRC_FILE "/etc/vimrc"' >> src/feature.h
 

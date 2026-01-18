@@ -1,12 +1,8 @@
 #!/bin/bash
-# scripts/create_disk.sh
+# scripts/create_disk.sh - BIOS/MBR version for x86_64
 set -e
 
-ARCH=$(uname -m)
-
-EFI_MNT="$BOOT_MNT/efi"  # Only for ARM64
-
-echo "🧭 Detected architecture: $ARCH"
+echo "🧭 Architecture: x86_64 (BIOS/MBR)"
 
 if [[ -f "$IMAGE" && "${FORCE_RECREATE_IMAGE:-0}" != "1" ]]; then
   echo "⚠️  Image already exists: $IMAGE"
@@ -23,71 +19,95 @@ echo "🔁 Attaching loop device..."
 LOOPDEV=$(sudo losetup --find --partscan --show "$IMAGE")
 echo "→ Using loop device: $LOOPDEV"
 
-# === Partitioning ===
-echo "📐 Partitioning the image..."
-if [[ "$ARCH" == "x86_64" ]]; then
-  sudo parted -s "$LOOPDEV" mklabel msdos
-  sudo parted -s "$LOOPDEV" mkpart primary ext2 1MiB 513MiB
-  sudo parted -s "$LOOPDEV" mkpart primary ext4 513MiB 18705MiB
-  sudo parted -s "$LOOPDEV" mkpart primary linux-swap 18705MiB 100%
-  BOOT_FS="ext2"
-  BOOT_LABEL="boot"
-elif [[ "$ARCH" == "aarch64" || "$ARCH" == "arm64" ]]; then
-  sudo parted -s "$LOOPDEV" mklabel gpt
-  sudo parted -s "$LOOPDEV" mkpart ESP fat32 1MiB 513MiB
-  sudo parted -s "$LOOPDEV" set 1 boot on
-  sudo parted -s "$LOOPDEV" mkpart primary ext4 513MiB 18705MiB
-  sudo parted -s "$LOOPDEV" mkpart primary linux-swap 18705MiB 100%
-  BOOT_FS="vfat"
-  BOOT_LABEL="EFI"
-else
-  echo "❌ Unsupported architecture: $ARCH"
-  sudo losetup -d "$LOOPDEV"
-  exit 1
-fi
+# === Partitioning (MBR/BIOS) ===
+echo "📐 Partitioning with MBR..."
+sudo parted -s "$LOOPDEV" mklabel msdos
+sudo parted -s "$LOOPDEV" mkpart primary ext4 1MiB 513MiB
+sudo parted -s "$LOOPDEV" mkpart primary ext4 513MiB 18705MiB
+sudo parted -s "$LOOPDEV" mkpart primary linux-swap 18705MiB 100%
+sudo parted -s "$LOOPDEV" set 1 boot on
 
 # === Refresh partitions ===
 echo "📡 Refreshing partition table..."
 sudo partprobe "$LOOPDEV"
+sleep 2
 
 # === Setup partition variables ===
 BOOT_PART="${LOOPDEV}p1"
 ROOT_PART="${LOOPDEV}p2"
 SWAP_PART="${LOOPDEV}p3"
 
+# === Verify partitions exist ===
+if [[ ! -b "$ROOT_PART" ]]; then
+  echo "❌ Root partition not found: $ROOT_PART"
+  sudo losetup -d "$LOOPDEV"
+  exit 1
+fi
+
 # === Format partitions ===
 echo "🧼 Formatting partitions..."
-if [[ "$BOOT_FS" == "ext2" ]]; then
-  sudo mkfs.ext2 -L "$BOOT_LABEL" "$BOOT_PART"
-else
-  sudo mkfs.vfat -F32 -n "$BOOT_LABEL" "$BOOT_PART"
-fi
-sudo mkfs.ext4 -I 256 -L root "$ROOT_PART"
+sudo mkfs.ext4 -L boot "$BOOT_PART"
+sudo mkfs.ext4 -L root "$ROOT_PART"
 sudo mkswap -L swap "$SWAP_PART"
 
 # === Mount partitions ===
 echo "🔗 Mounting partitions..."
+
+# 1. mount root partition
 sudo mkdir -p "$ROOT_MNT"
 sudo mount "$ROOT_PART" "$ROOT_MNT"
 
-if [[ "$ARCH" == "x86_64" ]]; then
-  sudo mkdir -p "$BOOT_MNT"
-  sudo mount "$BOOT_PART" "$BOOT_MNT"
-else
-  sudo mkdir -p "$EFI_MNT"
-  sudo mount "$BOOT_PART" "$EFI_MNT"
-fi
+# 2. mount boot partition
+sudo mkdir -p "$ROOT_MNT/boot"
+sudo mount "$BOOT_PART" "$ROOT_MNT/boot"
 
+# 3. activate swap
 sudo swapon "$SWAP_PART"
 
+# === Create basic directory structure ===
+echo "📁 Creating basic directory structure..."
+sudo mkdir -p "$ROOT_MNT"/{dev,proc,sys,run,tmp}
+sudo mkdir -p "$ROOT_MNT"/{bin,sbin,lib,lib64}
+sudo mkdir -p "$ROOT_MNT"/{usr,var,etc,home,root}
+sudo mkdir -p "$ROOT_MNT"/usr/{bin,sbin,lib,lib64,local,share,include}
+sudo mkdir -p "$ROOT_MNT"/var/{log,tmp,cache,lib}
+
+# === Set permissions for tmp directories ===
+sudo chmod 1777 "$ROOT_MNT/tmp"
+sudo chmod 1777 "$ROOT_MNT/var/tmp"
+
+# === Create disk info file ===
+sudo tee "$ROOT_MNT/.disk_info" > /dev/null << EOF
+LOOPDEV=$LOOPDEV
+BOOT_PART=$BOOT_PART
+ROOT_PART=$ROOT_PART
+SWAP_PART=$SWAP_PART
+ARCH=x86_64
+FIRMWARE=BIOS
+EOF
+
 # === Show Results ===
-echo "✅ Partitioning and mounting complete!"
-echo
-echo "🔍 lsblk:"
-lsblk -f | grep "$(basename "$LOOPDEV")"
-echo
-echo "💽 df -h:"
-df -h | grep "$MNT_ROOT"
-echo
-echo "💤 swapon -s:"
-swapon -s
+echo ""
+echo "✅ Disk creation complete!"
+echo ""
+echo "🔍 Partition layout:"
+sudo fdisk -l "$LOOPDEV"
+
+echo ""
+echo "🔍 Block devices:"
+lsblk "$LOOPDEV"
+
+echo ""
+echo "💽 Mounted filesystems:"
+df -h | grep "$ROOT_MNT"
+
+echo ""
+echo "💤 Swap status:"
+swapon --show
+
+echo ""
+echo "📋 Summary:"
+echo "   Loop device: $LOOPDEV"
+echo "   Boot (p1):   $BOOT_PART → $ROOT_MNT/boot (512MB, ext4)"
+echo "   Root (p2):   $ROOT_PART → $ROOT_MNT (18GB, ext4)"
+echo "   Swap (p3):   $SWAP_PART (active)"

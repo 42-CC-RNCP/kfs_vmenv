@@ -16,13 +16,15 @@ fi
 : "${HOST:?HOST is not set}"
 : "${BOOT_MNT:?BOOT_MNT is not set}"
 
-KERNEL_TARBALL="/tmp/${KERNEL_NAME}.tar.xz"
+cd /sources
+
+KERNEL_TARBALL="${KERNEL_NAME}.tar.xz"
 BOOT_DIR="${BOOT_MNT}"
 
-echo "📦 Downloading kernel ${KERNEL_VERSION}..."
-mkdir -p /tmp
-cd /tmp
-wget -c -O "$KERNEL_TARBALL" "$KERNEL_URL"
+if [[ ! -f "$KERNEL_TARBALL" ]]; then
+  echo "📦 Downloading kernel ${KERNEL_VERSION}..."
+  wget -c "${KERNEL_URL}/${KERNEL_TARBALL}"
+fi
 
 echo "🧹 Preparing kernel source tree..."
 rm -rf "$BUILD_DIR"
@@ -36,33 +38,36 @@ if [[ -f "$BASEDIR/config/kernel.config" ]]; then
   cp -v "$BASEDIR/config/kernel.config" .config
   make olddefconfig
 else
-  make defconfig
+  echo "❗ No kernel config found at $BASEDIR/config/kernel.config"
+  echo "   Please provide a valid kernel config file."
+  exit 1
 fi
 
 echo "⚙️  Building kernel (bzImage + modules)..."
 make -j"$(nproc)"
 
-echo "📦 Installing modules into LFS rootfs..."
-make modules_install INSTALL_MOD_PATH="$LFS"
+echo "📦 Installing modules..."
+make modules_install
 
-echo "📁 Installing kernel files into LFS /boot..."
-mkdir -pv "$BOOT_DIR"
+echo "📁 Installing kernel files to /boot..."
+cp -iv arch/x86/boot/bzImage "/boot/vmlinuz-${KERNEL_VERSION}-${LFS_VERSION}"
+cp -iv System.map "/boot/System.map-${KERNEL_VERSION}"
+cp -iv .config "/boot/config-${KERNEL_VERSION}"
 
-cp -iv arch/x86/boot/bzImage "$BOOT_DIR/vmlinuz-${KERNEL_VERSION}-${HOST}"
+echo "📄 Installing kernel documentation..."
+install -d "/usr/share/doc/linux-${KERNEL_VERSION}"
+cp -r Documentation/* "/usr/share/doc/linux-${KERNEL_VERSION}/"
 
-cp -iv System.map "$BOOT_DIR/System.map-${KERNEL_VERSION}"
-cp -iv .config    "$BOOT_DIR/config-${KERNEL_VERSION}"
+echo "🔒 Setting ownership of kernel source tree..."
+cd /sources
+chown -R 0:0 "$KERNEL_NAME"
 
-# echo "📄 (Optional) Installing kernel docs into LFS..."
-# install -dv "${LFS}/usr/share/doc/linux-${KERNEL_VERSION}"
-# cp -r Documentation/* "${LFS}/usr/share/doc/linux-${KERNEL_VERSION}/"
-
-echo "📄 Copying kernel tarball into LFS sources..."
-mkdir -p "${LFS}/sources"
-cp -v "$KERNEL_TARBALL" "${LFS}/sources/"
-
-echo "✅ Kernel build & install completed."
-echo "   - Kernel:  ${BOOT_DIR}/vmlinuz-${KERNEL_VERSION}-${HOST}"
-echo "   - Map:     ${BOOT_DIR}/System.map-${KERNEL_VERSION}"
-echo "   - Config:  ${BOOT_DIR}/config-${KERNEL_VERSION}"
-echo "   - Modules: ${LFS}/lib/modules/"
+echo "✅ Kernel build completed successfully!"
+echo ""
+echo "Installed files:"
+echo "  - Kernel: /boot/vmlinuz-${KERNEL_VERSION}-${LFS_VERSION}"
+echo "  - Map:    /boot/System.map-${KERNEL_VERSION}"
+echo "  - Config: /boot/config-${KERNEL_VERSION}"
+echo "  - Modules: /lib/modules/${KERNEL_VERSION}"
+echo ""
+echo "Next step: Install GRUB bootloader"

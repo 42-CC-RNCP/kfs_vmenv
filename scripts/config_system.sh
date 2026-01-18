@@ -109,6 +109,7 @@ echo "[7.5] Writing /etc/hostname = ${HOSTNAME_VALUE}"
 echo "${HOSTNAME_VALUE}" > /etc/hostname
 
 echo "[7.5] Writing /etc/hosts"
+cat > /etc/hosts << "EOF"
 # Begin /etc/hosts
 
 127.0.0.1 localhost

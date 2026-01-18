@@ -5,6 +5,10 @@ set -e
 mkdir -pv "$LFS"/{dev,proc,sys,run,tools,sources,scripts}
 mkdir -pv "$LFS/dev/pts"
 
+# custom config mount
+mkdir -p "$LFS/host/config"
+mount --bind "$BASEDIR/config" "$LFS/host/config"
+
 echo "📦 Downloading kernel $KERNEL_VERSION..."
 wget --timestamping \
        --no-hsts \

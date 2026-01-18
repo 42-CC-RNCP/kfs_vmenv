@@ -7,14 +7,14 @@ if [[ "$ARCH" != "x86_64" ]]; then
   exit 1
 fi
 
-: "${BASEDIR:?BASEDIR is not set}"
-: "${KERNEL_VERSION:?KERNEL_VERSION is not set}"
 : "${KERNEL_URL:?KERNEL_URL is not set}"
+: "${KERNEL_VERSION:?KERNEL_VERSION is not set}"
 : "${KERNEL_NAME:?KERNEL_NAME is not set}"
 
-cd /sources
-
+CONFIGDIR="/host/config"
 KERNEL_TARBALL="${KERNEL_NAME}.tar.xz"
+
+cd /sources
 
 if [[ ! -f "$KERNEL_TARBALL" ]]; then
   echo "📦 Downloading kernel ${KERNEL_VERSION}..."
@@ -29,11 +29,11 @@ cd "$KERNEL_NAME"
 make mrproper
 
 echo "🛠️  Configuring kernel..."
-if [[ -f "$BASEDIR/config/kernel.config" ]]; then
-  cp -v "$BASEDIR/config/kernel.config" .config
+if [[ -f "$CONFIGDIR/kernel.config" ]]; then
+  cp -v "$CONFIGDIR/kernel.config" .config
   make olddefconfig
 else
-  echo "❗ No kernel config found at $BASEDIR/config/kernel.config"
+  echo "❗ No kernel config found at $CONFIGDIR/kernel.config"
   echo "   Please provide a valid kernel config file."
   exit 1
 fi
@@ -45,9 +45,9 @@ echo "📦 Installing modules..."
 make modules_install
 
 echo "📁 Installing kernel files to /boot..."
-cp -iv arch/x86/boot/bzImage "/boot/vmlinuz-${KERNEL_VERSION}-${STUDENT_NAME}"
-cp -iv System.map "/boot/System.map-${KERNEL_VERSION}"
-cp -iv .config "/boot/config-${KERNEL_VERSION}"
+cp -ivf arch/x86/boot/bzImage "/boot/vmlinuz-${KERNEL_VERSION}-${STUDENT_NAME}"
+cp -ivf System.map "/boot/System.map-${KERNEL_VERSION}"
+cp -ivf .config "/boot/config-${KERNEL_VERSION}"
 
 echo "📄 Installing kernel documentation..."
 install -d "/usr/share/doc/linux-${KERNEL_VERSION}"

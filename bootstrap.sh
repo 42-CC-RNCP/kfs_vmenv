@@ -100,6 +100,8 @@ run_step() {
     if (( use_revised )); then
       # revised chroot (after 6.80)
       if ! chroot "$LFS" /usr/bin/env -i \
+          KERNEL_VERSION="$KERNEL_VERSION" \
+          STUDENT_NAME="lyeh" \
           HOME=/root TERM="$TERM" \
           PS1='(lfs chroot) \u:\w\$ ' \
           PATH=/bin:/usr/bin:/sbin:/usr/sbin \

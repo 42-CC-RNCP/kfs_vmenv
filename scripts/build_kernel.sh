@@ -11,15 +11,10 @@ fi
 : "${KERNEL_VERSION:?KERNEL_VERSION is not set}"
 : "${KERNEL_URL:?KERNEL_URL is not set}"
 : "${KERNEL_NAME:?KERNEL_NAME is not set}"
-: "${BUILD_DIR:?BUILD_DIR is not set}"
-: "${LFS:?LFS is not set}"
-: "${HOST:?HOST is not set}"
-: "${BOOT_MNT:?BOOT_MNT is not set}"
 
 cd /sources
 
 KERNEL_TARBALL="${KERNEL_NAME}.tar.xz"
-BOOT_DIR="${BOOT_MNT}"
 
 if [[ ! -f "$KERNEL_TARBALL" ]]; then
   echo "📦 Downloading kernel ${KERNEL_VERSION}..."
@@ -27,9 +22,9 @@ if [[ ! -f "$KERNEL_TARBALL" ]]; then
 fi
 
 echo "🧹 Preparing kernel source tree..."
-rm -rf "$BUILD_DIR"
+rm -rf "$KERNEL_TARBALL/"
 tar -xf "$KERNEL_TARBALL"
-cd "$BUILD_DIR"
+cd "$KERNEL_NAME"
 
 make mrproper
 
@@ -50,7 +45,7 @@ echo "📦 Installing modules..."
 make modules_install
 
 echo "📁 Installing kernel files to /boot..."
-cp -iv arch/x86/boot/bzImage "/boot/vmlinuz-${KERNEL_VERSION}-${LFS_VERSION}"
+cp -iv arch/x86/boot/bzImage "/boot/vmlinuz-${KERNEL_VERSION}-${STUDENT_NAME}"
 cp -iv System.map "/boot/System.map-${KERNEL_VERSION}"
 cp -iv .config "/boot/config-${KERNEL_VERSION}"
 
@@ -65,7 +60,7 @@ chown -R 0:0 "$KERNEL_NAME"
 echo "✅ Kernel build completed successfully!"
 echo ""
 echo "Installed files:"
-echo "  - Kernel: /boot/vmlinuz-${KERNEL_VERSION}-${LFS_VERSION}"
+echo "  - Kernel: /boot/vmlinuz-${KERNEL_VERSION}-${STUDENT_NAME}"
 echo "  - Map:    /boot/System.map-${KERNEL_VERSION}"
 echo "  - Config: /boot/config-${KERNEL_VERSION}"
 echo "  - Modules: /lib/modules/${KERNEL_VERSION}"

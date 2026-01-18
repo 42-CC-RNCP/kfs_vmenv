@@ -54,7 +54,7 @@ declare -A STEPS=(
   [config_system]="chroot_exec ./scripts/config_system.sh"
   # [unmount_lfs]="./scripts/unmount_lfs.sh"
   [build_kernel]="./scripts/build_kernel.sh"
-  [setup_bootloader]="./scripts/setup_bootloader.sh"
+  [setup_bootloader]="chroot_exec ./scripts/setup_bootloader.sh"
   [boot_test]="./scripts/boot_test.sh"
 )
 

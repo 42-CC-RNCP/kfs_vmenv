@@ -16,8 +16,8 @@ set timeout=5
 insmod ext2
 set root=(hd0,2)
 
-menuentry "GNU/Linux, Linux 4.20.12-lfs-8.4" {
-        linux   /boot/vmlinuz-4.20.12-lfs-8.4 root=/dev/sda2 ro
+menuentry "GNU/Linux, Linux 4.20.12-lyeh" {
+        linux   /boot/vmlinuz-4.20.12-lyeh root=/dev/sda2 ro
 }
 EOF
 

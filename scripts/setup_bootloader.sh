@@ -17,7 +17,7 @@ insmod ext2
 set root=(hd0,1)
 
 menuentry "GNU/Linux, Linux 4.20.12-lyeh" {
-        linux   /vmlinuz-4.20.12-lyeh root=/dev/sda2 ro
+        linux   /vmlinuz-4.20.12-lyeh root=/dev/sda2 rw console=ttyS0,115200 debug loglevel=7
 }
 EOF
 

@@ -40,7 +40,6 @@ env | grep -E '^(ARCH|HOST|BASEDIR|KERNEL_VERSION|KERNEL_URL|KERNEL_NAME|BUILD_D
 declare -A STEPS=(
   [cleanup]="WIPE_LFS_TOOLS=1 ./scripts/cleanup.sh"
   [create_disk]="./scripts/create_disk.sh"
-  # [install_rootfs]="./scripts/install_rootfs.sh"
   [init_lfs]="./scripts/init_lfs.sh"
   [link_tools]="./scripts/link_tools.sh"
   [build_temp_toolchain]="sudo -u lfs env -i HOME=/home/lfs TERM=\"$TERM\" \
@@ -71,7 +70,7 @@ STEP_ORDER=(
   config_system         # ch7: Configure the system
   build_kernel          # ch8: Build the Linux kernel
   setup_bootloader      # ch8: Setup the bootloader
-  boot_test             # ch9: Test booting into the new system
+  boot_test             # optional: Test booting into the new system
 )
 
 # ----------------------------

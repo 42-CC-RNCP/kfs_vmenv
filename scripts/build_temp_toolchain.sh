@@ -217,8 +217,6 @@ build_linux_headers() {
   cd linux-*/
 
   make mrproper
-  cp -v "$BASEDIR/config/kernel.config" .config
-  make olddefconfig
 
   rm -fv dest
   make INSTALL_HDR_PATH=dest headers_install

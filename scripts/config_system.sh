@@ -235,7 +235,7 @@ cat > /etc/fstab << "EOF"
 # file system   mount-point  type     options             dump  fsck
 LABEL=root      /            ext4     defaults            1     1
 LABEL=swap      swap         swap     pri=1               0     0
-LABEL=boot      /boot        ext2     defaults            1     2
+LABEL=boot      /boot        ext4     defaults            1     2
 
 proc            /proc        proc     nosuid,noexec,nodev 0     0
 sysfs           /sys         sysfs    nosuid,noexec,nodev 0     0

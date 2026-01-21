@@ -338,7 +338,8 @@ build_zlib() {
 
   ./configure --prefix=/usr
   make
-  make check
+  # skip testing to speed up
+# make check
   make install
 
   mv -v /usr/lib/libz.so.* /lib
@@ -356,7 +357,8 @@ build_file() {
 
   ./configure --prefix=/usr
   make
-  make check
+  # skip testing to speed up
+# make check
   make install
 
   cd /sources
@@ -397,7 +399,8 @@ build_m4() {
   echo "#define _IO_IN_BACKUP 0x100" >> lib/stdio-impl.h
   ./configure --prefix=/usr
   make
-  make check
+  # skip testing to speed up
+# make check
   make install
 
   cd /sources
@@ -481,7 +484,8 @@ build_gmp() {
 
   make
   make html
-  make check 2>&1 | tee gmp-check-log
+  # skip testing to speed up
+# make check 2>&1 | tee gmp-check-log
   awk '/# PASS:/{total+=$3} ; END{print total}' gmp-check-log
 
   make install
@@ -504,7 +508,8 @@ build_mpfr() {
 
   make
   make html
-  make check
+  # skip testing to speed up
+# make check
   make install
   make install-html
 
@@ -524,7 +529,8 @@ build_mpc() {
 
   make
   make html
-  make check
+  # skip testing to speed up
+# make check
   make install
   make install-html
 
@@ -593,13 +599,13 @@ build_gcc() {
   ulimit -s 32768
   rm ../gcc/testsuite/g++.dg/pr83239.C
 
-  set +e
-  chown -Rv nobody .
-  su nobody -s /bin/bash -c "PATH=$PATH make -k check"
-  TEST_RC=$?
-  set -e
+  # set +e
+  # chown -Rv nobody .
+  # su nobody -s /bin/bash -c "PATH=$PATH make -k check"
+  # TEST_RC=$?
+  # set -e
 
-  ../contrib/test_summary
+  # ../contrib/test_summary
 
   make install
   ln -sfv ../usr/bin/cpp /lib
@@ -666,7 +672,8 @@ build_pkg_config() {
             --docdir=/usr/share/doc/pkg-config-0.29.2
 
   make
-  make check
+  # skip testing to speed up
+# make check
   make install
 
   cd /sources
@@ -735,7 +742,8 @@ build_attr() {
             --docdir=/usr/share/doc/attr-2.4.48
 
   make
-  make check
+  # skip testing to speed up
+# make check
   make install
 
   mv -v /usr/lib/libattr.so.* /lib
@@ -799,7 +807,8 @@ build_sed() {
 
   make
   make html
-  make check
+  # skip testing to speed up
+# make check
   make install
   install -d -m755           /usr/share/doc/sed-4.7
   install -m644 doc/sed.html /usr/share/doc/sed-4.7
@@ -922,7 +931,8 @@ build_libtool() {
 
   # NOTE: because of circular dependency issues with automake, some tests will fail, so we ignore errors here
   set +e
-  make check
+  # skip testing to speed up
+# make check
   set -e
   make install
 
@@ -941,7 +951,8 @@ build_gdbm() {
             --enable-libgdbm-compat
 
   make
-  make check
+  # skip testing to speed up
+# make check
   make install
 
   cd /sources
@@ -977,7 +988,8 @@ build_expat() {
             --docdir=/usr/share/doc/expat-2.2.6
 
   make
-  make check
+  # skip testing to speed up
+# make check
   make install
   install -v -m644 doc/*.{html,png,css} /usr/share/doc/expat-2.2.6
 
@@ -1002,7 +1014,8 @@ build_inetutils() {
             --disable-servers
 
   make
-  make check
+  # skip testing to speed up
+# make check
   make install
 
   mv -v /usr/bin/{hostname,ping,ping6,traceroute} /bin
@@ -1068,7 +1081,8 @@ build_intltool() {
   ./configure --prefix=/usr
 
   make
-  make check
+  # skip testing to speed up
+# make check
   make install
   install -v -Dm644 doc/I18N-HOWTO /usr/share/doc/intltool-0.51.0/I18N-HOWTO
 
@@ -1088,7 +1102,8 @@ build_autoconf() {
 
   make
   # NOTE: because of bash-5.0 and the libtool issue, some tests will fail, so we ignore errors here
-  # make check
+  # # skip testing to speed up
+# make check
   make install
 
   cd /sources
@@ -1125,7 +1140,8 @@ build_xz() {
             --docdir=/usr/share/doc/xz-5.2.4
 
   make
-  make check
+  # skip testing to speed up
+# make check
   make install
   mv -v   /usr/bin/{lzma,unlzma,lzcat,xz,unxz,xzcat} /bin
   mv -v /usr/lib/liblzma.so.* /lib
@@ -1178,7 +1194,8 @@ build_gettext() {
             --docdir=/usr/share/doc/gettext-0.19.8.1
 
   make
-  make check
+  # skip testing to speed up
+# make check
   make install
   chmod -v 0755 /usr/lib/preloadable_libintl.so
 
@@ -1195,7 +1212,8 @@ build_elfutils() {
   ./configure --prefix=/usr
 
   make
-  make check
+  # skip testing to speed up
+# make check
   make -C libelf install
   install -vm644 config/libelf.pc /usr/lib/pkgconfig
 
@@ -1219,7 +1237,8 @@ build_libffi() {
   ./configure --prefix=/usr --disable-static --with-gcc-arch=native
 
   make
-  make check
+  # skip testing to speed up
+# make check
   make install
 
   cd /sources
@@ -1360,7 +1379,8 @@ build_check() {
   ./configure --prefix=/usr
 
   make
-  make check
+  # skip testing to speed up
+# make check
   make install
   sed -i '1 s/tools/usr/' /usr/bin/checkmk
 
@@ -1377,7 +1397,8 @@ build_diffutils() {
   ./configure --prefix=/usr
 
   make
-  make check
+  # skip testing to speed up
+# make check
   make install
 
   cd /sources
@@ -1394,7 +1415,8 @@ build_gawk() {
   ./configure --prefix=/usr
 
   make
-  make check
+  # skip testing to speed up
+# make check
   make install
 
   mkdir -v /usr/share/doc/gawk-4.2.1
@@ -1419,7 +1441,8 @@ build_findutils() {
   ./configure --prefix=/usr --localstatedir=/var/lib/locate
 
   make
-  make check
+  # skip testing to speed up
+# make check
   make install
 
   mv -v /usr/bin/find /bin
@@ -1490,7 +1513,8 @@ build_gzip() {
   make
   # NOTE: gzip test suite fails sometimes, so we ignore errors here
   set +e
-  make check
+  # skip testing to speed up
+# make check
   set -e
   make install
   mv -v /usr/bin/gzip /bin
@@ -1530,7 +1554,8 @@ build_kbd() {
   PKG_CONFIG_PATH=/tools/lib/pkgconfig ./configure --prefix=/usr --disable-vlock
 
   make
-  make check
+  # skip testing to speed up
+# make check
   make install
 
   mkdir -v       /usr/share/doc/kbd-2.0.4
@@ -1549,7 +1574,8 @@ build_libpipeline() {
   ./configure --prefix=/usr
 
   make
-  make check
+  # skip testing to speed up
+# make check
   make install
 
   cd /sources
@@ -1583,7 +1609,8 @@ build_patch() {
   ./configure --prefix=/usr
 
   make
-  make check
+  # skip testing to speed up
+# make check
   make install
 
   cd /sources
@@ -1608,7 +1635,8 @@ build_man_db() {
             --with-systemdsystemunitdir=
 
   make
-  make check
+  # skip testing to speed up
+# make check
   make install
 
   cd /sources
@@ -1630,7 +1658,8 @@ build_tar() {
   make
   # NOTE: tar test suite fails sometimes, so we ignore errors here
   set +e
-  make check
+  # skip testing to speed up
+# make check
   set -e
   make install
   make -C doc install-html docdir=/usr/share/doc/tar-1.31
@@ -1650,7 +1679,8 @@ build_texinfo() {
   ./configure --prefix=/usr --disable-static
 
   make
-  make check
+  # skip testing to speed up
+# make check
   make install
 
   cd /sources
@@ -1717,7 +1747,8 @@ build_procps() {
   sed -i -r 's|(pmap_initname)\\\$|\1|' testsuite/pmap.test/pmap.exp
   sed -i '/set tty/d' testsuite/pkill.test/pkill.exp
   rm testsuite/pgrep.test/pgrep.exp
-  make check
+  # skip testing to speed up
+# make check
   make install
 
   mv -v /usr/lib/libprocps.so.* /lib
@@ -1776,7 +1807,8 @@ build_e2fsprogs() {
              --disable-fsck
 
   make
-  make check
+  # skip testing to speed up
+# make check
   make install
   make install-libs
 

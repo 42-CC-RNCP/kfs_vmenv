@@ -53,7 +53,8 @@ declare -A STEPS=(
   [config_system]="chroot_exec ./scripts/config_system.sh"
   # [unmount_lfs]="./scripts/unmount_lfs.sh"
   [build_kernel]="chroot_exec ./scripts/build_kernel.sh"
-  [setup_bootloader]="chroot_exec ./scripts/setup_bootloader.sh"
+  [config_bootloader]="chroot_exec ./scripts/config_bootloader.sh"
+  [install_grub]="./scripts/install_grub_to_img.sh"
   [boot_test]="./scripts/boot_test.sh"
 )
 
@@ -69,7 +70,8 @@ STEP_ORDER=(
   install_bootscripts   # ch7: Install boot scripts
   config_system         # ch7: Configure the system
   build_kernel          # ch8: Build the Linux kernel
-  setup_bootloader      # ch8: Setup the bootloader
+  config_bootloader     # ch8: Config the bootloader
+  install_grub          # ch8: Install GRUB to disk image
   boot_test             # optional: Test booting into the new system
 )
 

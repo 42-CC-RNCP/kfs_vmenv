@@ -2,11 +2,6 @@
 set -e
 
 # !!should be run in chroot environment
-
-echo "📝 Installing GRUB bootloader..."
-
-grub-install /dev/sda
-
 echo "📝 Creating GRUB configuration..."
 cat > /boot/grub/grub.cfg << "EOF"
 # Begin /boot/grub/grub.cfg
@@ -21,4 +16,4 @@ menuentry "GNU/Linux, Linux 4.20.12-lyeh" {
 }
 EOF
 
-echo "✅ GRUB installation complete!"
+echo "✅ GRUB configuration created."

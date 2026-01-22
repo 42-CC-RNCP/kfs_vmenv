@@ -154,6 +154,8 @@ su:S016:once:/sbin/sulogin
 5:2345:respawn:/sbin/agetty tty5 9600
 6:2345:respawn:/sbin/agetty tty6 9600
 
+s0:2345:respawn:/sbin/agetty -L ttyS0 115200 vt100
+
 # End /etc/inittab
 EOF
 
@@ -245,5 +247,7 @@ devtmpfs        /dev         devtmpfs mode=0755,nosuid    0     0
 
 # End /etc/fstab
 EOF
+
+echo "root:root" | chpasswd
 
 echo "[config_system] Done. Next: Chapter 8 (make system bootable)."

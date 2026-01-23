@@ -3,6 +3,7 @@ set -e
 
 # !!should be run in chroot environment
 echo "📝 Creating GRUB configuration..."
+mkdir -p /boot/grub
 cat > /boot/grub/grub.cfg << "EOF"
 # Begin /boot/grub/grub.cfg
 set default=0

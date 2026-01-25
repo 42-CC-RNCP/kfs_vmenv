@@ -49,6 +49,8 @@ declare -A STEPS=(
   [finalize_tools_owner]="chown -R root:root \"$LFS/tools\""
   [mount_lfs]="./scripts/mount_lfs.sh"
   [build_lfs_toolchain]="chroot_exec ./scripts/build_lfs_toolchain.sh"
+  [init_blfs]="./scripts/init_blfs.sh" # optional BLFS init step
+  [build_blfs]="chroot_exec ./scripts/build_blfs.sh" # optional BLFS build step
   [install_bootscripts]="chroot_exec ./scripts/install_bootscripts.sh"
   [config_system]="chroot_exec ./scripts/config_system.sh"
   # [unmount_lfs]="./scripts/unmount_lfs.sh"
@@ -72,7 +74,8 @@ STEP_ORDER=(
   build_kernel          # ch8: Build the Linux kernel
   config_bootloader     # ch8: Config the bootloader
   install_grub          # ch8: Install GRUB to disk image
-  boot_test             # optional: Test booting into the new system
+  init_blfs             # blfs: Initialize BLFS sources (optional)
+  build_blfs            # blfs: Build BLFS packages (optional)
 )
 
 # ----------------------------
